@@ -1,0 +1,16 @@
+- Argument shape and date format are validated before the clock is touched, so a call with malformed arguments has no effect at all.
+- For a well-formed dated call, the clock advances and hold expiry runs even if the member or book is unregistered or a business rule then fails, as §3.3 states.
+- getMember with a well-formed date but unregistered member still advances the clock and runs expiry, consistent with §3.3.
+- Dates are validated with setUTCFullYear so years 0001 to 0099 are handled correctly.
+- Dates produced by adding days beyond 9999-12-31 are formatted with more than four year digits; no range check is applied to computed dates.
+- The overdue check in borrow considers every loan of the member, and a loan whose dueDate equals the call date is not overdue.
+- Renewal on the due day is allowed because overdue means date > dueDate.
+- A book with a non-empty queue and no loan is treated as set aside for queue[0]; the invariant that a book with no loan has an empty queue unless set aside is maintained throughout.
+- When a set-aside hold is fulfilled by borrowing, the remaining queue entries are left with no readyUntil because the book is now on loan.
+- A returned book with waiting holds is set aside for the first hold regardless of whether that member could currently borrow it.
+- Expiry is applied to every book on every dated call, including books whose holds are not relevant to the calling member.
+- The member's holds list is kept in the order placed and entries are removed when a hold is fulfilled or expires.
+- readyUntil in getMember is reported only for a hold at position 1 on a book with no active loan, and is null otherwise.
+- The owed balance has no upper limit beyond what fines add.
+- Payment amounts must be safe integers greater than zero; non-integer numbers are rejected.
+- Failure results return only `{ ok: false }` with no reason field.

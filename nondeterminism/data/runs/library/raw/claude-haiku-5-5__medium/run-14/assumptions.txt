@@ -1,0 +1,24 @@
+- Loan period is 21 days; due date is the borrow date plus 21 days.
+- A member may renew a loan at most 2 times; each renewal sets the new due date to the renewal date plus 21 days.
+- Renewal is refused if the loan is already overdue (date is after the due date) or if any hold is waiting for the book.
+- Borrowing is not blocked by unpaid fines or by the number of books a member already has; there is no loan limit.
+- Fines are computed at return: days late = return date minus due date; the first 3 days late are free; after that 25 cents per day, capped at 1000 cents per loan.
+- Fines are added to the member's owed amount only when the book is returned; overdue loans accrue nothing until returned.
+- A returned book is set aside for the first hold in the queue; a returned book with no holds becomes available.
+- A set-aside pickup window is 7 days, counted from the day the book is set aside, inclusive of the last day (readyUntil = start date plus 7).
+- The member collects a set-aside book by calling borrow; borrow of a set-aside book by anyone else is refused.
+- If a set-aside hold lapses (date is after readyUntil), that hold is removed and the next member in line is set aside starting the day after the lapse, with a new 7-day window; if no one is waiting, the book becomes available.
+- Lapsed pickups are processed at the start of every method call using that call's date.
+- A hold can be placed only if the book is on loan or is set aside for someone else; holds on an available book are refused.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- There is no limit on how many holds a member may have.
+- Hold position is the 1-based index in the book's queue, including a set-aside hold at position 1.
+- readyUntil in getMember is the set-aside last day for the member's own set-aside hold, and null for all other holds.
+- A member with an unpaid balance may still borrow, renew, and place holds.
+- Payments may be partial; amounts must be positive integers no greater than the amount owed, otherwise the payment is refused.
+- Returning a book requires that the named member currently holds that loan.
+- A return on a date after the due date is late; a return on the due date is on time.
+- Ids are compared with strict equality and may be any non-null value; missing or null ids are refused.
+- Adding a duplicate book or member is refused with ok: false.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- Date arithmetic uses UTC so that whole-day differences are exact.

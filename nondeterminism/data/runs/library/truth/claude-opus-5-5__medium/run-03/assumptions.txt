@@ -1,0 +1,16 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any action that involves an unknown member or an unknown book is refused.
+- Expired set-asides are handled lazily. On each dated call, every book's chain of set-asides is moved forward to that date before the call runs.
+- On the day after readyUntil, the hold is dropped and the next member's readyUntil becomes the old readyUntil + 3. This can repeat several times if the next call comes much later.
+- Lateness is the return date minus the due date in days. Fine = 25 × days late when days late ≥ 3, capped at 500, otherwise 0.
+- A fine is added to the amount owed when the book is returned. There is no running charge while a book is overdue.
+- The 1000-cent borrow block uses the amount owed at the moment of borrowing. Owing money does not block returns, renewals or holds.
+- The 5-book limit and the 1000-cent block also apply when picking up a book set aside for the member. If refused, the hold stays until it expires.
+- A member in position 2 or later cannot borrow a book that is set aside for someone else.
+- Holds may be placed whatever the member's loan count or amount owed.
+- A refused renewal leaves the loan unchanged and does not use up a renewal.
+- payFine is refused for amounts that are not integers. Refused payFine responses still report the current owed value.
+- getMember returns empty loans and holds and owed 0, with ok:false, for an unknown member.
+- A refused returnBook response includes fine: 0.
+- The "reason" field is added to refusals for information only.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.

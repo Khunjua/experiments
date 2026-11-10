@@ -1,0 +1,12 @@
+- If a dated call has a valid date that is not earlier than the current date, the clock advances and hold expiry runs even when other arguments are invalid or the call fails for another reason.
+- If the argument object is missing or not an object, the call fails without touching the clock.
+- If the date is invalid, the call fails without touching the clock or running expiry.
+- A call whose date equals the current date is allowed.
+- addBook and addMember take no date, so they do not affect the clock or run expiry.
+- getMember returns ok: true together with loans, owed and holds on success.
+- A payment amount must be of type number. Numeric strings are rejected.
+- Fulfilled and expired holds are no longer active and are left out of getMember results.
+- Dates are computed with pure integer civil-calendar arithmetic, which equals proleptic Gregorian UTC day arithmetic, instead of with Date.UTC. This avoids Date.UTC treating years 0–99 as 1900–1999.
+- Date arithmetic that goes past year 9999 is still formatted, using more than 4 year digits if needed.
+- placeHold fails for a member who already has a hold on the book, and for a member who has the book on loan. A member's existing ready hold is caught by the queue check.
+- Unknown extra fields and getter side effects on argument objects are not guarded against beyond normal property reads.

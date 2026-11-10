@@ -1,0 +1,12 @@
+- Identifiers must be non-empty strings; invalid arguments fail before the clock is touched.
+- A call with valid arguments but an unregistered member or book still advances the current date and processes hold expiries, per §3.3.
+- Hold expiry is processed on every dated call that passes validation, including getMember and calls that fail for business reasons.
+- Dates after 9999-12-31 produced by date arithmetic are not rejected or clamped; they are formatted with a five-digit year.
+- A missing or non-object argument object is treated as invalid input.
+- payFine validates the amount before the date, so an invalid amount changes nothing, including the current date.
+- Owed balance is not capped, so fines can push it above the 1000-cent borrowing block.
+- A book's hold queue is kept as one array; a book with a ready hold and no loan is treated as set aside, and queue[0] is the ready hold.
+- Member hold and loan lists keep placement and borrow order respectively, so getMember output needs no sorting.
+- Returning a book with waiting holds sets readyUntil to the return date plus 7 for the first hold, regardless of whether that member can currently borrow.
+- A member's hold on a book is found by bookId in their hold list, since a member can hold a given book at most once.
+- The reason field is not added to failure results.

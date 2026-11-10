@@ -1,0 +1,17 @@
+- Rejected calls return `{ ok: false, reason }` with codes taken from section 13. When a book is on loan to someone else, borrow uses `NOT_AVAILABLE`.
+- A dated call with a valid date that is not earlier than the clock advances the clock and runs catch-up, even when its IDs are invalid or a business rule rejects it (section 4.1).
+- Argument validation happens after the date check. A call with a valid date but invalid IDs still moves the clock.
+- A call with an invalid date string or a non-object argument does not move the clock.
+- Date parsing uses day numbers from UTC with setUTCFullYear, so years 0000–9999 are handled correctly without the 1900 mapping of Date.UTC.
+- Dates are not capped at year 9999. A due date or pick-up date that passes 9999-12-31 is formatted with more than four digits.
+- Hold expiration catch-up processes books in Map insertion order. Books are independent, so this order does not change results.
+- Loans and holds share one global sequence counter. getMember orders loans and holds by that counter.
+- A set-aside hold is stored as the first entry in the book's line with a `readyUntil` day. Holds behind it have no `readyUntil`.
+- A member who already has a book on loan and tries to place a hold on it gets `ALREADY_BORROWED`, because rule 5 is checked after rule 4 and the book is out.
+- Returning a book is rejected with `NOT_ON_LOAN` if the member does not have it on loan, even when another member does.
+- Overdue renewal is decided as `date > current due date`, so renewing on the due date is allowed.
+- payFine checks the date (and advances the clock) before it validates the amount, matching the order of section 12.
+- Owed balances are plain JavaScript numbers and are not checked against the safe-integer limit when fines accumulate.
+- Every public method is wrapped so that any unexpected exception (for example from a throwing getter on the argument) returns `{ ok: false, reason: 'INVALID_INPUT' }`. All validation runs before any state change, so a thrown exception cannot leave state partly changed.
+- Leading or trailing whitespace in IDs is significant, and IDs are compared exactly, as section 3.3 requires.
+- An array passed as an argument is treated as a missing object and rejected through the normal missing-property check.

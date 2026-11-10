@@ -1,0 +1,23 @@
+- A loan lasts 21 days from the borrow date; the due date is borrow date + 21.
+- A member may renew at most 2 times per loan; the counter resets when a new loan starts.
+- A renewal is allowed only on or before the due date; it sets the new due date to renewal date + 21.
+- A renewal is refused if any hold (including a set-aside reservation) is waiting on the book.
+- Fines: no fine if returned within 3 days after the due date (grace period); beyond that, 25 cents per overdue day counted after the grace days.
+- Fines are capped at 1000 cents (10.00) per loan.
+- Fines are added to the member's owed balance at the moment of return.
+- Outstanding fines do not block borrowing, holding, or renewing.
+- No limit on how many books a member may borrow at once.
+- A hold may be placed only when the book is on loan or already set aside for another member; a free book with nothing waiting must be borrowed instead.
+- A member cannot place a hold on a book they currently have out, or on a book they are already waiting for.
+- Hold position 1 is the member set aside for, or the next member in line if the book is not yet set aside.
+- When a book is returned and someone is waiting, it is set aside for the first person in line, with readyUntil = return date + 3 days (pickup window of 3 days, inclusive).
+- A set-aside member who does not pick up within the window loses their place; the book is then set aside for the next person in line, whose window starts at the previous window's end + 3 days.
+- A set-aside book can only be borrowed by the member it is set aside for; the borrow removes that member from the line.
+- Set-aside status and expiry are evaluated lazily at the start of every method call, using the call's date.
+- payFine rejects non-integer, non-positive, or overpaying amounts (amount greater than owed) and changes nothing.
+- Returning a book is always allowed for the member who holds it, even if it is overdue.
+- addBook and addMember reject duplicate IDs.
+- Borrow, return, renew, placeHold, and payFine reject unknown book or member IDs.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- Loans and holds in getMember are listed in the order books were added.
+- Date strings are assumed valid 'YYYY-MM-DD' values; no validation is performed on them.

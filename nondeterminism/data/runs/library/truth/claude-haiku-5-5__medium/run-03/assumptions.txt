@@ -1,0 +1,24 @@
+- Unknown bookId or memberId causes refusal in borrow, returnBook, renew, placeHold and payFine; nothing is created.
+- getMember for an unknown member returns empty loans, owed 0 and empty holds, and does not create the member.
+- addBook and addMember with an existing id return { ok: false } and change nothing.
+- Refused calls return { ok: false }; returnBook refusals also return fine: 0 and payFine refusals also return the current owed.
+- Dates are compared as strings and date arithmetic uses UTC, so no time zone or DST effects.
+- Before every call that takes a date, set-aside holds whose readyUntil is before that date are expired, and this cascades to the next member if their readyUntil has also passed.
+- A member whose set-aside hold expires is removed from the line entirely; the book passes to the next member with readyUntil = old readyUntil + 3.
+- A book with no loan and a non-empty line is treated as set aside for the member at position 1; readyUntil is only meaningful in that state.
+- When a returned book has holds, readyUntil is the return date + 3.
+- A member can place a hold on a book that is set aside for someone else; they join the line behind the set-aside member.
+- A member already in the line for a book (including the one set aside for them) cannot place another hold on it.
+- Holds are not limited in number per member and do not count toward the 5-loan limit.
+- Owing 1000 cents or more blocks borrowing only; it does not block holds, renewals or returns.
+- Borrowing a set-aside book requires the borrower to be at position 1 and still passes the loan count and fine limit checks.
+- A returned book with an empty line becomes free on the shelf.
+- Fine is 0 when returned on or before the due date and when 1 or 2 days late; otherwise 25 cents per late day, capped at 500 cents.
+- A return after the due date is accepted and charged normally, even if the book is overdue.
+- A renewal is refused only when the loan's due date is before the renewal date; renewing on the due date is allowed.
+- A renewal is refused when anyone is in the line for the book, including a set-aside member.
+- Payments must be positive integers no greater than the amount owed.
+- Money values are integers and no rounding is applied.
+- In getMember, readyUntil is non-null only for the member at position 1 of a book that is set aside (no current loan).
+- The order of loans and holds in getMember's result is unspecified.
+- Holds have no expiry other than set-aside expiry; a hold on a loaned book waits indefinitely.

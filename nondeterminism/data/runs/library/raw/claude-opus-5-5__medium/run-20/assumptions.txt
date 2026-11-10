@@ -1,0 +1,21 @@
+- Each bookId is one physical copy; adding a duplicate bookId or memberId returns { ok: false }.
+- IDs must be non-empty strings or finite numbers; dates must be valid 'YYYY-MM-DD' calendar dates, otherwise { ok: false }.
+- Loan period is 21 days; due date = borrow date + 21.
+- "A couple of times" means at most 2 renewals per loan.
+- Renewal is refused if anyone holds the book, if the loan is already overdue, or if the member does not have it.
+- Renewal sets the due date to the later of the current due date and renewal date + 21 days.
+- "Not harsh" means a 2-day grace period (no fine if returned up to 2 days late; after that every late day is charged at 25 cents) and a cap of 500 cents per loan.
+- Fines are charged only when the book is returned; unreturned overdue books do not add to owed.
+- A member can have at most 5 loans at a time.
+- A member owing 500 cents or more cannot borrow; renewals and holds are not blocked by debt.
+- Holds can only be placed on a book that is on loan or set aside/held for someone; not on an available book, not on a book the member has borrowed, and not twice by the same member.
+- Holds have no per-member limit.
+- When a held book is returned, it is set aside for the first holder until return date + 7 days (readyUntil).
+- If not picked up by readyUntil, that hold is dropped and the book is set aside for the next holder for another 7 days (starting the day after expiry); with no next holder the book becomes available.
+- Hold expiration is processed lazily at the start of every dated call.
+- While a book is set aside, only that member can borrow it; borrowing it removes their hold.
+- readyUntil is non-null only for the first holder of a book that has been returned and set aside.
+- payFine requires a positive integer amount not exceeding what is owed; overpayment is rejected.
+- getMember for an unknown member or invalid date returns { ok: false }; on success it also includes ok: true.
+- addBook and addMember take no date, so they do not trigger hold processing.
+- Out-of-order dates are not checked, since the interface guarantees time order.

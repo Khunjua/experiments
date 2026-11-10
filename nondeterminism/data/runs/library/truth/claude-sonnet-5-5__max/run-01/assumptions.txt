@@ -1,0 +1,20 @@
+- Ids are opaque: undefined, null and NaN are not valid ids; any other value is accepted and matched with strict equality, so 1 and '1' are different ids.
+- addBook or addMember with an id that already exists is refused and changes nothing.
+- borrow, returnBook, renew, placeHold and payFine naming an unknown member (or, where relevant, an unknown book) are refused.
+- Bad input never throws. A date that is not a real calendar date in 'YYYY-MM-DD' form, a missing argument object, or a payment amount that is not a positive safe integer is refused with ok:false. payFine and getMember also require a valid date, even though it does not change their result.
+- getMember for an unknown member or an invalid date returns { ok: false, reason, loans: [], owed: 0, holds: [] }, which is the documented shape with empty values plus ok:false.
+- The call-order guarantee is trusted, not enforced. A date earlier than a previous call is processed as given and never revives a lapsed hold.
+- Time only moves through call dates, since addBook and addMember carry none. Pickup windows are lapsed lazily at the date of the next call that looks at the book, including getMember and refused calls. This gives the same result as lapsing them on the exact day.
+- A pickup window lapses on the day after readyUntil, and picking up on readyUntil itself is allowed. If several windows have passed between calls they all cascade. Each next window is the previous readyUntil + 3 days, even when that window is already over, until one is still open or the line is empty (the book is then free).
+- The member a book is set aside for stays at position 1, so new holds join at the back and the first new hold gets position 2. readyUntil is reported only for the member at position 1 while the book is set aside. It is null for everyone else and while the book is still on loan.
+- Waiting holds never expire while the book is on loan; only pickup windows lapse.
+- A set-aside book stays reserved for its member even if they cannot borrow it (5 loans or owing 1000+). The line is not skipped and the window just runs out.
+- A member whose hold lapsed is not penalised. They may borrow the book if it is free, or place a new hold at the back of the line.
+- Hold placement is judged after lapses are applied at the call's date, so a book whose last pickup window just passed counts as free and the hold is refused.
+- Only borrowing is blocked by owing 1000+ or by having 5 loans. Renewals and holds are not blocked by either, and there is no limit on the number of holds per member.
+- Fines are charged only when a book is returned and are added to owed immediately. Nothing accrues for a book that is still out. Lateness is measured in whole calendar days against the current (possibly renewed) due date.
+- Fine rule: returning early, on time, or 1 or 2 days late costs 0. Returning 3 or more days late costs 25 cents for every late day, capped at 500 per returned book (the cap is reached at 20 days late).
+- Each new loan starts with 0 renewals. renew is refused if the member does not have the book on loan, the loan is overdue (date after the due date), 2 renewals are already used, or anyone has a hold on the book.
+- payFine accepts only a positive whole number of cents no larger than what is owed. When nothing is owed, every payment is refused.
+- getMember lists loans in the order borrowed and holds in the order the member placed them (a re-placed hold goes last). It returns fresh objects on each call.
+- Refused calls change nothing apart from time passing as described above. The reason field is informational, and successful results contain only the documented fields.

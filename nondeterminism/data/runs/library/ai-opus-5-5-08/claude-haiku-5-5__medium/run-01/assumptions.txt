@@ -1,0 +1,18 @@
+- Internal state is kept in Maps with closures, so each createLibrary() call is fully independent.
+- Each member keeps a list of held bookIds in placement order. Entries are removed when a hold expires or when the held book is borrowed.
+- A book is on loan when loanedTo is set. It is set aside when it is not on loan and its queue is non-empty. It is on the shelf when it is not on loan and its queue is empty.
+- A set-aside member who borrows the book consumes the head of the queue, and the remaining positions shift up. The book then becomes on loan, and readyUntil is cleared.
+- Hold expiration is also applied to books that are on loan. It has no effect on them, because only set-aside books are processed.
+- When an expiration removes the head and the queue is non-empty, the new readyUntil is the old readyUntil + 8 (start day = old readyUntil + 1, plus 7 days).
+- Calls with a non-object argument, or with a missing or invalid date, do not trigger expiration. Calls with a valid date do trigger it, even when they fail for other reasons.
+- Arrays are treated as objects. Their fields are undefined, so the call fails.
+- A top-level try/catch returns { ok: false } for any unexpected exception. No state is changed before the validation steps that could throw.
+- Dates are stored as integer day numbers computed with UTC. Output is formatted as YYYY-MM-DD. Years 0000 to 9999 are accepted, and year 0000 is valid under Gregorian rules. Years above 9999 that arise from date arithmetic are not specially handled.
+- Overdue for borrow means a loan with dueDate strictly less than the call date.
+- Fines are added to owed without a cap on the cumulative total. Only the single-return fine is capped at 1000.
+- readyUntil in getMember is null for a book that is on loan, even if the member is at position 1 in its queue.
+- Loans in getMember are sorted by dueDate, then bookId, using JavaScript code-unit string comparison.
+- placeHold on a book that is on loan to the same member fails through the loan check. A duplicate hold fails through the queue check.
+- placeHold on a book with an empty queue and no loan fails as "on the shelf". A book on loan with an empty queue accepts holds.
+- payFine with a valid date always runs expiration, even when the member is unknown or the amount is invalid.
+- The success result contains only the documented fields. No reason field is added.

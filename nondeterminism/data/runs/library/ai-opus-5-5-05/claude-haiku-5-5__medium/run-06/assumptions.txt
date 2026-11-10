@@ -1,0 +1,16 @@
+- Any non-null value with `typeof` "object" (including arrays) counts as a non-null object; extra properties on argument objects are ignored.
+- Dates equal to the current clock date are allowed; only strictly earlier dates fail the clock check.
+- Date validation accepts only ASCII digits as matched by `\d` in the regex; year 0000 is rejected.
+- Dates produced by arithmetic past 9999-12-31 are not rejected or clamped; they are formatted with more than four year digits.
+- An invalid-input call fails before the clock advances, so no expiry processing happens for it.
+- Input validation runs before the clock step, and the clock step runs before member/book existence checks, so an unknown member or book on a dated call still advances the clock.
+- `owed` has no upper cap; fines accumulate without limit.
+- `payFine` requires a valid `date` because it is a dated call.
+- A member cannot place a hold on a book they currently have on loan (treated as a rule violation with a failure result).
+- Borrowing a book set aside for this member is subject to the same loan-count and owed-balance blocks as any borrow.
+- When a set-aside member borrows, their hold is removed and the book becomes on loan with `readyUntil` cleared; other holds stay in order.
+- A returned book with a non-empty queue becomes set aside for the queue head with `readyUntil = return date + 7`.
+- `getMember` orders holds and loans by global creation sequence (placement or borrow order), and loans with the same creation order as borrow order.
+- Failure `reason` strings are chosen freely; any unexpected internal exception is caught and returned as `{ ok: false, reason }` without partial state changes, since all validation precedes mutation.
+- Renewing on the exact due date is allowed (it is not overdue), and it extends the loan because the new due date is later.
+- Members and books are kept in separate maps so the same string can name both a member and a book.

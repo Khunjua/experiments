@@ -1,0 +1,19 @@
+- Borrow, return, renew, hold, payFine, and getMember with an unknown memberId or bookId return { ok: false } (getMember returns null), and addBook/addMember with a duplicate id return { ok: false }.
+- Refusals return exactly { ok: false } with no extra fields.
+- Dates are compared as 'YYYY-MM-DD' strings; day arithmetic uses UTC so no time zone or DST effects.
+- Days late = return date minus due date; 1 or 2 days late is free; 3 or more days late is charged 25 cents per late day, capped at 500 cents per return.
+- A member must be added with addMember before any other action; there is no implicit creation.
+- A member can borrow while having overdue loans or fines below 1000 cents; fines do not block renewals, holds, or returns.
+- Only active loans count toward the limit of 5 books.
+- A book set aside for a member can be borrowed on readyUntil itself; the hold lapses only when the date is after readyUntil.
+- When a set-aside hold lapses, the next member in line gets readyUntil equal to the previous readyUntil plus 3 days, and this repeats if that is also already past.
+- The set-aside member stays at position 1 in the line until they borrow the book, so holds reported by getMember keep that member at position 1.
+- A hold can be placed on a book that is set aside for someone else, and that hold goes to the back of the line.
+- A member cannot place a hold on a book they currently have on loan, and cannot hold the same book twice (including while it is set aside for them).
+- Renewal is refused whenever the book has any hold in line, including a set-aside hold.
+- Renewal on a day after the due date is refused; renewal on the due date is allowed; the new due date is the old due date plus 21 days.
+- Renewal count starts at 0 for each new loan; a 3rd renewal is refused.
+- Expired set-aside holds are processed at the start of every method that receives a date, so state is always current for the call's date.
+- payFine requires a positive integer amount no greater than the amount owed; non-integer amounts are refused.
+- getMember reports readyUntil only for the member currently set aside for the book; otherwise it reports null.
+- Loans in getMember are listed in no particular order, as the requirements allow.

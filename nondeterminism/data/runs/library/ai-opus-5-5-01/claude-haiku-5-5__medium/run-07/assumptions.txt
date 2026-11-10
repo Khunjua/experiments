@@ -1,0 +1,19 @@
+- An "object" argument means a non-null, non-array object; anything else is invalid_input.
+- Ids are accepted as any non-empty string, with no trimming and no length limit.
+- Date format check is a 4-digit year, 2-digit month, 2-digit day, validated against the proleptic Gregorian calendar; year 0000 is accepted.
+- Dates beyond 9999-12-31 (possible only via renewals or pickup windows) are formatted with more than four year digits.
+- The latest-date marker is updated only by calls that pass input validation (including the date format check); calls with invalid input do not move it.
+- A call that passes input validation advances the latest date even if it later fails a business rule or a member/book lookup.
+- Pickup expiry is applied at the date of every call that passes the date-order check, before any member, book or business-rule check.
+- A failed call that is rejected for invalid input applies no expiry, since it is treated as having no valid date.
+- In payFine, amount validation comes before date validation, and date order is checked before member existence.
+- Overpayment is rejected when amount is greater than owed; paying exactly the owed amount is allowed.
+- Fines are charged only on return; overdue loans do not change owed before return.
+- A member may pay fines and place holds while having overdue loans, since the spec does not block those actions.
+- Returning a book clears its borrower; a set-aside book has no borrower.
+- Renewal on the due date is allowed; renewal after the due date returns overdue.
+- A hold placed on a book that is set aside for another member is allowed and takes the next position in the queue.
+- Holds in getMember are ordered by a global placement counter, not by book id.
+- readyUntil in getMember is set only for the front entry of a set-aside book; it is null for all other holds.
+- A member's own hold entry is removed when that hold expires, and their owed amount is left unchanged.
+- The library catches any unexpected exception from a method and returns { ok: false, reason: 'invalid_input' }; all checks run before any state change, so no partial change is left behind.

@@ -1,0 +1,20 @@
+- Dates are converted to whole day numbers via UTC so that date arithmetic is exact and time-zone free.
+- Hold expiry is applied lazily: every method first expires set-aside holds whose readyUntil is before the call's date, cascading to the next member in line as specified.
+- A set-aside hold stays in the line at position 1 until the member borrows the book or the hold expires.
+- A hold that expires is removed from the line; members behind it keep their relative order.
+- When the set-aside member borrows, they are removed from the line and everyone behind moves up one place.
+- A free book with a non-empty line but no set-aside member is treated as unborrowable; this state should not arise.
+- Borrowing a book set aside for you still obeys the 5-loan limit and the 1000-cent owed limit.
+- The owed limit only blocks borrowing; it does not block renewing, placing holds, or returning.
+- Renewal is blocked when anyone is in the hold line, including a member set aside for the book.
+- Renewal does not check the member's outstanding fines.
+- Placing a hold has no limit on how many holds a member may have at once.
+- Placing a hold does not check whether the member owes fines.
+- A hold on a book set aside for someone else is placed at the end of the line and gets a position of at least 2.
+- Returning a book with an empty hold line leaves it free for anyone.
+- The fine cap of 500 cents applies to each returned book separately.
+- Duplicate addBook or addMember calls return { ok: false } and change nothing.
+- Unknown members or books in any method return { ok: false }, except getMember, which returns an empty result (no loans, 0 owed, no holds).
+- payFine requires an integer amount; non-integer or non-numeric amounts are refused.
+- Returning a book by a member who does not have it on loan is refused and charges no fine, even if the book is otherwise overdue.
+- Failure responses carry only the ok field; no reason field is included.

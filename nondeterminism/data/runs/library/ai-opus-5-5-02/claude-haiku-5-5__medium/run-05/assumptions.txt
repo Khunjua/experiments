@@ -1,0 +1,13 @@
+- Dates produced by arithmetic past 9999-12-31 are formatted with a five-digit year rather than rejected or clamped, since the requirements do not cover output beyond the valid input range.
+- A missing, null or non-object argument is treated as an empty object, so the call fails with `{ ok: false }` instead of throwing.
+- Extra properties in argument objects are ignored.
+- A non-string or empty memberId, bookId is treated as invalid and the call fails.
+- A dated call with a valid date advances time and runs expiry even if its other arguments (member, book, amount) are invalid, because §3.4 applies to the date alone.
+- The first valid date accepted sets the latest date seen, with no lower bound.
+- The amount in payFine must be a JavaScript number that passes Number.isInteger; non-number amounts fail.
+- Expiry processing iterates books in Map insertion order; the requirements say the order does not matter.
+- A member's holds are kept in placement order; a waiting hold promoted to set-aside keeps its place in that order.
+- A member's active hold list is kept in sync with the book queues and set-aside holders, so a hold is removed only on pickup (borrow) or expiry.
+- In borrow, pickup by the set-aside holder removes that hold from the member's holds, and the queue is left unchanged.
+- The fine on return is computed from the loan's current due date, which includes any renewals.
+- Returned objects are newly created on every call, so callers cannot alter library state through them.

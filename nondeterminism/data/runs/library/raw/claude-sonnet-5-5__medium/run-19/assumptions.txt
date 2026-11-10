@@ -1,0 +1,22 @@
+- Loan period is 21 days; the due date is the borrow date plus 21 days.
+- A book returned on its due date is not late. Each day after the due date costs 25 cents, with no extra grace period.
+- To avoid being harsh, the fine for a single loan is capped at 1000 cents.
+- Fines are charged when the book is returned and added to the member's owed amount.
+- Fines do not block borrowing, renewing or holding.
+- There is no limit on how many books a member can have out.
+- A book can be renewed at most 2 times.
+- A renewal sets the new due date to the renewal date plus 21 days, not the old due date plus 21.
+- Renewal fails if any hold is waiting for the book, if the book is already overdue, or if the renewal limit is reached.
+- A hold can only be placed if the book is on loan or already set aside for someone. If the book is freely available, placeHold fails.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- The hold queue is first come, first served. Position is the 1-based place in the queue, and a member set aside a book is at position 1.
+- When a book with holds is returned, it is set aside for the first holder, with readyUntil = return date + 7 days (inclusive).
+- A book set aside can only be borrowed by that member. Borrowing removes their hold.
+- If the pickup window passes (the date is later than readyUntil), the hold is dropped. The next holder, if any, gets the book from the following day with a new 7-day window. If there is no next holder, the book becomes available. This is evaluated lazily on each call using that call's date.
+- Holds that are waiting but not yet set aside have readyUntil null.
+- payFine fails, changing nothing, if the amount is not a positive integer, exceeds the amount owed, or the member is unknown.
+- addBook and addMember fail if the id already exists or is null or undefined.
+- Any method with an unknown member or book, or an invalid or non-calendar date string, returns { ok: false }.
+- returnBook fails if that member does not currently have the book on loan.
+- getMember for an unknown member returns { ok: false }. For a known member, it returns loans and holds in book insertion order.
+- Overdue loans stay in the loans list until they are returned.

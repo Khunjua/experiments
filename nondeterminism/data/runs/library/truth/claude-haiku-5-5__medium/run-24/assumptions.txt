@@ -1,0 +1,18 @@
+- Borrow, return, renew, hold and payment calls for an unknown member or book are refused with { ok: false }; getMember for an unknown member returns empty loans and holds with owed 0.
+- addBook and addMember with an id that already exists return { ok: false } and change nothing.
+- Ids are compared by strict equality as Map keys.
+- Refusal results contain only ok (and fine: 0 for returnBook); no reason field is added.
+- A loan is overdue when the call date is after its due date; renewing on the due date is allowed.
+- Renewal is refused whenever any member is in the hold line for the book, including a member whose book is set aside for them.
+- Renewal does not check the member's amount owed.
+- Borrowing is not blocked by overdue loans the member already has; only the owed limit, the 5-loan limit and the rules in the requirements apply.
+- The 5-loan limit and the 1000-cent owed limit also apply when borrowing a book that is set aside for the borrower.
+- The reserved member's hold stays in the line at position 1 while the book is set aside; it is removed only when they borrow the book or their window expires.
+- Set-aside windows are checked lazily: on every call, all books are swept, and any window whose readyUntil is before the call date is expired, passing the book down the line with readyUntil = old readyUntil + 3, repeating until a window covers the call date or the line is empty.
+- A returned book with holds is set aside for the first member in line from the return date, whether or not the return was late.
+- A fine is charged only for a return that is 3 or more days late; it is days late × 25 cents, capped at 500 cents per return.
+- Date arithmetic uses UTC so that day counts and due dates are exact whole days.
+- payFine refuses non-integer amounts as well as amounts of 0 or less and amounts greater than the amount owed.
+- A payment reduces owed and is never refused for timing reasons.
+- Holds are not limited in number per member and do not count toward the 5-loan limit.
+- A member can be in at most one position per book's hold line, and placing a hold is refused for a book the member currently has on loan.

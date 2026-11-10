@@ -1,0 +1,18 @@
+- A call whose argument shape is invalid (non-object argument, empty or non-string ID, malformed date, or a missing bookId where one is needed) is rejected without moving the clock or running catch-up.
+- A call with valid shape but a date earlier than the clock is rejected without running catch-up.
+- A call with valid shape and a non-earlier date runs catch-up and moves the clock, even if a later business rule rejects it. This includes unknown members and books, and getMember for an unknown member.
+- For payFine, the amount is checked after the date check, so an invalid amount with a valid date still moves the clock.
+- For payFine, a non-number, non-integer, zero, negative, or overpaying amount is rejected with reason BAD_AMOUNT.
+- A book's set-aside state is represented as holds[0] having a non-null readyUntil while the book has no loan. Only the first hold can carry readyUntil.
+- Catch-up is applied to every book on each dated call, not only the book named in the call.
+- Expiration cascades: after a set-aside expires on R, the next hold in line gets readyUntil R+8, and that window is checked again against the call date.
+- Renewal is blocked by any hold in the line, including a set-aside hold.
+- A member may place a hold on a book that is on loan to another member or set aside for another member.
+- A member may place a hold on a book that is on loan to that same member is rejected with ALREADY_BORROWED, and a duplicate hold by the same member is rejected with ALREADY_HOLDING.
+- A fine is charged only when a book is returned. Overdue loans that are not returned accrue nothing.
+- Fine per returned book is capped at 500 cents. Owed balances have no cap.
+- Loan order in getMember uses a global creation counter. Hold order uses a global placement counter.
+- getMember returns readyUntil as a date only for the set-aside hold. All other holds return null.
+- Dates use proleptic Gregorian day numbers computed with integer arithmetic. Year 0000 is accepted. Output years above 9999 would exceed four digits; this is not expected in practice.
+- Each method wraps its logic in a try/catch. Any exception (for example from a throwing getter on the argument) returns { ok: false, reason: 'INVALID_INPUT' }. All reads happen before any state change, so a caught exception leaves state unchanged.
+- The reason codes are the suggested ones from section 13. The rejection reason for a book on loan in borrow is NOT_ON_LOAN.

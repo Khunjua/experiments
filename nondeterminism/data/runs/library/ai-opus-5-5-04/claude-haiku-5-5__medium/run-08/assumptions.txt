@@ -1,0 +1,13 @@
+- Advance (hold expiry) runs whenever `date` is a valid date, even if the IDs are malformed or other checks fail, since §5.1 only skips it for an invalid date.
+- A non-object argument (missing, null, or a primitive) is treated as an empty object, so every field is invalid and the call returns `{ ok: false }`.
+- Dates are validated by round-tripping through the UTC calendar; years 0000–9999 are accepted as proleptic Gregorian. Dates produced by `addDays` beyond year 9999 are not specified and are not handled.
+- Each hold entry stores `readyFrom` and `readyUntil` as `null` while waiting; only the set-aside first entry of a reserved book has non-null values.
+- Expiry removes the expired member's bookId from their holds list, so it no longer counts toward `MAX_HOLDS`.
+- Holds are listed in `getMember` in the order they were placed, tracked with a per-member array of bookIds.
+- When a set-aside member picks up a book, the remaining waiting entries stay waiting with null dates, and the book becomes `loaned`.
+- On return with a non-empty queue, `readyFrom` is set to the return date, as §6.4 specifies.
+- `payFine` checks the date and member before the amount, so an invalid date reports as invalid even when the amount is also bad.
+- `reason` strings are short descriptive text. Callers ignore them.
+- Overdue checks in `borrow` and `renew` compare the date strings lexicographically, which is valid for valid dates.
+- A member may place a hold on a book that they have an overdue loan of, provided that they do not currently have it on loan. Holds are not blocked by overdue loans or fines.
+- The return path assumes the book is in the `loaned` state whenever the member has a matching loan, which the invariants guarantee.

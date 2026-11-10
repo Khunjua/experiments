@@ -1,0 +1,16 @@
+- Date arithmetic that would pass 9999-12-31 is clamped to 9999-12-31.
+- Argument objects that are null or not objects are treated as having no fields, so the call returns { ok: false } with no state change.
+- The clock is set and hold expiries are processed for any call whose ids and date are well-formed and not earlier than the current date, even if the call then fails for a business reason or an id is unregistered.
+- A call with a malformed id, amount or date changes nothing, including the current date.
+- Expiry is processed for every book on each dated call, in no particular order, since books are independent.
+- A loan's position in the member's loan list is set when it is borrowed; renewals do not reorder it.
+- Renewal is allowed on the due date itself (date equal to dueDate counts as not overdue); only date later than dueDate is overdue.
+- Return fine is computed from the return date, with the cap applied after the grace period deduction.
+- When a book is returned with waiting holds, readyUntil is return date + 7; when a set-aside book is borrowed, readyUntil is cleared.
+- A member's active holds are counted by scanning all hold queues for entries with their memberId.
+- getMember reports readyUntil only for the head of a queue whose book is not on loan; otherwise it reports null.
+- Holds are ordered for getMember by a global placement sequence number, so holds on different books sort correctly by placement time.
+- Identifiers are compared using Map keys, so any non-empty string is valid, including strings like "__proto__".
+- Date validation uses ASCII-only digits and a full calendar check via UTC Date arithmetic.
+- Payment amount must be a safe integer greater than zero; the amount is checked against owed after the date is admitted.
+- The returned dueDate, readyUntil and loan dates are formatted as YYYY-MM-DD from the internal day number.

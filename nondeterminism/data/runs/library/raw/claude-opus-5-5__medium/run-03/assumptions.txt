@@ -1,0 +1,26 @@
+- Loan period is 21 days; due date = borrow date + 21 days.
+- "A couple of times" means at most 2 renewals per loan.
+- Each renewal extends the current due date by 21 days (not counted from the renewal date).
+- Renewal is refused if any member has a hold on the book (waiting or set aside).
+- Renewal is refused once the loan is overdue (day after due date or later); renewing on the due date is allowed.
+- "Not harsh": 1-day grace period — returning 1 day late costs nothing; 2+ days late charges 25 cents for every late day.
+- "Not harsh": fine per returned loan is capped at 500 cents.
+- Fines are added to the member's owed balance at return time; no fine accrues on books not yet returned.
+- A member may have at most 5 books on loan at once.
+- A member owing 1000 cents or more cannot borrow (returning, renewing, holding and paying still allowed).
+- Holds can only be placed on a book that is on loan or already set aside/held for others; holds on an available shelf book are refused.
+- A member cannot hold a book they currently have on loan, or hold the same book twice; max 5 active holds per member.
+- Holds form a first-come-first-served queue per book; position 1 is next.
+- When a held book is returned it is set aside for the first in line, with readyUntil = return date + 7 days.
+- If not picked up by readyUntil, the hold is dropped on the following day and the book is set aside for the next in line with a fresh 7-day window starting that day; if nobody else waits, the book becomes available.
+- Expirations are processed lazily on every dated call, based on that call's date.
+- While a book is set aside, only the member it is set aside for may borrow it; borrowing it removes their hold.
+- Members waiting in line (not set aside) have readyUntil null.
+- Holds cannot be cancelled (no method exists); positions shift up as earlier holds are fulfilled or expire.
+- payFine requires a positive integer amount not exceeding the amount owed; overpayment is refused.
+- Duplicate addBook/addMember ids are refused; ids must be non-empty strings or finite numbers.
+- Unknown members/books, invalid dates, or dates earlier than the previous call return { ok: false }.
+- Returning a book requires that it is on loan to that member; there is no lost-book handling.
+- getMember for an unknown member returns { ok: false } with empty loans/holds and owed 0; it also includes ok: true on success.
+- Loans are listed in borrow order; holds in the order they were placed.
+- Books with one copy each; one bookId is one physical item.

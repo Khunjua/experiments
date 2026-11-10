@@ -1,0 +1,27 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId returns ok:false.
+- Unknown members or books, invalid IDs, or invalid dates return ok:false.
+- The loan period is 21 days, so the due date is the borrow date plus 21 days.
+- "A couple of times" means at most 2 renewals per loan.
+- A renewal sets the due date to the renewal date plus 21 days.
+- A renewal is refused if anyone has a hold on the book.
+- A renewal is refused if the loan is already overdue.
+- To be lenient, there is a 2-day grace period: returning up to 2 days late costs nothing.
+- Returning more than 2 days late is charged 25 cents for every late day, including the grace days.
+- The fine for a single return is capped at 1000 cents.
+- A member may have at most 5 books on loan at once.
+- A member cannot borrow while owing 500 cents or more.
+- Owing money does not block renewals, holds or returns.
+- A hold can be placed only when the book is on loan or already has a waiting line.
+- A member cannot place a hold on a book they currently have.
+- A member cannot place a second hold on the same book.
+- When a book is returned and has holds, it is set aside for the first person in line. They have 7 days to pick it up, counting the return day, so readyUntil is the return date plus 6 days.
+- If a set-aside hold is not picked up by readyUntil, it is cancelled the next day. The book is then set aside for the next person, for 7 days from the day after the previous expiry.
+- Hold expiry is checked lazily whenever a method with a date is called.
+- While a book is set aside, only that member can borrow it. Borrowing it removes their hold.
+- Positions are counted from 1, and a set-aside hold has position 1.
+- Payments must be positive integers no greater than the amount owed; overpayment returns ok:false.
+- getMember lists loans in borrow order and holds in the order they were placed.
+- getMember for an unknown member or with an invalid date returns { ok: false, loans: [], owed: 0, holds: [] } and does not throw.
+- Successful getMember results include ok: true.
+- A return must be made by the member who borrowed the book; otherwise it returns ok:false.
+- Members cannot cancel holds, because the interface has no method for it.

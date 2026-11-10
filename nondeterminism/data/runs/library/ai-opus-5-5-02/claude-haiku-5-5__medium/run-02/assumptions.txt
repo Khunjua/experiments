@@ -1,0 +1,14 @@
+- Input objects that are null, non-objects or missing are treated as empty objects, so every field is then invalid and the call fails with `{ ok: false }`.
+- A dated call with a valid date but otherwise invalid arguments (bad IDs, bad amount, unknown member or book) still advances the latest date and runs expiry, because §3.4 applies even when the business rule fails.
+- Dates are stored internally as day numbers and formatted back to `YYYY-MM-DD`. Results past 9999-12-31 are not rejected; they format with more than four year digits.
+- Failure results contain only `ok: false`, with no `reason` field.
+- The loan is stored on the book, and the member keeps a list of its loans in creation order. A book is on loan to at most one member.
+- A member's holds list holds book IDs in placement order. A set-aside hold stays in that list until it is picked up by borrowing or expires. A waiting hold stays until the member reaches the front and the book is set aside for them, or until the hold expires.
+- `GRACE_DAYS` is applied by subtracting it from the late-day count. It is 0, so this has no effect.
+- `payFine` accepts only JavaScript numbers that are integers. Strings and non-integer numbers are rejected.
+- `borrow` on a book set aside for the member removes that member's hold entry, and the rest of the queue is unchanged.
+- `placeHold` checks that the book is not on the shelf, then checks for a loan to the same member, then for an existing queue entry or set-aside hold for the member, then the hold limit. Any failure returns `{ ok: false }`.
+- For `getMember`, a waiting hold's position is its 1-based queue index plus 1 when the book is currently set aside for someone else.
+- Expiry processing visits books in insertion order. The spec says order does not matter, so this choice has no observable effect.
+- `renew` checks overdue status (`date > dueDate`) before the queue check, and the queue check before the renewal-count check is not relevant because all failures return the same result.
+- Returned objects from `getMember` are freshly built arrays and objects, so callers cannot change library state through them.

@@ -1,0 +1,20 @@
+- Arguments that are arrays are treated as invalid, because they are not plain objects.
+- A string of only whitespace counts as a non-empty ID, since the spec only requires non-empty.
+- Dates that would fall after 9999-12-31 are clamped to 9999-12-31, so every returned date stays a valid 'YYYY-MM-DD' string.
+- Dates before 0001-01-01 never arise, because arithmetic only moves forward except in the fine difference, so no clamp is applied there.
+- The clock starts unset, so the first valid date sets it with no ordering check.
+- An input with a valid date that is not earlier than the clock advances the clock and runs hold processing even if the call then fails, as §4.4 requires.
+- A call with an invalid date or invalid IDs or amount does not advance the clock or run hold processing.
+- A call with a valid date but an unknown member or book still advances the clock and runs hold processing.
+- Hold processing is run over every book on every dated call, in insertion order of the books.
+- Only the queue head can be ready, so a waiting hold on a book with no loan is impossible; the code relies on this invariant.
+- Hold positions are ordered by a global placement sequence number, so getMember lists holds in the order they were placed across all books.
+- Loans in getMember are listed in borrow order, using a per-member array of book IDs that is kept in borrow order.
+- Borrowing a book set aside for the member still applies the MAX_LOANS and BORROW_BLOCK_OWED rules.
+- Renewal is allowed on the due date itself. Comparison of dates uses plain string comparison, which is valid because all dates are zero-padded 'YYYY-MM-DD' strings.
+- A fine for a return uses the due date at the time of return, so renewals are included.
+- Owed has no upper cap beyond the per-loan fine cap, so the member balance can grow past 1000 across several loans.
+- payFine validates the amount before checking whether the member exists. Both failures return only { ok: false }, so the order does not matter.
+- Placing a hold on a book set aside for another member is allowed, and that hold waits behind the ready head.
+- Returned fields are rebuilt as fresh objects on every call, so callers cannot change library state through them.
+- Any exception thrown inside a method is caught and reported as { ok: false }, which guarantees that no method throws.

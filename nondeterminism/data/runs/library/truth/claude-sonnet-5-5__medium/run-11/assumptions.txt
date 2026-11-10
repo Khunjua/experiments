@@ -1,0 +1,13 @@
+- Unknown members or books make any operation return { ok: false }.
+- Adding a duplicate book or member is refused.
+- Holds and set-asides expire lazily. Every call that carries a date first processes all set-asides whose readyUntil is before that date, cascading through the line.
+- A set-aside member can still borrow on readyUntil itself (inclusive).
+- The member set aside for a book stays in the queue at position 1 until they borrow it or it expires.
+- Members who owe money can still place holds, renew, and return books. Only borrowing is blocked.
+- The 1000-cent debt check and the 5-loan check apply to the set-aside member too.
+- Fines are charged for 3 or more days late as 25 × days late, capped at 500.
+- Renewal is refused if the book has any holds in the queue, including the set-aside one.
+- Invalid dates cause a refusal, except in payFine and getMember, where an invalid date just skips expiry processing.
+- payFine requires an integer amount greater than 0 and no more than what is owed.
+- getMember for an unknown member returns { ok: false }.
+- Hold positions are the 1-based index in the queue.

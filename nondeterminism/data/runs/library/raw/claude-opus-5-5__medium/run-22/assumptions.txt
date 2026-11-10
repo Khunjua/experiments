@@ -1,0 +1,27 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId returns { ok: false }.
+- IDs must be non-empty strings or finite numbers; otherwise { ok: false }.
+- Invalid or non-existent calendar dates return { ok: false }; date ordering is trusted, not enforced.
+- Loan period is 21 days; dueDate = borrow date + 21 days. The book is due on that day, and returning on the due date is not late.
+- "A couple of times" means at most 2 renewals per loan.
+- A renewal sets dueDate = renewal date + 21 days. It never moves the due date earlier than the current one.
+- Renewal is refused if any member has a hold on the book.
+- Renewal is refused if the loan is already overdue, so the fine is settled on return.
+- The fine is 25 cents per day after the due date, with no grace period.
+- "Not harsh" means the fine for a single loan is capped at 1000 cents ($10).
+- Fines are added to the member's owed balance when the book is returned. No fines accrue while the book is still out.
+- A member who owes 1000 cents or more cannot borrow; any smaller balance does not block borrowing.
+- There is no limit on the number of simultaneous loans per member.
+- Holds can only be placed on a book that is not available: on loan, or set aside for someone else. A hold on an available book is refused.
+- A member cannot place a hold on a book they currently have on loan, and cannot hold the same book twice.
+- Holds form a first-come-first-served queue; position 1 is next in line.
+- When a held book is returned, it is set aside for the first member in line. readyUntil = return date + 7 days, inclusive.
+- If the set-aside book is not borrowed by readyUntil, that hold expires and is removed. The next member gets the book set aside from the following day for another 7 days. If the queue empties, the book becomes available.
+- Hold expiry is evaluated lazily at the date of each call.
+- Only the member the book is set aside for can borrow it while holds exist; borrowing removes their hold.
+- readyUntil is null for holds whose book is not currently set aside for that member.
+- payFine requires a positive integer amount no greater than the amount owed; overpayment is refused.
+- The member's date argument does not affect fines in payFine; it is only used to process hold expiries.
+- getMember for an unknown member or invalid date returns { ok: false, loans: [], owed: 0, holds: [] }.
+- Successful getMember responses also include ok: true.
+- Loans are listed in borrow order; holds are listed in the order books were added.
+- A failed call may still apply pending hold expiries for its date, since those are time-driven and would happen anyway.

@@ -1,0 +1,25 @@
+- Loan period is 21 days from the borrow date.
+- A renewal grants 21 days counted from the renewal date, not from the old due date.
+- A member may renew a loan at most 2 times, and only on or before its due date.
+- A loan cannot be renewed while any hold is waiting on the book.
+- A member may hold at most 5 books at once.
+- A member may not borrow the same book they are already holding on loan.
+- A member cannot place a hold on a book they currently have on loan.
+- A member cannot place a second hold on the same book while already in its queue.
+- A hold can only be placed on a book that is currently on loan; placing a hold on an available book fails.
+- Hold positions are 1-based queue indexes; the set-aside member is always position 1.
+- When a book is returned and holds exist, the first person in the queue is set aside with a pickup window of 7 days from the return date.
+- A set-aside hold expires after its readyUntil date; the book then goes to the next person in the queue with a new 7-day window starting on the day the expiry is detected.
+- A member may pick up a set-aside book on or before its readyUntil date; picking it up removes that hold.
+- A book set aside for one member cannot be borrowed by anyone else.
+- Fines are 25 cents per day only for days beyond a 3-day grace period after the due date.
+- Fines are capped at 1000 cents (10.00) per returned loan.
+- Fines are calculated and added to the member's balance only when the book is returned; overdue loans do not accrue fines in getMember before return.
+- A member with 1000 cents or more owed cannot borrow new books.
+- Members with outstanding fines can still place holds, renew, and return books.
+- payFine accepts only positive integer amounts not exceeding the amount currently owed; partial payments are allowed.
+- addBook and addMember return { ok: false } for duplicate ids.
+- Operations on unknown member or book ids return { ok: false }.
+- getMember for an unknown member returns empty loans, holds, and owed of 0 rather than failing.
+- Dates are handled as UTC day numbers internally, so calendar arithmetic is independent of the host time zone.
+- Expired holds are processed at the start of every method call using that call's date.

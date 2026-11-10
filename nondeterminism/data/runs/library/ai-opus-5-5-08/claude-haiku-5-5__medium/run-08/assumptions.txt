@@ -1,0 +1,18 @@
+- Input objects are any non-null object; arrays are accepted and simply fail on missing fields.
+- Hold expiration runs after the object check and date check, and before ID, existence and amount checks. This matches the stated rule that expiration runs even when the call fails for those reasons.
+- Dates are validated with a regex plus a UTC round-trip. Year 0000 is accepted as a valid Gregorian year.
+- Dates are stored internally as integer day numbers since the Unix epoch and formatted back to zero-padded `YYYY-MM-DD` on output.
+- A book is treated as on shelf when it has no loan and no set-aside state. A book is treated as set aside when `readyUntil` is non-null, and its first queue entry is the holder.
+- A book that is on loan can still have a non-empty hold queue. Those holds stay in place and are not set aside until the book is returned.
+- When a set-aside member borrows the book, their hold is removed, the queue shifts up, and the readyUntil is cleared. Any other waiting members remain in the queue.
+- A hold stays in the member's active hold list until it is either consumed by borrowing or lost to expiration. Returning a book does not remove the hold of the member who is set aside for it.
+- Returned books with a non-empty queue are set aside for the first member with readyUntil = return date + 7, as specified.
+- Expiration advances a book's `readyUntil` by 8 days (previous readyUntil + 1 + 7) when the next member is set aside.
+- Only members who currently hold a loan on the book may renew it or return it. Renewal checks `date > dueDate` as the overdue test, and does not check the loan count.
+- `payFine` checks the member's existence before the amount's validity. Both checks run after expiration.
+- `getMember` lists loans sorted by numeric due date, then by bookId using JavaScript string comparison. Holds are listed in placement order.
+- `position` in `getMember` is computed from the current queue. `readyUntil` is non-null only when the member is first in the queue and the book is set aside.
+- Each method reads all its arguments before changing any state. The whole body is wrapped in try/catch so that a hostile getter or proxy cannot throw. Any caught exception returns `{ ok: false }` and is treated as a failed call.
+- Failed calls return only `{ ok: false }` with no `reason` field.
+- Backwards dates are not checked. The same arithmetic runs, and the code does not throw.
+- The IDs are used as Map keys exactly as given. The `__proto__` string and similar values are safe because Map is used rather than plain objects.

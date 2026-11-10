@@ -1,0 +1,9 @@
+- If the date is valid and not earlier than the current date, the clock advances and hold expiry runs even when other arguments (ids, amount) are invalid. If the date itself is invalid or the argument object is missing, nothing changes.
+- A `borrow` by the member a book is set aside for is allowed even if that member has no other restrictions; blocked borrows leave the hold untouched.
+- Dates that go past year 9999 after adding days are formatted with the plain year number, padded to at least 4 digits. This is unlikely to be reached.
+- `payFine` with an unregistered member fails, but the clock still advances if the date is valid.
+- `addBook` and `addMember` take no date, so they never touch the clock.
+- A member's holds are listed in the order they were placed. A hold removed by fulfilment or expiry drops out of that list.
+- Non-object `args` (null, primitives) fail with `{ ok: false }`.
+- `placeHold` on a set-aside book is allowed for any member except one who already has a hold on it, and the member who has it on loan cannot be in that state anyway.
+- The `reason` field is a short free-form string.

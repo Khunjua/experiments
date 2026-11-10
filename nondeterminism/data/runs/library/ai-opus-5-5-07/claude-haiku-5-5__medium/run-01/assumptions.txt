@@ -1,0 +1,16 @@
+- Expiry processing runs for every call whose date is valid, including calls with unknown IDs, invalid amounts, or invalid other inputs, and including getMember with an unknown or invalid memberId.
+- If the date itself is invalid, no expiry runs, because there is no date to process.
+- Input that is not a non-null object is treated as having all fields missing.
+- Any unexpected exception (for example, a throwing getter on the input) is caught and returns { ok: false } with no state change.
+- IDs are any non-empty string, including whitespace-only strings; no trimming is applied.
+- A book is "available" when it has no loan and is not set aside; "set aside" means no loan and a non-null readyUntil.
+- When a set-aside book is borrowed by the member it is reserved for, readyUntil is cleared to null because the book is now on loan.
+- A borrow by the reserved member removes that member's hold from their hold list; no other action removes holds except expiry.
+- Returning a book does not remove any hold the returning member has on other books.
+- A loan whose dueDate equals the borrow or check date is not overdue (overdue means dueDate < date).
+- Renewal on the due date itself is allowed (the check is date > dueDate).
+- The fine is computed from the dueDate stored at the most recent borrow or renewal.
+- owed has no upper cap; it can exceed BLOCK_THRESHOLD and FINE_CAP through accumulated fines.
+- The order in which failure conditions are checked does not affect the result, since every failure returns { ok: false } with no change.
+- Loan and hold lists keep their start or placement order; getMember returns newly built arrays and objects, so callers cannot alter library state.
+- Dates are stored as 'YYYY-MM-DD' strings and converted to UTC epoch days for arithmetic; years are zero-padded to four digits in output.

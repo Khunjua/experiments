@@ -1,0 +1,14 @@
+- A call with an invalid date fails immediately and runs no expiry processing, since expiry needs a valid date.
+- A null or non-object argument is treated as an empty object, so the call fails on its missing fields.
+- Any unexpected exception inside a method is caught and returned as { ok: false }; all state changes happen only after every check has passed, so nothing is left half-changed.
+- Loans are listed by getMember in the order they were borrowed, tracked with a global sequence counter.
+- Holds are listed by getMember in the order they were placed, using the same global sequence counter.
+- When a book on loan has a non-empty hold line, the line is kept during the loan and is not reset by borrowing or renewing.
+- A member who borrows a book set aside for them removes only their own hold; the other holds stay in order and shift up.
+- The reserved member's readyUntil is set only when the book is returned (date + PICKUP_DAYS) or when expiry moves the book to the next member; loans have no readyUntil.
+- If a return happens before the due date, the late day count is negative and is treated as 0 chargeable days.
+- The fine is charged to the member's owed balance even if it pushes owed to or above BLOCK_THRESHOLD.
+- Dates are stored as UTC epoch day integers and formatted back to YYYY-MM-DD with 4-digit years padded with zeros.
+- Member and book IDs are kept in separate maps, so the same string can name both a member and a book.
+- Only the book's current holder or the first hold entry is treated as the reserved member; the book's memberId field is cleared whenever the book is not on loan.
+- getMember runs expiry processing whenever the date is valid, even if the member ID is missing or unknown, matching the failed-call rule.

@@ -1,0 +1,23 @@
+- Loan period is 21 days; due date = borrow date + 21 days.
+- A member may renew a loan at most 2 times ("a couple").
+- Each renewal extends the current due date by 21 days (not counted from the renewal date).
+- Renewal is refused if any member is waiting in the hold queue for that book.
+- Renewal is refused if the loan is already overdue (due date before the renewal date).
+- Returning on the due date is not late; each day after the due date costs 25 cents.
+- "Not harsh": the fine for a single late return is capped at 1000 cents ($10). No grace period.
+- Fines are charged at return time only; getMember's owed does not include fines accruing on books still out.
+- Borrowing is refused if the member owes 1000 cents or more, has any overdue loan, or already has 5 loans.
+- Debt does not block renewals, returns, holds or payments.
+- A hold can only be placed on a book that is on loan or currently set aside for someone else; not on a book sitting on the shelf.
+- A member cannot place a hold on a book they currently have on loan, or one they already hold.
+- When a book with holds is returned, it is set aside for the first member in line for 7 days including the return day (readyUntil = return date + 6).
+- If the member doesn't borrow it by readyUntil, their hold is dropped and the book is set aside for the next in line from the following day for another 7 days; if nobody is next, it goes back on the shelf.
+- A book set aside for a member can only be borrowed by that member; borrowing it consumes their hold.
+- If a member who is waiting in a queue borrows the book anyway (e.g. it became free for them), their queue entry is removed.
+- Hold position counts the member it is set aside for as position 1; the position returned by placeHold counts that member too.
+- payFine requires a positive integer amount not exceeding the amount owed; overpayment is refused.
+- Duplicate addBook/addMember IDs are refused; IDs must be non-empty strings or finite numbers.
+- Invalid or non-existent calendar dates are refused with { ok: false }.
+- getMember for an unknown member returns { ok: false }; successful getMember responses also include ok: true.
+- Loans in getMember are ordered by borrow time; holds are ordered by the time the hold was placed.
+- Members cannot be removed and books cannot be removed or marked lost.

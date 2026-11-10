@@ -1,0 +1,25 @@
+- Each bookId is one physical copy; adding an existing bookId or memberId returns { ok: false }.
+- IDs must be non-empty strings or finite numbers; anything else returns { ok: false }.
+- Invalid or impossible dates return { ok: false }.
+- Loan period is 21 days; dueDate = borrow date + 21 days.
+- "A couple of times" means at most 2 renewals per loan.
+- Renewal extends the current due date by 21 days, not the renewal date.
+- Renewal is refused if anyone holds the book (waiting or set aside), or if the loan is already overdue.
+- Fine is 25 cents per day after the due date.
+- "Not harsh": there is a 1-day grace period, so returning 1 day late costs nothing; from 2 days late on, every late day is charged.
+- "Not harsh": the fine per return is capped at 1000 cents ($10).
+- Fines are added to the member's owed balance when the book is returned; nothing accrues while a book is still out.
+- A member who owes 500 cents or more cannot borrow.
+- A member can have at most 5 books on loan at once.
+- A hold can only be placed on a book that is not available: on loan, or set aside / waited on by others.
+- A member cannot hold a book they currently have, and cannot hold the same book twice.
+- Holds are served first come, first served.
+- When a held book is returned, it is set aside for the first person in line until return date + 7 days (inclusive); that is readyUntil.
+- If the pickup window passes, that hold is dropped and the book is set aside for the next person, with a window of 7 days starting the day after the previous window ended.
+- Hold expirations are evaluated lazily, using the date of each dated call.
+- While a book is set aside, only the member it is set aside for can borrow it; borrowing it removes their hold.
+- Members waiting on a book that is still out have readyUntil null; position 1 = next in line, including the person the book is set aside for.
+- There is no cancel-hold operation, because the interface has none.
+- payFine requires a positive integer amount no larger than the amount owed; otherwise it returns { ok: false }.
+- getMember for an unknown member returns { ok: false }.
+- getMember lists loans in borrow order and holds in book-insertion order.

@@ -1,0 +1,10 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if other arguments are invalid or the action fails for a business reason.
+- A call with a missing args object, or a malformed or non-string date, does not touch the clock or expiry.
+- `addBook` and `addMember` take no date, so they do not touch the clock or expiry.
+- Expiry also moves the next hold's `readyUntil` to the previous `readyUntil` + 8 days, as specified, even when that date is already in the past. The loop then keeps expiring.
+- A member's active hold count is the number of holds in their list. Fulfilled and expired holds are removed from it.
+- In `payFine`, the amount is validated after the member is found, and any invalid amount fails. Every failure returns the same `{ ok: false }` plus a reason string.
+- Overdue means a loan with `dueDate` earlier than the borrow date, compared as ISO strings.
+- Years 0001–9999 are handled with `setUTCFullYear`, which avoids the `Date.UTC` two-digit-year quirk.
+- A book that is set aside is identified by a non-null `readyUntil`, and its queue head is the ready hold.
+- Extra unknown fields in arguments are ignored.

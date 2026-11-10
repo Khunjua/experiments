@@ -1,0 +1,15 @@
+- Arguments that are arrays are treated as invalid, the same as non-objects.
+- Failure results include a free-form `reason` string; the wording is my choice.
+- Dates are checked with proleptic Gregorian leap rules, so year 0000 is accepted as valid.
+- Date arithmetic is not specially guarded for results past year 9999; the output is zero-padded to at least four digits.
+- Loans are ordered by borrow date, with ties broken by a global call-sequence counter that also orders holds.
+- A member with `owed` exactly equal to 1000 is blocked from borrowing and renewing (the threshold is inclusive).
+- Renewal is allowed on the due date itself; it is refused only when the date is strictly later than the due date.
+- A returned book with a non-empty queue is passed to the first hold with `readyUntil` = return date + 7.
+- Expiration processing across different books is done in map insertion order; because books are independent, the order does not change the result.
+- Expirations and clock advancement still take effect when the business action later fails, as §3.5 specifies.
+- `getMember` returns `{ ok: false, reason }` for an unknown member or invalid arguments, as the spec's failure rule requires.
+- `payFine` validates `amount` before checking the member, so an invalid amount is reported even for an unknown member.
+- Any unexpected internal exception is caught by a wrapper and returned as `{ ok: false, reason: 'internal error' }` so methods never throw.
+- Ids are compared exactly, with no trimming or normalization.
+- The hold position in `getMember` is computed from the book's current queue at call time.

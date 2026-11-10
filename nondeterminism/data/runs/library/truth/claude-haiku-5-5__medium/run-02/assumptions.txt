@@ -1,0 +1,20 @@
+- Borrow, return, renew, hold and payFine for an unknown member or book return { ok: false } and change nothing; members and books are never auto-created.
+- addBook and addMember for an existing ID return { ok: false }.
+- A refused return returns fine: 0; a refused payFine returns no owed field.
+- Returning a book that is not on loan to that member charges no fine and changes nothing.
+- Fine is 0 for 1 or 2 days late; for 3 or more late days it is late days times 25 cents, capped at 500.
+- A fine is added to the member's debt even if it pushes them to 1000 cents or more; returns are never blocked.
+- A member who owes 1000 cents or more can still place holds and renew loans; only borrowing is blocked.
+- Renewals are not blocked by the member's loan count or outstanding fines.
+- A member can hold any number of books, limited only by the rules in the requirements.
+- Hold position is the 1-based index in the book's line; the member set aside for a book is always position 1.
+- A set-aside hold expires for dates strictly after readyUntil (readyUntil is inclusive).
+- Expiry is applied lazily on every call using that call's date; if several set-asides lapse before the call date, the book passes down the line in one step, each new readyUntil being the previous one plus 3 days, even if that is already past.
+- Holds are only applied to a book when it is returned; a book that is on loan never has a set-aside member.
+- A book set aside for a member can only be borrowed by that member, and only while the set-aside is in effect.
+- Borrowing a set-aside book is refused if the member already has 5 loans or owes 1000 cents or more.
+- A renewal is refused when the loan is overdue; renewing on the due date itself is allowed.
+- The renewal count is per loan; returning and re-borrowing the same book starts at zero renewals.
+- payFine accepts only positive integer amounts no greater than the amount owed.
+- getMember for an unknown member returns an empty result with owed 0 rather than { ok: false }, since the method has no ok field.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings; malformed dates are not validated.

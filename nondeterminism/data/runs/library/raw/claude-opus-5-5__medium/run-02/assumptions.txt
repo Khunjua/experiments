@@ -1,0 +1,19 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId returns { ok: false }.
+- IDs must be non-empty strings or finite numbers; invalid dates (wrong format or impossible calendar date) return { ok: false }.
+- Loan period is 21 days: dueDate = borrow date + 21 days.
+- A member may renew at most 2 times per loan; each renewal adds 21 days to the current due date (not to the renewal date).
+- Renewal is refused if anyone is in the hold queue for the book, if the loan is already overdue, or if the member owes 1000 cents or more.
+- Returning on the due date is not late; each full day after the due date costs 25 cents, with no grace period.
+- To be "not harsh", the fine for a single return is capped at 500 cents.
+- Fines are charged only at return time; overdue books on loan do not show accruing fines in owed.
+- A member may hold at most 5 loans at once, and cannot borrow while owing 1000 cents or more.
+- Only the member who borrowed a book can return or renew it.
+- A hold can only be placed when the book is not freely available (on loan or already has a waiting line); a member cannot hold a book they currently have, nor hold the same book twice.
+- There is no limit on the number of holds per member, and owing money does not block placing holds.
+- When a book with holds is returned, it is set aside for position 1 with a 7-day pickup window including the return day (readyUntil = return date + 6 days).
+- If the pickup window passes, that hold is removed and the book is set aside for the next in line for another 7 days starting the day after the previous window ended; this is processed lazily at the start of every dated call.
+- While a book is set aside, only the member it is set aside for can borrow it; borrowing removes their hold, and positions of the others move up.
+- The member the book is set aside for is position 1; positions count everyone in line, set-aside or not.
+- payFine requires a positive integer amount no larger than what is owed; overpayment returns { ok: false }.
+- getMember for an unknown member returns { ok: false }; loans are listed in borrow order and holds in the order books were added to the library.
+- Members cannot be removed and holds cannot be cancelled (no such methods in the interface).

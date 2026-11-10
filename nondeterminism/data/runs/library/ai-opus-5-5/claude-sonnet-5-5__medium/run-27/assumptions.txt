@@ -1,0 +1,10 @@
+- A dated call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if the call then fails because of other invalid arguments or a business rule.
+- A call with a missing argument object, an invalid date, or a date earlier than the current date fails and touches no state, including the clock and expiry.
+- Due dates and readyUntil dates that pass year 9999 are formatted as-is with a plain year, without failing.
+- Members' holds in `getMember` are ordered by a global placement sequence counter, which matches the order they were placed.
+- A ready hold is always at queue position 1 of a set-aside book, and its `readyUntil` is shown only for that hold.
+- A member's active holds are counted as the books whose queue contains that member.
+- A `payFine` amount that is not a safe integer greater than 0 fails, including non-integer numbers and numeric strings.
+- An overdue check on borrow uses strict `dueDate < date`, so a loan due today does not block borrowing.
+- An invalid `memberId` or `bookId` in a dated call still lets the date advance the clock if the date is valid.
+- A `reason` string is included on failures for debugging only.

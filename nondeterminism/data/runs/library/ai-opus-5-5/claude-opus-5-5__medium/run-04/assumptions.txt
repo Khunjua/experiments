@@ -1,0 +1,11 @@
+- When a dated call has a valid date that is not earlier than the current date, the clock advances and hold expiry runs even if the call's other arguments are invalid. Expiry depends only on the date, so this matches what any later call would do anyway.
+- A non-object argument (missing, null, primitive) fails before any clock update.
+- `getMember` includes `ok: true` in a successful result, as section 9 shows, even though the interface line omits it.
+- Failures include a short `reason` string.
+- `payFine` accepts only values of type number; numeric strings are invalid.
+- Due dates and `readyUntil` dates that fall after 9999-12-31 are still computed and formatted. The year range check applies only to input dates.
+- Dates are computed with pure integer civil-day arithmetic, which is equivalent to UTC and unaffected by time zones, instead of `Date.UTC`. This avoids `Date`'s special handling of years 0–99.
+- `addBook` and `addMember` take no date, so they do not touch the clock or run expiry.
+- Expiry processes all set-aside books at the start of every dated call, in no particular order. Order does not change the outcome, because each book's queue is independent.
+- A member may place holds while overdue or owing money, and may place holds on a set-aside book that is ready for someone else.
+- When `placeHold` succeeds on a set-aside book, the returned position counts the ready hold as position 1.

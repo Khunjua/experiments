@@ -1,0 +1,11 @@
+- If the date is valid and not earlier than the current date, the clock advances and hold expiry runs even when the call then fails because another argument is invalid (for example a bad ID or amount). This is treated like a business failure.
+- If the argument object is missing or the date is invalid, the call fails with no effect: the clock does not advance and expiry does not run.
+- addBook and addMember are undated. They do not touch the clock and do not run expiry.
+- Date arithmetic uses a pure integer civil-calendar algorithm instead of Date.UTC. It is equivalent to UTC and avoids Date.UTC's handling of years 0–99.
+- Computed due dates or readyUntil dates past 9999-12-31 are still produced and formatted, with a year of 5 or more digits. They are not rejected.
+- Renewal sets dueDate to max(old dueDate, date + 21). Since a renewal can never be on an overdue loan, this always equals date + 21.
+- `position` in placeHold and getMember is the index in the book's queue plus 1, including the ready hold at position 1.
+- A hold that is fulfilled by borrowing, or that expires, is no longer active and stops counting toward the 5-hold limit.
+- Holds are capped only by active holds, and there is no limit on queue length per book.
+- Failure results include a `reason` string.
+- An `amount` must be of type number; numeric strings and BigInt are invalid.

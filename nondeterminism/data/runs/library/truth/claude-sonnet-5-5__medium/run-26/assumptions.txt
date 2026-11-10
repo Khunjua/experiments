@@ -1,0 +1,12 @@
+- Hold expiry is applied lazily at the start of every call that carries a date, so a hold lapses once the call date is after readyUntil.
+- A set-aside book's holder always sits at position 1, so readyUntil is shown only for that position.
+- Duplicate addBook or addMember, and null or undefined ids, are refused.
+- Unknown members or books, or malformed dates, are refused. getMember for an unknown member returns { ok: false }.
+- Borrow checks run in this order: on loan, loan limit, owed amount, set-aside for someone else. All refusals change nothing. A refused borrow leaves the holder's hold in place.
+- A member who borrows a set-aside book has their hold removed. Remaining holds stay queued, and the book is not set aside again until it is returned.
+- When a returned book has holds, it is set aside for position 1 with readyUntil = return date + 3, regardless of that member's fine status.
+- A 3-day-late fine is 25 × late days, capped at 500. 1–2 days late is free.
+- Renewal is refused if any hold exists on the book, including a hold from a member whose set-aside period has not yet expired.
+- placeHold is allowed on a set-aside book for any member other than someone already in the line. A member who holds the book on loan is refused.
+- payFine requires an integer amount from 1 up to the amount owed. Paying when nothing is owed is refused.
+- Overdue loans stay on loan and keep accruing days until returned. Fines are charged only on return.

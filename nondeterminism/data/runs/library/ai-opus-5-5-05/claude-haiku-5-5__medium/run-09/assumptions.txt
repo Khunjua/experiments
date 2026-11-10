@@ -1,0 +1,16 @@
+- Any non-null object (including arrays) is accepted as the argument; extra fields are ignored.
+- Missing or non-object arguments, and any exception raised while reading arguments, produce `{ ok: false }`.
+- Input validation runs before the clock step, so a call with invalid input does not advance the clock.
+- A dated call with a valid date advances the clock and runs hold expiry even when the member or book is unknown or a business rule then fails.
+- Dates after 9999-12-31 produced by arithmetic are not clamped or rejected; they are printed with more than four year digits.
+- Failure reason strings are arbitrary text.
+- A payment equal to the full `owed` amount is allowed.
+- Overdue means `date` is strictly later than `dueDay`; a return on the due date is not overdue.
+- Renewal is refused when the book is on loan to the member but a hold queue exists, regardless of whether the loan is overdue.
+- A member whose hold is set aside may borrow only if they are the queue head; any other member is refused with a "set aside for another member" failure.
+- `loans` in `getMember` follow borrow order; `holds` follow the global order in which holds were placed.
+- `readyUntil` is non-null only for the queue head when the book is not on loan.
+- A member may hold a book that is on loan to another member, and may hold a book that is already set aside for someone else.
+- The 5-loan limit and the 500-cent borrowing block count only current loans and current `owed`, respectively.
+- Fine amounts are whole cents with no rounding needed, since all inputs are integers.
+- A book with an empty queue and no loan is treated as available; no other state needs tracking.

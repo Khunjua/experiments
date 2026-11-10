@@ -1,0 +1,18 @@
+- Invalid arguments (missing object, bad identifiers, malformed or nonexistent dates, non-integer or non-positive amounts) return { ok: false } and do not advance the clock or run hold expiry.
+- A valid dated call that is rejected for a business reason still advances the clock and runs hold expiry, as §3.3 and §7.4 require.
+- getMember with a valid but unregistered member still advances the clock and runs hold expiry before returning { ok: false }.
+- Hold expiry is applied to every book on every valid dated call, including calls that then fail.
+- Expired holds are removed from the member's active hold list, and the member's hold count drops accordingly.
+- The hold that becomes ready after a return keeps its place in the member's hold list until it is borrowed or expires.
+- A book on loan has readyUntil null; readyUntil is only set while the book is set aside.
+- Borrowing a set-aside book by its ready hold removes that hold from the queue and the member's hold list; remaining holds keep their order.
+- Overdue check at borrow uses dueDate strictly earlier than the call date; a loan due on the call date does not block borrowing.
+- Renewal is allowed when the call date equals the due date and is rejected only when the call date is later than the due date.
+- Renewal does not check whether the member is the only borrower beyond the book being on loan to them; the queue-empty rule is the only hold-related renewal check.
+- placeHold rejects a member who already has the book on loan or already has a hold on it, whether waiting or ready.
+- payFine with amount equal to owed is allowed and leaves owed at 0.
+- Dates after 9999-12-31 produced by arithmetic (due dates, renewals, pickup windows) are not guarded; the implementation formats them with more than four year digits.
+- Extra fields in argument objects are ignored, and the optional reason field is omitted from failure results.
+- Identifiers that are not strings, or are empty strings, are treated as invalid; no trimming or case folding is applied.
+- Arguments that are arrays are accepted as objects only if they have the expected named fields; in practice they fail the identifier checks.
+- The member's loan list in getMember follows the order of borrowing, and the hold list follows the order of placement.

@@ -1,0 +1,14 @@
+- Hold expiry is applied lazily at the start of every method call, using that call's date. A hold expires when the call date is later than readyUntil.
+- If several consecutive holders have all missed their windows, expiry cascades. Each next window ends 3 days after the previous readyUntil.
+- The member set aside for a book stays at position 1 in the line, and their hold counts toward the "anyone has a hold" check for renewals.
+- A member who owes 1000 or more cannot borrow a book set aside for them. Their hold stays until it expires.
+- Unknown members or books make the action fail with ok:false.
+- Adding a duplicate book or member is refused.
+- Placing a hold needs an existing member and book. It is allowed while the member owes money.
+- Fines are charged at return time only, not accrued while a book is overdue.
+- Returning 3 or more days late is charged 25 cents × all late days, capped at 500.
+- payFine requires an integer amount greater than 0 and no more than what is owed.
+- getMember for an unknown member returns an empty record (no loans, 0 owed, no holds).
+- Renewal count is per loan and resets on a new borrow.
+- A hold on a book that is set aside for someone else is allowed and joins the end of the line.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.

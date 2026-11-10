@@ -1,0 +1,17 @@
+- Date arithmetic that would pass 9999-12-31 is clamped to 9999-12-31 for due dates, readyUntil values and hold-expiry chains.
+- A dated call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or the business rule fails, as §3.3 implies.
+- A malformed or earlier date changes nothing, including the clock and expiry.
+- A missing or non-object argument is treated as an empty object, so the call returns { ok: false }.
+- addBook and addMember take no date, so they do not advance the clock or run expiry.
+- Hold expiry is applied to every book on each dated call, in registration order; the order does not change results.
+- A hold that is removed by expiry or pickup is removed from the member's active-hold list at the same time.
+- A member's holds are listed in placement order, and a hold's position is reported as its index in the book's queue plus 1.
+- readyUntil is reported only when the book is set aside and the member is first in its queue; otherwise it is null.
+- A borrow is blocked by an overdue loan only when the loan's dueDate is strictly before the call date.
+- A renewal is allowed on the due date itself (date equal to dueDate) and blocked only when date is after dueDate.
+- Fines are added to owed without any cap on the total balance.
+- The payment amount must be a safe integer greater than 0; anything else fails.
+- A book that is on loan keeps its hold queue; when it is returned with a non-empty queue, the book is set aside for the first hold with readyUntil = return date + 7.
+- Pickup on the readyUntil date is allowed; expiry happens only when the call date is strictly later than readyUntil.
+- Identifiers are matched exactly and must be non-empty strings; no other type is accepted.
+- The reason field is omitted from failure results.

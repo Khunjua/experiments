@@ -1,0 +1,9 @@
+- For an unregistered member in a dated call with a valid date, the clock still advances (the date is valid and not earlier), as §3.3 says it does on business failures.
+- Calls with invalid ids or a missing/invalid date do not advance the clock or run expiry; a payFine with an invalid amount also does not advance the clock.
+- A date earlier than the current date fails without advancing the clock or running expiry.
+- Date comparison uses string comparison, which is valid for the fixed-width YYYY-MM-DD format.
+- Dates that would overflow past year 9999 when adding days are formatted as-is, not rejected.
+- A hold on a book set aside for the same member who is calling placeHold is rejected as a duplicate hold.
+- A ready hold is determined by the book being not on loan with a non-empty queue; its first queue entry is the ready one.
+- A member's holds list is kept in placement order, and a hold is removed from it when it is fulfilled or expires.
+- Since expiry only touches set-aside books, holds on books that are on loan never expire.

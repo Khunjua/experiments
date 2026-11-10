@@ -1,0 +1,18 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId returns { ok: false }.
+- Loan period is 21 days; due date = borrow date + 21 days.
+- "A couple of times" means at most 2 renewals per loan.
+- Renewal extends the current due date by 21 days (not from the renewal date).
+- Renewal is refused if anyone holds the book, or if the loan is already overdue.
+- Fines: 25 cents per day late, counted from the day after the due date; returning on the due date is not late.
+- "Not harsh": a 2-day grace period (up to 2 days late = no fine; beyond that every late day is charged), and a cap of 500 cents per loan.
+- A member owing 500 cents or more cannot borrow; owing less does not block borrowing, renewing or holds.
+- A member can have at most 5 books on loan at once.
+- Holds can be placed only on a book that is on loan or set aside for someone; not on an available book, not on a book the member has, and not twice by the same member.
+- Holds are served first come, first served; position 1 is the next (or currently set-aside) member.
+- When a held book is returned, it is set aside for the first member in line; readyUntil = return date + 7 days (inclusive).
+- If not picked up by readyUntil, the hold is dropped and the book is set aside for the next member, starting the day after, again for 7 days; if nobody is waiting it becomes available.
+- While set aside, only that member can borrow the book; borrowing it removes their hold.
+- Holds have no limit per member and cannot be cancelled (no method for it).
+- payFine requires a positive integer amount not exceeding what is owed; overpayment is refused.
+- Unknown member/book, invalid dates, or dates earlier than the previous call return { ok: false }; getMember for an unknown member returns { ok: false }.
+- Expired set-asides are processed lazily at the date of each dated call.

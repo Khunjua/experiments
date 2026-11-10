@@ -1,0 +1,11 @@
+- A dated call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or it fails for a business reason.
+- A call whose date is invalid or earlier than the current date does not advance the clock and does not run expiry.
+- `addBook` and `addMember` take no date, so they do not touch the clock or expiry.
+- A missing or non-object argument object fails with `{ ok: false }` and changes nothing.
+- A member who has a hold on a book cannot place another hold on it, even if the hold is ready. This also covers a book set aside for them.
+- A member whose book is set aside for them can borrow it. If another rule blocks the borrow, the hold stays until it expires.
+- When a hold expires or is fulfilled, it is removed from the member's active holds.
+- Hold expiry runs across all books on every dated call, and the next ready window is previous `readyUntil` + 8 days.
+- Overdue check for borrowing compares the loan's due date as a string with the call date (`dueDate < date`).
+- `payFine` with a non-safe-integer or non-positive amount fails. Amounts that are not numbers also fail.
+- Failed calls return only `{ ok: false }` with no `reason` field.

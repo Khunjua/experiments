@@ -1,0 +1,17 @@
+- Every argument must be a non-null, non-array object; otherwise the call fails.
+- Input fields (ids, date, amount) are validated before the clock is touched, so an call with invalid input does not advance the clock.
+- Argument fields that are not valid for their type (for example, a Number object for amount) are rejected.
+- Dates are clamped to 9999-12-31 when addition would pass that date, so every returned date stays a valid 'YYYY-MM-DD' string.
+- A ready hold stays valid through its readyUntil date (expiry happens only when readyUntil < D).
+- Hold processing runs over all books on every dated call, and chained set-aside windows are computed from the expired readyUntil plus one day.
+- Any member may place a hold on a set-aside book, including members other than the one it is set aside for.
+- A member's ready hold is removed when they borrow the book; the remaining holds stay waiting and their positions shift up.
+- A member's loans are listed in borrow order, and renewals do not change that order.
+- Holds are listed in placement order, using an internal sequence number that is not exposed.
+- Fines are not capped against the member's total owed; each loan's fine is capped at 1000 cents.
+- An early return (negative daysLate) incurs a fine of 0.
+- Business-rule failures return only { ok: false } and no reason field is added.
+- The clock advances on any call that passes input validation, even if the call then fails a business rule.
+- Member and book existence is checked after the clock is advanced and hold processing runs.
+- Any unexpected exception inside a method is caught and returned as { ok: false }, so methods never throw.
+- Book IDs and member IDs are case-sensitive and are not trimmed.

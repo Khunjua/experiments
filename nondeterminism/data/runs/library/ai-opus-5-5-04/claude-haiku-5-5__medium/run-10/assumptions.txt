@@ -1,0 +1,21 @@
+- Dates use proleptic Gregorian rules, so year 0000 is accepted as a leap year and valid.
+- Dates are stored and compared as the original 'YYYY-MM-DD' strings; arithmetic goes through UTC day numbers.
+- Date arithmetic is not designed for years beyond 9999; output is not guaranteed to stay 4-digit or sortable there.
+- Non-object arguments, non-string IDs, empty-string IDs and invalid dates are all rejected without type coercion.
+- Extra fields in argument objects are ignored.
+- Failure reasons are short descriptive strings; they carry no contract beyond ok: false.
+- A top-level try/catch wraps every method as a safety net against throwing getters or unexpected input; all validation happens before any state change.
+- advance(date) runs for payFine and getMember, which take a date, and it runs before the unknown-member check, as the spec's order implies.
+- A set-aside entry is always the first queue entry of a book with status reserved; readyFrom is stored internally but never returned.
+- When a set-aside member picks up, the remaining queue entries stay waiting and keep their order, with no readyFrom or readyUntil.
+- When a book is returned and its queue is non-empty, the first waiting member is set aside from the return date, even if the queue was previously empty.
+- Renewal rule 7 is implemented as "queue non-empty", which also covers a set-aside member.
+- Hold position for placeHold is the queue length after appending, so it counts set-aside and waiting members alike.
+- Hold count for MAX_HOLDS is computed by scanning all book queues for the member, which counts set-aside holds too.
+- Holds are ordered for getMember by a global, monotonically increasing sequence number assigned at placement.
+- Loans are ordered for getMember by creation (array push order); renewals do not reorder them.
+- A member has at most one loan per book; this follows from the rule that a loaned book cannot be borrowed.
+- Overdue loans in getMember keep their stored dueDate; no fine is computed or displayed until return.
+- Owed amounts are unbounded integers; no upper cap is applied to owed.
+- A borrow by a member who is waiting in a reserved book's queue but not first is rejected under the "reserved for a different member" rule.
+- Expiry cascades for a book happen only for books with status reserved, and only when readyUntil is strictly before the call date.

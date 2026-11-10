@@ -1,0 +1,14 @@
+- Input validation (including date format and amount) runs before the clock is checked or advanced, so a call with any invalid field never moves the clock.
+- Once the date is valid and not earlier than the clock, the clock advances even if the member or book is unknown or a business rule then fails, as §4.4 requires.
+- Any computed date beyond 9999-12-31 is clamped to 9999-12-31, which affects loan due dates, renewals and hold readyUntil values.
+- Internal dates are stored as UTC day numbers; formatting to 'YYYY-MM-DD' is done only on output.
+- Lower date bound is 0001-01-01; no computation can go below a date already seen, so no underflow handling is needed.
+- A book with no loan and a non-empty queue whose head is not a ready hold for the borrower is treated as unborrowable; this state is unreachable under the specified rules.
+- The borrow limit (5 loans) and the owed block (≥ 500) are checked after the set-aside and on-loan checks; the result is the same either way because all failures return only ok: false.
+- Owed has no upper cap; fines accumulate without limit.
+- payFine rejects amount > owed, and any amount when owed is 0; partial payments are otherwise accepted.
+- Holds are ordered by a global insertion sequence number, and loans by a global borrow sequence number; getMember sorts by these to give call order.
+- position in placeHold and getMember is the 1-based index in the current queue, computed at the time of the call.
+- readyUntil in getMember is non-null only for the queue head, which is the only possible ready hold; it is null for all waiting holds.
+- A hold chain step may leave a new head whose readyUntil is already before the call date; hold processing repeats until no expired head remains.
+- Each method body is wrapped in a try/catch that returns { ok: false }, so no input can cause a throw, including hostile getters on the argument object.

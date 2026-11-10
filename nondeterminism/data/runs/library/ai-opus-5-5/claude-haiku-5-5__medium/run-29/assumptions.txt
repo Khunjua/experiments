@@ -1,0 +1,21 @@
+- Arguments must be a non-null object; bookId and memberId must be non-empty strings; invalid input returns { ok: false } before the clock is touched.
+- A dated call with a valid date (not earlier than the current date) advances the clock and runs hold expiry even when it then fails for a business reason.
+- Calls with a valid date but an unregistered member or book still advance the clock and run expiry, per the clock rule.
+- A payment amount must be a safe integer greater than 0; a non-integer or non-positive amount is treated as invalid input.
+- Dates are validated by exact regex plus a calendar round-trip check; years 0001 to 9999 are accepted, and leading or trailing whitespace is rejected.
+- If an operation would produce a due date or pickup date after 9999-12-31, it fails with { ok: false } and changes nothing (applies to borrow, renew, return with a pending hold, and placeHold-free paths).
+- Hold expiry chaining is not guarded against passing 9999-12-31; the resulting date could be formatted with a five-digit year in that unlikely case.
+- Expiry is processed for all books on every dated call, including calls that fail.
+- Owed balance has no upper bound when fines accumulate; fines are not capped in total, only per return.
+- Renewal allowed on the due date itself (date equal to dueDate); overdue means date strictly greater than dueDate.
+- Renewal count resets to 0 when a loan is returned and a new loan is created by borrow.
+- The renewal check for holds uses the book's queue being non-empty, including a ready hold set aside for another member.
+- Borrowing a book that is set aside for the member removes that member's hold; the other holds keep their order and their position numbers shift down.
+- A borrow by the member for whom a book is set aside is permitted only if the member meets all other borrowing rules (loan count, overdue, owed).
+- A member may not place a hold on a book they currently have on loan, and may not place a second hold on the same book.
+- Hold position in placeHold is the queue length after the push; in getMember it is recomputed from the queue index at call time.
+- The member's loans in getMember are sorted by the order in which the loans were created (borrow order), and holds by the order they were placed.
+- A hold's readyUntil in getMember is reported only for the hold currently set aside (queue head while the book is ready); other holds report null.
+- When an expired ready hold is followed by another hold, the new readyUntil is computed from the previous readyUntil even if that new value is already before the current date; the expiry loop continues until no further expiry applies.
+- Holds placed on a book that is on loan are not affected by the loan's due date or overdue status.
+- A book's readiness and queue are internal; a book that is not on loan and has a non-empty queue is always set aside for the queue head.

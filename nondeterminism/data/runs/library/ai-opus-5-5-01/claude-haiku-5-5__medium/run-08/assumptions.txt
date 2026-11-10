@@ -1,0 +1,16 @@
+- An argument that is an array is treated as not an object and returns invalid_input.
+- Ids are any non-empty string; whitespace is not trimmed and is significant.
+- Valid dates are 4-digit years 0000 to 9999 in the proleptic Gregorian calendar, with the month and day checked by round-trip.
+- A call with a valid date that is not earlier than the latest date advances the latest date and applies pickup expiry, even if its other fields are invalid or it fails for another reason.
+- A call with an out-of-order date and invalid other fields returns invalid_input, since field validation precedes the order check.
+- A call with an invalid date returns invalid_input and changes nothing, including the latest date.
+- Any unexpected exception inside a method returns { ok: false, reason: 'invalid_input' }. All state changes happen after the checks, so this should not leave partial changes.
+- Each hold records a global placement sequence number, which is used to order the holds list in getMember.
+- A member's hold entry is removed when the hold expires or the member borrows the book. No other operation removes a hold.
+- When a set-aside member borrows the book, the book stays on loan with the remaining queue kept in place.
+- Returning a book sets readyUntil to the return date + 7 when the queue is non-empty, which follows §5.4.
+- Expiry resolution runs once per admitted call and loops until each set-aside book's readyUntil is not before the call date.
+- Fines are summed without any cap on the member's total owed.
+- A date beyond year 9999 produced by arithmetic is formatted with more than four year digits. This case is not expected in practice.
+- Duplicate ids within the same namespace are rejected by book_exists or member_exists. Book and member ids are kept in separate Maps, so a Map key cannot collide with an object prototype property.
+- payFine accepts an amount that is a JavaScript integer number (for example 5 or 5.0). Non-number types are rejected.

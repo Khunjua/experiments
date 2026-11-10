@@ -1,0 +1,53 @@
+{
+ "project": "library",
+ "spec": "ai-opus-5-5",
+ "model": "claude-opus-5-5",
+ "effort": "medium",
+ "run": 5,
+ "cli": "2.1.310 (Claude Code)",
+ "started": "2026-10-26T20:52:38.131Z",
+ "finished": "2026-10-26T20:53:27.045Z",
+ "ok": true,
+ "exit": 0,
+ "signal": null,
+ "costUSD": 0.1262514,
+ "durationMs": 48088,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 745,
+  "cache_read_input_tokens": 5217,
+  "output_tokens": 5962,
+  "output_tokens_details": {
+   "thinking_tokens": 1216
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 745,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 5962,
+    "cache_read_input_tokens": 5217,
+    "cache_creation_input_tokens": 745,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 745
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "hasCode": true,
+ "loadError": null,
+ "matched": 24,
+ "total": 31
+}

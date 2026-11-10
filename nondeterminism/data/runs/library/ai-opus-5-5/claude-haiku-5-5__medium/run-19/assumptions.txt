@@ -1,0 +1,20 @@
+- Identifiers must be strings of length at least 1; numbers and other types are rejected without changing state.
+- Arguments that are not objects are treated as invalid input and change nothing.
+- The current date advances only when the identifiers are well-formed and the date is a valid date not earlier than the current date. Unregistered members or books still advance the clock, since that is a business-rule failure.
+- Hold expiry runs whenever the clock advances, even if the call later fails for a business reason.
+- Valid dates run from 0001-01-01 to 9999-12-31. Computed dates beyond 9999-12-31 are clamped to 9999-12-31 rather than failing the call.
+- `payFine` accepts only safe integers greater than 0 for `amount`; non-integers are rejected.
+- A dated call with the same date as the current date does not move the clock but is processed normally.
+- Expiry of a ready hold is applied for dates strictly after `readyUntil`; the next hold's `readyUntil` is `previous readyUntil + 8` (the spec's `(previous + 1) + 7`), which may be less than the call date, so expiry repeats until it no longer applies.
+- When a set-aside book's ready hold is fulfilled by borrowing, the book becomes on loan to that member and any remaining waiting holds stay in queue order.
+- A book's hold queue is kept in the order holds were placed, and each hold gets a global placement sequence number used to order `getMember` holds.
+- Holds are active while waiting or ready; the 5-hold limit counts both.
+- A member cannot place a hold on a book they currently have on loan, and cannot place a second hold on the same book.
+- Placing a hold on a book set aside for another member is allowed.
+- A book with waiting holds that is on loan cannot be renewed, as required; holds do not block returns or borrowing of available books.
+- The overdue check at borrow time considers all of the member's loans, including those whose due date is before the call date.
+- Returning an overdue book is always allowed, and the fine is charged on return.
+- The 5-loan limit counts current loans only; a loan is removed from the member's list when returned.
+- `getMember` returns loans in borrow order; renewal does not change a loan's position in that list.
+- `getMember` returns `readyUntil` only for the ready hold of a set-aside book, and `null` for waiting holds.
+- `reason` fields are not included in failure results; failures return exactly `{ ok: false }`.

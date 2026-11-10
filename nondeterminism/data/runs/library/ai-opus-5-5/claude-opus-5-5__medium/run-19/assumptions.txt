@@ -1,0 +1,11 @@
+- When the argument object is valid and the date is valid and not in the past, the clock advances and hold expiry runs even if other fields (IDs, amount) are invalid. When the date is missing, malformed or in the past, nothing changes.
+- addBook and addMember are undated. They do not touch the clock and do not run hold expiry.
+- borrow and renew fail if the computed due date would fall after 9999-12-31.
+- A readyUntil date past year 9999 is still stored and formatted, with more than 4 year digits if needed. It is not treated as an error.
+- Successful results contain only the documented fields. Failed results are { ok: false, reason }.
+- In borrow, the 5-loan limit, overdue check and owed check apply even when the member is picking up a book set aside for them. A blocked pickup leaves the hold in place.
+- placeHold is allowed on a set-aside book by any member who does not already hold it. This includes a member who is not first in the queue.
+- payFine requires amount to be a JavaScript number that is a safe integer. Numeric strings and BigInt are invalid.
+- The member's active-hold count is the number of holds still in queues. Fulfilled and expired holds no longer count.
+- Hold expiry processes books in registration order. Order does not affect the results.
+- Dates are converted with UTC Date methods (setUTCFullYear), so years 0001–0099 are handled correctly.

@@ -1,0 +1,13 @@
+- A call with an invalid argument object, invalid identifier, invalid amount or malformed date fails without advancing the clock or running expiry.
+- A call with a valid date but an unregistered member or book still advances the clock and runs expiry, as §3.3 requires.
+- Dates that would pass 9999-12-31 are clamped to 9999-12-31, so output dates always stay in the 4-digit format.
+- Date arithmetic uses an internal day-number calculation (equivalent to UTC) rather than the Date object, so no local time zone or DST can affect results.
+- Member loan lists and hold lists are ordered by Map/Set insertion order: borrow order for loans, placement order for holds. A loan or hold that is removed and later re-created goes to the end.
+- A book's queue position for a member's hold is its current index in the queue plus 1, computed when getMember is called.
+- readyUntil is null for waiting holds and for holds on books set aside for a different member.
+- Expiry is checked for every book on every dated call, not only the book named in the call.
+- Renewal's overdue check uses the call date (`date > dueDate`), and a renewal on the due date itself is allowed.
+- returnBook fails when the book is on loan to a different member, even if the book is registered and this member has a hold on it.
+- A set-aside book whose ready member is blocked by a borrowing rule stays set aside; the hold remains until it is borrowed or expires.
+- A payment amount that is not a safe integer greater than 0 fails, including non-number types.
+- Fine calculation uses the return date as `date` and counts lateness from the loan's current dueDate, which includes renewals.

@@ -1,0 +1,19 @@
+- Loan period is 21 days counted from the borrow date (dueDate = borrow date + 21 days).
+- Renewal extends the due date by 21 days from the current due date; a loan can be renewed at most 2 times.
+- Renewal is refused when the loan is already overdue (date after due date) or when any hold is waiting on the book; renewal on the due date itself is allowed.
+- Late fine: the first 3 days after the due date are free (grace period); after that, 25 cents for each calendar day late beyond the grace period, counted from the due date to the return date.
+- There is no cap on the fine per loan.
+- Fines are added to the member's balance when the book is returned; overdue fines on still-open loans are not included in the owed amount until the book is returned.
+- Members with an outstanding balance can still borrow and place holds; the balance does not block any action.
+- A member may hold at most 5 books on loan at once; a borrow beyond that is refused.
+- A hold can only be placed on a book that is currently on loan to another member; a member cannot hold a book they have on loan, and cannot hold the same book twice.
+- Holds are a first-come, first-served line; position 1 is next, and positions are the index in the line (including a set-aside entry at position 1).
+- When a book is returned and holds exist, it is set aside for the first member in line, who has 7 pickup days counted from the return date inclusive (readyUntil = return date + 7).
+- A set-aside book cannot be borrowed by anyone other than the member it is set aside for; that member's borrow removes their hold.
+- A set-aside hold lapses when the date is after readyUntil; the lapsed member's hold is removed and the next member in line is set aside starting from the lapsed readyUntil + 7 days, or the book becomes available if no one is waiting.
+- A returned book with no holds becomes available on the shelf.
+- A payment must be a positive integer number of cents and cannot exceed the amount owed; overpayments are refused.
+- Unknown member or book IDs, duplicate addBook/addMember calls, and invalid actions return { ok: false } and change nothing.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }; for a known member it includes ok: true.
+- Any non-null value is accepted as an ID and compared with strict equality.
+- Returning a book requires that the member is the one who currently has it on loan.

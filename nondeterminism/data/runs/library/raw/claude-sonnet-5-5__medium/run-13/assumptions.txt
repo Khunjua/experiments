@@ -1,0 +1,24 @@
+- Loan period is 21 days; due date is borrow date + 21.
+- A book returned on its due date is on time; the fine is 25 cents per full day late.
+- To be lenient, the fine is capped at 1000 cents per loan.
+- The fine is charged and added to owed when the book is returned.
+- A member can renew at most 2 times per loan.
+- A renewal sets the new due date to the renewal date + 21 days.
+- Renewal is refused if anyone is in the hold queue for the book, if the loan is already overdue, or if the member owes 500 cents or more.
+- Borrowing is refused if the member owes 500 cents or more.
+- There is no limit on how many books a member can have out.
+- Duplicate bookId or memberId, or unknown ids, return ok:false.
+- Invalid or malformed dates return ok:false.
+- A book can only be borrowed if it is not currently on loan.
+- A hold can only be placed on a book that is out, meaning on loan or set aside for another holder. Holds on available books are refused.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- Hold positions are 1-based. The member the book is set aside for is position 1.
+- When a book with a hold queue is returned, it is set aside for the first holder, with readyUntil = return date + 7 days (inclusive).
+- If the pickup window passes (date > readyUntil), the hold is dropped and the book is set aside for the next holder. Their window is the previous readyUntil + 7 days. If the queue is empty, the book becomes available.
+- This expiry is applied lazily whenever any method is called with a date.
+- A book set aside can only be borrowed by the member it is set aside for. Borrowing removes that hold.
+- Holds do not require the member to be free of fines.
+- payFine requires a positive integer amount that does not exceed the amount owed. Overpayment is refused with no change.
+- getMember lists loans in borrowing order and holds in book-creation order.
+- getMember for an unknown member returns { ok: false }.
+- The returnBook fine applies even if the member is blocked from borrowing.

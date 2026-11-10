@@ -1,0 +1,19 @@
+- A member or book that does not exist is a business rule (step 4), so the clock still advances and time processing still runs for a call that fails for that reason.
+- A non-integer `amount` in payFine is a format error (step 1): it fails without advancing the clock. `amount` < 1 and overpayment are business failures after the clock advances.
+- getMember advances the clock and runs time processing before checking that the member exists, as §3.6 requires.
+- Every accepted date-bearing call runs expiry processing, including getMember and calls that later fail.
+- Non-string or empty IDs fail at step 1. IDs of any non-empty string are allowed, including those that look like dates.
+- Date validation accepts years 0000–9999. Year 0000 is treated as a leap year, following the divisible-by-400 rule.
+- Output dates are zero-padded to four-digit years.
+- `reason` strings are free-form and chosen by the implementation.
+- Loans are listed in creation order by pushing onto the member's array. Renewal changes the loan object in place, so its order is unchanged.
+- Holds are ordered by a global placement counter, so ordering is stable across books.
+- `position` in getMember is the current 1-based index in the book's queue. `readyUntil` is set only when the member is at index 0 and the book is set aside.
+- Fines accumulate in `owed`, so `owed` can exceed 1000 through several fines. The debt limit applies only to borrow and renew.
+- In borrow, a book set aside for the borrowing member is handed over by removing that member from the queue. The rest of the queue keeps its order.
+- The borrow checks run in the order listed in §5.3. A borrow that fails for a set-aside book leaves the hold in place.
+- Returning a book whose queue is non-empty sets it aside for position 1 with readyUntil = return date + 7, and the book is not available until the next processing step.
+- Returning a loan clears the book's loan reference. A book on loan is always tied to exactly one active member loan.
+- Renewal checks run after the member and loan checks. Failures leave the loan unchanged.
+- addBook and addMember perform no clock or time processing, as §3.5 requires.
+- Placing a hold has no limit on the number of holds and no debt check, as §5.6 specifies.

@@ -1,0 +1,8 @@
+- A call with a valid date, not earlier than the current date, advances the clock and runs hold expiry even if other arguments (ids, amount) are invalid or the business rules fail.
+- If the argument object is missing or the date is malformed or earlier than the current date, nothing changes, including the clock.
+- Hold expiry on a set-aside book is detected as "no loan, queue non-empty, readyUntil set"; the next ready window is previous readyUntil + 8 days, as specified.
+- Dates are compared as strings after validation, which is valid for the fixed YYYY-MM-DD format.
+- Date results that would pass year 9999 are not specially handled and are formatted with more digits.
+- `getMember` reports `readyUntil` only for the first hold in the queue of a book that is not on loan.
+- A member's loan list is kept in borrow order and the hold list in placement order.
+- Failure results include a `reason` string.

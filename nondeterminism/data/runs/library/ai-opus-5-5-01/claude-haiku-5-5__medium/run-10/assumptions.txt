@@ -1,0 +1,15 @@
+- An array passed as an argument is treated as not an object and returns invalid_input.
+- Ids are accepted as any non-empty string, with no trimming and no length or character limits.
+- A call whose date is a well-formed, real date that is not earlier than the latest date advances the clock and applies pickup expiry, even if the call then fails input validation or a business rule.
+- A call with a malformed date, or with a date earlier than the latest date, does not advance the clock.
+- Year 0000 is accepted as a valid year (proleptic Gregorian); dates are formatted with four-digit years.
+- `amount` is accepted when it is a safe integer greater than 0.
+- Fines are summed without a cap on the member's total `owed`; only the per-loan cap of 500 applies.
+- In `getMember`, holds are ordered by the global sequence in which the holds were placed.
+- A set-aside book is tracked with `readyUntil` on the book, and `readyUntil` is reported only for the member at position 1.
+- A book that is on loan can have a non-empty hold queue. When it is returned, the front of that queue is set aside.
+- When a set-aside book is borrowed by the member it is reserved for, only that member's entry is removed from the front of the queue. The other queued members keep their order.
+- Extra fields in arguments are ignored, and fields are read once per call.
+- Each method is wrapped so that any unexpected exception (for example, from a throwing getter on the argument) returns `{ ok: false, reason: 'invalid_input' }`. This happens before any state is changed.
+- Each member has at most one loan of a given book at a time. This follows from the one-copy rule.
+- `payFine` checks the amount before the member's existence, as the requirements specify. `amount` is checked for type and value in input validation, before the date order check.

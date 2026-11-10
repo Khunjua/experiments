@@ -1,0 +1,8 @@
+- If the date is valid and not earlier than the current date, the clock advances and expiry runs even when other arguments (such as ids or amount) are invalid. If the date is invalid, or the argument object is missing or not an object, nothing happens.
+- Dates are compared as strings, which works because the format is fixed-width.
+- Dates computed past year 9999 are not specially handled.
+- A member's holds are kept in placement order. A hold is removed when it is fulfilled by borrowing or when it expires.
+- A ready hold that is blocked at borrow time (limit, overdue, or owed) stays in place and still expires normally.
+- A failed `getMember` or `payFine` call still advances the clock when its date is valid, as the clock rule requires.
+- `position` in `getMember` is the current queue index plus 1. `readyUntil` is non-null only for position 1 of a book that is not on loan.
+- When a book is borrowed by the member it was set aside for, the remaining waiting holds stay queued behind the new loan and have no `readyUntil`.

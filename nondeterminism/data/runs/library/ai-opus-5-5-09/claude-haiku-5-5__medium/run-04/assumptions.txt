@@ -1,0 +1,15 @@
+- Arguments count as an object when they are any non-null object; extra fields are ignored, and property access is not guarded against throwing getters or proxies.
+- Ids must be strings of length at least 1; any such string is a valid key, including ones like "__proto__", because storage uses Map.
+- Dates are validated by a round trip through my own proleptic Gregorian day-number conversion, which avoids the Date.UTC two-digit-year quirk; year 0000 is accepted.
+- Output dates are formatted with at least four year digits; dates past year 9999 are not expected in practice and would print with more digits.
+- The clock starts unset, so the first accepted dated call sets it to its date, even if that call fails in step 4.
+- A dated call that fails validation or the time-order check does not advance the clock or process expirations.
+- Expirations run during the time-advance step of every dated call, including getMember for a nonexistent member, since the spec orders expiration before the business checks.
+- A hold is expired only when its readyUntil is strictly earlier than the current date, so the member can still pick up on readyUntil itself.
+- Holds in a member's list are kept in placement order, which is the order getMember reports them; loans are kept in borrow order, which equals call order because dates never go backward.
+- A hold's position is computed from its current index in the book's queue, so positions shift automatically when an earlier hold is removed.
+- A member can hold a book at most once, whether the hold is waiting or ready.
+- Borrowing a book that is ready for the member removes that member's hold and does not apply any other check beyond those in §6.3.
+- Renewal checks use the same failure result regardless of which check fails; the order of the checks does not affect the result.
+- Money values are not range-limited beyond being integers, and amount must be a positive integer.
+- The reason strings are arbitrary text, since the spec says they are not part of the contract.

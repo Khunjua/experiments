@@ -1,0 +1,26 @@
+- Each bookId is exactly one physical copy.
+- Loan period is 21 days; dueDate = borrow date + 21.
+- "A couple of times" means at most 2 renewals per loan.
+- Each renewal adds 21 days to the current due date (not to the renewal date), so renewing early never shortens the loan.
+- Renewal is refused if anyone has a hold on the book (including someone waiting for it to be set aside).
+- Overdue loans (renew date after due date) cannot be renewed.
+- A book is late if returned after its due date; returning on the due date is on time.
+- To be lenient, there is a 1-day grace period: a book returned 1 day late is not fined; from 2 days late on, all late days are charged at 25 cents each.
+- To be lenient, the fine for a single return is capped at 1000 cents ($10).
+- Members owing 1000 cents or more cannot borrow or renew until they pay some of it down.
+- A member can have at most 5 books on loan at once.
+- Holds may be placed only on a book that is not available (on loan or set aside for someone); placing a hold on a book on the shelf fails.
+- A member cannot place a hold on a book they currently have, nor hold the same book twice; there is no limit on the number of holds.
+- Holds form a first-come first-served queue per book; position 1 is next.
+- When a held book is returned, it is set aside for the member at position 1, with readyUntil = return date + 7 days.
+- If not picked up by readyUntil (inclusive), that hold is dropped and the book is set aside for the next member, whose readyUntil = previous readyUntil + 1 + 7 days; if no one is left it returns to the shelf.
+- Hold expirations are processed lazily whenever any method with a date is called.
+- Only the member it is set aside for can borrow a set-aside book; borrowing it removes their hold.
+- Other members' hold positions move up when a hold ahead of them is fulfilled or expires.
+- readyUntil is non-null only for the member at position 1 when the book is actually set aside.
+- payFine requires a positive integer amount not exceeding what is owed; overpayment is refused.
+- Unknown members/books, duplicate ids, invalid ids, or invalid dates return { ok: false }.
+- getMember returns ok: true alongside the documented fields, and { ok: false } for an unknown member.
+- Loans in getMember are listed in borrow order; holds are listed in the order books were added to the library.
+- Calls with a date earlier than a previous call are not specially detected (the contract says they won't happen).
+- Lost/damaged books, fees other than late fines, and removal of books/members are out of scope.

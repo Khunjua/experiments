@@ -1,0 +1,13 @@
+- getMember returns `ok: true` on success alongside loans, owed and holds, as shown in §9.
+- For a dated call, the clock advances and hold expiry runs as soon as the date itself is valid and not earlier than the current date. This happens even if other arguments are invalid or IDs are unknown. Expiry depends only on dates, so this has no observable effect beyond the clock.
+- A call with a missing or malformed date, or a date earlier than the current date, changes nothing at all, including the clock.
+- addBook and addMember are undated. They neither read nor change the clock and do not trigger expiry processing.
+- When a held book is returned, the first waiting hold becomes ready with readyUntil = return date + 7, even if that member is currently blocked from borrowing.
+- In §6.1 "the member already has 5 loans" means 5 or more current loans.
+- A loan is overdue for borrowing only if its due date is strictly earlier than the borrow date. A loan due on the borrow date does not block.
+- The maximum of 5 active holds counts holds that are waiting and holds that are ready.
+- A member can place a hold on a book that is set aside for someone else, and is added to the end of that queue.
+- payFine's amount must be of type number. Numeric strings and other types are invalid.
+- Due dates and readyUntil dates that would pass year 9999 are not specially handled. They are formatted as computed.
+- Loans are ordered by an internal creation counter and holds by an internal placement counter. Both are shared, monotonically increasing, and give exact borrow and placement order even within the same day.
+- A failure result is exactly `{ ok: false }` with no reason field.

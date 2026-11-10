@@ -1,0 +1,16 @@
+- Argument type checks (IDs must be non-empty strings, amount must be an integer number) run before the clock is advanced. Business-rule checks such as unknown member or book, and amount below 1 or above owed, run after the clock is advanced, following §3.6.
+- getMember for an unknown member still advances the clock and runs time processing, because existence is a business rule checked after step 3.
+- Dates are validated with a proleptic Gregorian calendar. Year 0000 is accepted as a leap year. Day numbers are computed with Date.setUTCFullYear to avoid the two-digit-year mapping of Date.UTC.
+- The `reason` strings are free-form and only need to be present on failure.
+- A set-aside member stays at queue position 1 until they borrow or their pickup expires. Borrowing removes that entry and the remaining holds move up.
+- When a book is set aside, the queue head is the member it is set aside for, so `readyUntil` applies to position 1 only.
+- A book on loan with a non-empty queue cannot be renewed, as §5.5 requires, even though the book is not set aside.
+- Holds are allowed on overdue books and for members who owe money, as §5.6 states.
+- The fine on return is computed from the loan's due date and capped at 1000 cents per loan. The member's total `owed` can exceed 1000 through several loans; the debt limit then blocks borrowing and renewal.
+- Loans are stored in creation order, which is the order `getMember` returns them in. Renewal does not change that order.
+- Holds are ordered by a global sequence number assigned at placement. `getMember` sorts by it.
+- Each public method is wrapped in try/catch so that unexpected inputs return `{ ok: false }`. All state mutation happens after validation, so a caught exception cannot leave partial changes.
+- Books and members are stored in `Map` objects, so IDs such as `"__proto__"` are handled safely and are compared exactly.
+- `addBook` and `addMember` return only `{ ok }` on success and `{ ok: false, reason }` on failure.
+- `payFine` allows payments on the same day as a borrow, return or renewal. Time processing runs before the payment is applied.
+- `returnBook` sets `readyUntil` to the return date plus 7 when the queue is not empty. The return is not checked against pickup timing, because the book is on loan at that point.

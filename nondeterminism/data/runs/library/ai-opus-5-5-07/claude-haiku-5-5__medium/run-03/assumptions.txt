@@ -1,0 +1,16 @@
+- Year 0000 is accepted as a valid year (proleptic Gregorian leap rules apply).
+- A non-object argument is treated as an object with no fields, so the call fails.
+- A dated call with an invalid date fails without running expiry processing, because there is no date to process.
+- getMember with a valid date but an unknown or invalid memberId still runs expiry processing before returning { ok: false }, following the common rule in §3.2 and §5.3.
+- Any exception raised while reading arguments (for example, a throwing getter) is caught and returned as { ok: false } with no state change.
+- Internal dates are stored as day numbers; output dates are zero-padded to at least four digits and are not capped at year 9999.
+- Expiry processing visits books in Map insertion order; the result does not depend on this order because books are independent.
+- Member loans are listed in start order using a Set, and holds are listed in placement order using an array.
+- When a member borrows a book that is set aside for them, the book's readyUntil is cleared and the member's hold is removed from both the book and the member.
+- When a book is returned and has a hold line, readyUntil is set to the return date plus PICKUP_DAYS, and the book becomes set aside for the first holder.
+- When a set-aside book is reserved for a member who then loses it by expiry, the member is not charged and no fine is recorded.
+- The fine on return is computed only from late days over the due date; returning early yields a fine of 0.
+- Renewal on the exact due date is allowed, since only dates after the due date are rejected.
+- Renewal, borrowing, and fine payment all use the current owed balance at the time of the call, after expiry processing.
+- payFine accepts a payment equal to the full balance, and rejects any amount greater than owed.
+- Failure results contain only the ok field; no reason string is included.

@@ -1,0 +1,23 @@
+- Operations naming an unknown member or book are refused with { ok: false }; getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- addBook and addMember refuse duplicate IDs.
+- Dates are valid 'YYYY-MM-DD' strings, and day arithmetic uses UTC day numbers so no time zone or DST effects apply.
+- Expired set-asides are processed at the start of every call, using that call's date; a set-aside expires only when its readyUntil is strictly before the call date.
+- If a re-assigned set-aside's new readyUntil (old + 3) is also already past, the expiry cascades to the next member in line again.
+- The member set aside for stays at position 1 in the line until they borrow the book or their hold expires.
+- Borrowing a book set aside for you ends your hold and removes you from the line; the others move up one place.
+- A hold may be placed on a book that is on loan (even if overdue) or set aside for another member; a hold on a free book is refused.
+- A member cannot hold a book they currently have on loan, nor hold the same book twice (including while they are set aside for it).
+- Placing a hold does not check the member's loan count or outstanding fines.
+- Borrowing does not check the same loan-count or fine limits for a member who is set aside for a book beyond what rule 2 and rule 3 state; those limits apply, so a blocked member keeps their set-aside hold until it expires.
+- Borrowing a book you already have on loan is refused, because the book is on loan.
+- A late fine is (days late) × 25 cents when days late is 3 or more, capped at 500 cents; days late of 1 or 2 cost nothing.
+- A fine is added to the owed amount even if that pushes the member to 1000 cents or more.
+- Returning a book that is set aside or free is refused, since only the loan holder can return it.
+- Renewal is refused whenever the book has any hold, including a set-aside hold.
+- Renewal is not blocked by the member's fines or loan count.
+- Renewal counts are per loan, so a new borrow starts at zero renewals.
+- Renewal on the due date is allowed; any date after the due date is treated as overdue and refused.
+- Loans do not expire automatically; overdue status is only evaluated at renewal and return.
+- payFine requires an integer amount of at least 1 cent and no more than the amount owed; non-integer amounts are refused.
+- readyUntil in getMember is null for any hold that is not currently set aside for that member, including holds in line behind a set-aside member.
+- Hold position is the 1-based index in the book's line, counting the set-aside member as position 1.

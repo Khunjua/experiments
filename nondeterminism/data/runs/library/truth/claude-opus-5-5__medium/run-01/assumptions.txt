@@ -1,0 +1,20 @@
+- Adding a book or member whose id already exists is refused with { ok: false }.
+- Valid ids are non-empty strings or finite numbers; anything else is refused.
+- Calls with an unknown member or unknown book are refused with { ok: false }.
+- A malformed or impossible date string is refused with { ok: false } (payFine and getMember ignore a bad date instead of refusing).
+- Expired set-asides are processed lazily at the start of every call, using that call's date; a hold expires on the day after readyUntil.
+- When a set-aside expires and the next member gets the book, their readyUntil is the old readyUntil + 3 days, even if that date is already past at check time; this may chain through several members in one step.
+- The member a book is set aside for is always the one in position 1, and their hold stays in the line (position 1) until they borrow it or it expires.
+- A member cannot borrow a book that is currently on loan, even to themselves.
+- Borrow checks the 5-loan limit and the 1000-cent debt limit even for a book set aside for the member; if refused, the book stays set aside for them.
+- Late days = return date minus due date; for 3 or more late days, fine = min(25 × late days, 500).
+- Fines are added to the amount owed immediately on return.
+- A renewal refused for any reason does not count toward the 2-renewal limit.
+- Holds on a set-aside book are allowed, including by members other than the one it is set aside for; holding a book already set aside for you is refused as a duplicate hold.
+- A member may hold a book even if they are at the loan limit or owe 1000 cents or more.
+- placeHold returns the member's position as the length of the line after joining.
+- payFine requires a positive integer amount no greater than the amount owed; a refused payment returns the current owed amount.
+- Refused calls return null for dueDate/position, 0 for fine, and the current balance for owed.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- getMember lists holds in the order the books were added to the library; dueDate and readyUntil are returned as 'YYYY-MM-DD' strings.
+- Date arithmetic uses UTC calendar days so daylight-saving changes have no effect.

@@ -1,0 +1,21 @@
+- Failure results carry a free-form `reason` string; the exact wording is not specified.
+- The reason text is not part of the contract, so no particular wording is required.
+- Dates are validated as proleptic Gregorian dates including year 0000; no year range beyond the regex is enforced.
+- Computed dates after 9999-12-31 (from renewals or pickup windows) are formatted with more than four year digits rather than rejected.
+- Ids are used exactly as given: no trimming, no normalization, and Map keys so names like `__proto__` are safe.
+- Extra fields in argument objects are ignored.
+- Any unexpected exception inside a method is caught and returned as `{ ok: false }`; no such exception is expected from valid code paths.
+- A dated call that fails validation does not advance the clock or process expirations.
+- A dated call that passes validation advances the clock and processes expirations even if its business action then fails, per §3.5.
+- Expiration processing iterates books in insertion order; books are independent, so the order does not change the result.
+- Loan and hold ordering uses one shared global counter, so loan order and hold order are consistent with call order.
+- `getMember` sorts loans by borrow date then by counter, and holds by placement counter, to be safe against ties.
+- `borrow` on a `readyForPickup` book where the requesting member's hold is no longer valid (`date` after `readyUntil`) is treated as a failure defensively; this cannot occur after expiration processing.
+- `renew` allows a renewal on the due date itself (`date` equal to `dueDate` is not overdue).
+- `placeHold` by a member who already has a hold on the book (waiting or ready) fails, even if that hold is the ready one.
+- `placeHold` is allowed on a book that is `readyForPickup` for someone else, as the requirements state.
+- A member who owes money may still place holds, as specified.
+- `payFine` with `amount` equal to `owed` is allowed and brings `owed` to 0.
+- `returnBook` by a member who owes money is allowed, as specified.
+- Expirations are processed inside `getMember` and before every dated business check, so a ready hold past its `readyUntil` is never seen as active.
+- `getMember` returns a freshly built object with new arrays and new objects, so callers cannot mutate library state.

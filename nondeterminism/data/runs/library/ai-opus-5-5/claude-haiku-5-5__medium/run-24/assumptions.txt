@@ -1,0 +1,16 @@
+- A call with any invalid argument (bad id, bad date, bad amount, missing or non-object argument) changes nothing and does not advance the clock or run hold expiry.
+- A call with a valid, non-earlier date advances the clock and runs hold expiry even when the member or book is unregistered or a business rule fails, matching the general clock rule.
+- Dates are validated as years 0001 to 9999 with a round-trip check, and day arithmetic uses setUTCFullYear so years below 100 are not shifted to 1900s.
+- Computed dates that would pass 9999-12-31 (due dates, renewal dates, pickup windows, chained readyUntil) are clamped to 9999-12-31 so every returned date stays a valid string.
+- Identifiers must be non-empty strings; no trimming or normalisation is applied.
+- Holds are stored per member in placement order, and each member has at most one hold per book, so holds are located by bookId.
+- A book is treated as set aside exactly when it is not on loan and its hold queue is non-empty; its readyUntil is always set in that state.
+- When a set-aside hold is fulfilled by borrowing, the book's readyUntil is cleared and the remaining holds wait behind the new loan rather than becoming ready.
+- Returning a book whose queue is non-empty sets readyUntil to return date + 7 for the first hold, even if that member could not borrow it at that moment (for example because of owed balance or loan limit).
+- Holds expire inside the expiry loop in insertion order of books; this order is not observable through the interface.
+- A hold's readyUntil reported by getMember is shown only when the book is not on loan, is set aside, and the member is first in its queue.
+- getMember's hold position is computed from the live queue at call time.
+- The `reason` field is omitted from failure results.
+- Extra fields in argument objects are ignored, and array arguments are treated as objects whose missing fields cause failure.
+- Payment amounts must be safe integers greater than zero; a payment equal to the full balance is allowed.
+- The returned loans, holds and other values are freshly built objects, so callers cannot mutate library state.

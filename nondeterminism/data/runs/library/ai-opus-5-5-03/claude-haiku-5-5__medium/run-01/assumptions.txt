@@ -1,0 +1,18 @@
+- Dates after 9999-12-31 cannot be represented; borrow, renew, return and placeHold fail with { ok: false } if the date they compute would overflow.
+- Hold processing caps a computed readyUntil at 9999-12-31 instead of failing, because it runs inside other calls.
+- Hold processing runs over every book on every accepted dated call, including calls that later fail a business rule.
+- A ready hold expires only when readyUntil is strictly earlier than the call date; readyUntil equal to the call date is still valid.
+- Hold expiry removes the member's hold record for that book.
+- Member IDs and book IDs are accepted as any non-empty string, with no trimming; whitespace-only strings are valid.
+- A non-object argument (including an array) fails, since it has no usable ID fields.
+- The failing return value is always exactly { ok: false }, with no reason field.
+- Each method is wrapped in try/catch so that any unexpected internal error returns { ok: false } instead of throwing.
+- Owed has no upper bound across loans and no check against exceeding Number.MAX_SAFE_INTEGER.
+- Date comparisons use string ordering, which is chronological because valid dates are fixed-width zero-padded.
+- Borrowing a book set aside for the member is blocked by the owed limit and the loan limit like any other borrow.
+- A member's ready hold does not count toward MAX_LOANS; only current loans count.
+- returnBook does not check or change the returning member's own holds; it only makes the head of the queue ready.
+- getMember computes position and readyUntil from current state at the time of the call.
+- getMember omits any hold or loan whose internal record is missing; the invariants make this unreachable.
+- payFine with amount equal to owed is allowed and leaves owed at 0.
+- renew on the due date itself is allowed, and a renewal extends the due date from the current due date, not from the call date.

@@ -1,0 +1,9 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if other arguments are invalid or a business rule fails.
+- A call with a missing argument object, a malformed date, or a date earlier than the current date changes nothing, including the clock.
+- addBook and addMember are not dated, so they do not touch the clock or expiry.
+- Date strings compare lexicographically, which is valid for 4-digit-year dates.
+- Dates computed past year 9999 are not rejected.
+- When a ready hold expires and another hold follows, its readyUntil is the previous readyUntil + 8 days, which is (previous + 1) + 7.
+- A member's holds are listed in placement order, and a fulfilled or expired hold is removed from that list.
+- In payFine, the amount is validated after the member lookup. Any failure returns `{ ok: false }` either way.
+- Overdue for borrowing is a loan with dueDate < the borrow date.

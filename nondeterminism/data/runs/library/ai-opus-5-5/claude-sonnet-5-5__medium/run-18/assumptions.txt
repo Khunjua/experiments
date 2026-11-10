@@ -1,0 +1,8 @@
+- A call whose date is valid and not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid (missing or wrong-typed ids, bad amount).
+- A call with a missing argument object or an invalid date does not touch the clock or expiry.
+- addBook and addMember are not dated, so they do not touch the clock or expiry.
+- Date strings are compared lexicographically, which is valid for the fixed-width YYYY-MM-DD format.
+- Dates that would pass year 9999 through date arithmetic are not specially handled.
+- `payFine` with an invalid amount (non-integer, unsafe, or ≤ 0) fails, but the clock still advances if the date is valid.
+- Member loans are kept in borrow order and holds in placement order. A hold is removed from the member's list when it is fulfilled or expires.
+- A hold ready for a member who is blocked from borrowing stays until it is borrowed or expires, as the spec says.

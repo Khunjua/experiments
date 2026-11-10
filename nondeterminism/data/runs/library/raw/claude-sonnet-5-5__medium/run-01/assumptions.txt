@@ -1,0 +1,22 @@
+- Loan period is 21 days: dueDate = borrow date + 21.
+- A loan can be renewed at most 2 times.
+- A renewal sets the new due date to renewal date + 21 days.
+- Renewal is refused if the loan is already overdue, if the limit is reached, or if anyone has a hold on the book.
+- The fine is 25 cents per full day late, with no grace days.
+- To avoid being harsh, the fine per loan is capped at 1000 cents.
+- Fines are added to the member's owed balance when the book is returned. Nothing accrues while a book is still out.
+- A member cannot borrow if they owe 500 cents or more, have any overdue loan, or already have 5 loans.
+- A hold can only be placed if the book is on loan or already set aside for someone. Placing a hold on an available book is refused.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- Holds are served first come, first served. When a held book is returned, the first member in line gets it set aside for 3 days, so readyUntil = return date + 3.
+- If the first member does not borrow it by readyUntil, their hold is dropped. The next member then gets it set aside for 3 days starting the following day. Expiry is evaluated lazily whenever a method is called with a date.
+- A book that is set aside can be borrowed only by the member it is set aside for, and that member's hold is removed when they borrow it.
+- A book with a waiting line that has not been set aside, because it is still on loan, cannot be borrowed by anyone else, and readyUntil is null for every member.
+- Only the first member in line has a non-null readyUntil, and only once the book is available.
+- Hold positions are 1-based and shift down when earlier holds are removed.
+- payFine requires a positive integer amount that is no larger than the amount owed. Overpayment is refused, and the member must exist.
+- Duplicate or missing IDs in addBook and addMember return ok: false.
+- Invalid or unparseable dates return ok: false.
+- getMember for an unknown member returns an empty result with owed 0.
+- Returning a book is allowed only for the member who has it on loan.
+- No check is made that a call's date is not earlier than the previous call's date, as the interface guarantees this.

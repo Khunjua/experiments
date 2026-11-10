@@ -1,0 +1,19 @@
+- Each library keeps its own Maps for books, members and the clock, so separate library objects share no state.
+- Book and member IDs are separate Maps; a book and a member may share an ID without conflict.
+- Dates are converted to whole day numbers since 1970-01-01 using UTC with setUTCFullYear, so years 0001 to 0099 are handled correctly.
+- Years 0000 are rejected by the date check; other calendar checks (month range, days in month, leap years) follow the Gregorian rules.
+- Output dates are formatted with at least 4 year digits; no range check is applied, so a result past 9999-12-31 would print extra digits.
+- A call with invalid arguments (non-object, bad IDs, bad date, bad amount) changes nothing, including the clock.
+- A dated call whose date is valid and not earlier than the current date advances the clock and runs hold expiry, even if the call then fails for a business reason.
+- Hold expiry runs for every book on every dated call, including getMember, and only when the call's date is strictly later than readyUntil.
+- When a set-aside hold expires, the next hold's readyUntil is computed from the previous readyUntil as specified, even if that value is already before the call date; the loop continues until it is not.
+- A book's readyUntil is cleared to null when it is borrowed, and when it becomes available.
+- A book's state is derived from its fields: on loan when loan is set, set aside when no loan and the queue is non-empty, available when no loan and the queue is empty.
+- The hold queue stores member IDs; a member's holds list stores book IDs in placement order, and both are kept in sync on placement, pickup and expiry.
+- A member with an overdue loan is blocked from borrowing only; overdue status does not affect renewals of other loans or holds.
+- A member cannot borrow a book set aside for someone else, and cannot place a hold on a book they currently have on loan.
+- Renewal is refused only by the listed rules; a renewal on the borrowing day is allowed and increments the renewal count.
+- Loan objects are shared between the book and the member's loans list; member loans are returned oldest first by insertion order.
+- Fines on return use only the listed formula; a fine is applied even if the member owes money already, and owed can rise above the borrowing block threshold.
+- getMember returns fresh arrays and objects built from internal state, so caller changes do not affect the library.
+- Payment amounts must be safe integers greater than 0; an amount larger than owed fails and leaves the balance unchanged.

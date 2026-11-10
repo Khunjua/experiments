@@ -1,0 +1,10 @@
+- The clock advances and hold expiry runs whenever the date is valid and not earlier than the current date, even if other arguments (such as ids or amount) are invalid or the business rule fails.
+- If the argument object is missing or not an object, nothing happens, including the clock.
+- `addBook` and `addMember` take no date, so they do not touch the clock or expiry.
+- Years below 100 are handled with `setUTCFullYear`, so year 0001 is not mapped to 1900+.
+- Date strings returned for dates past year 9999 are not specially handled, as that range is out of scope.
+- A member's holds are listed in the order they were placed. When a hold is fulfilled or expires, it is removed from that list.
+- A reason field is included on failures; it is informational only.
+- A payment amount that is not a safe integer greater than 0 fails, including non-number types.
+- Expiry compares dates as day numbers, so `readyUntil` stays inclusive on the pickup day.
+- Because the pickup window moves forward by day arithmetic from the previous window, a chain of expiries is computed regardless of when calls happened.

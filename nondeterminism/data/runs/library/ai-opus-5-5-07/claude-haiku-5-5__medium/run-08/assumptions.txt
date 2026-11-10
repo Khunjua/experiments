@@ -1,0 +1,17 @@
+- Years are validated as proleptic Gregorian; year 0000 is accepted as a leap year.
+- Output dates for years above 9999 are written with more than four digits, since the spec does not cover them.
+- A call with an invalid date runs no expiry processing, because expiry needs a valid date.
+- A call with a valid date but invalid or unknown IDs still runs expiry processing, as §5.3 requires.
+- Failure results are `{ ok: false }` with no `reason` field.
+- A try/catch wrapper in each method returns `{ ok: false }` as a safety net; the validation logic is designed so that no state changes before any possible throw.
+- Holds may be placed on a book that is on loan to someone else, and on a book that is set aside for someone else.
+- A member cannot hold a book they currently have on loan. The model guarantees that a member is never both on loan to a book and in its hold line.
+- When a set-aside book is borrowed by its reserved member, the hold is removed and the remaining holds shift up. The book's pickup deadline is cleared because the book is now on loan.
+- When an expired hold is dropped, the member's hold list is updated; no fine is charged.
+- A fine is added to `owed` in full, even if that takes the balance above BLOCK_THRESHOLD or the amount is later large. There is no cap on `owed` itself.
+- A return on the due date is on time, and a renewal on the due date is allowed because the date is not later than the due date.
+- `getMember` lists loans in the order they started; a renewed loan keeps its place, and a loan that is returned and borrowed again goes to the end.
+- `getMember` lists holds in the order they were placed; a hold that is dropped and re-placed goes to the end.
+- `readyUntil` is reported as `null` for any hold whose book is not set aside for that member, including when the member is at position 1 of a book that is still on loan.
+- Non-object arguments are treated as empty objects, so the missing fields then fail validation.
+- Member IDs and book IDs are stored in Maps, so IDs such as `__proto__` are handled as ordinary strings.

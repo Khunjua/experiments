@@ -1,0 +1,17 @@
+- An argument object that is an array is treated as invalid.
+- An id is valid if it is a string with length greater than 0; whitespace-only strings are accepted.
+- Extra fields in argument objects are ignored.
+- Year 0000 is accepted as a valid date (proleptic Gregorian).
+- Due dates that pass year 9999 are formatted with more than four digits; no cap is applied.
+- A dated call with a valid format but a nonexistent member or book still advances the clock and processes expirations, because §3.5 places those steps before the business checks.
+- The first accepted dated call sets the clock; calls that fail validation do not set it.
+- Each library object keeps a separate Map of books and members, so independent libraries share no state.
+- Member loans are stored in insertion order, which equals borrow-date order because calls arrive in time order.
+- Holds are stored in placement order, so `getMember` lists them oldest first.
+- A hold's `position` in `getMember` is its current 1-based index in its book's queue at the time of the call.
+- `readyUntil` is reported only for a hold that is first in a `readyForPickup` queue, which is the only case where it is non-null.
+- Expired holds are processed book by book until no further change occurs; the order across books does not affect results.
+- `payFine` treats an `amount` of 0 or a non-integer as invalid, and an `amount` greater than `owed` as a business failure.
+- Failure reason strings are free-form and not specified.
+- A wrapper catches any unexpected exception and returns `{ ok: false, reason: 'internal error' }`; no business path is expected to throw.
+- Every failure result contains only `ok: false` and `reason`, with no other fields.

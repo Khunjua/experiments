@@ -1,0 +1,20 @@
+- Unknown member or book ids in any call return { ok: false }; getMember for an unknown member returns an empty result (no loans, owed 0, no holds).
+- addBook and addMember return { ok: false } for a duplicate id.
+- Ids are compared by strict equality; dates are assumed valid YYYY-MM-DD and are not validated.
+- Set-aside expiry is processed lazily at the start of every method call, using that call's date, so state is current before any rule is checked.
+- When a set-aside expires, the dropped member's hold is removed and the next member gets readyUntil = old readyUntil + 3; this cascades while the new readyUntil is also already past.
+- The member a book is set aside for stays at position 1 in the hold line; positions count that member.
+- A member cannot place a hold on a book set aside for themselves, since they are already in the line.
+- Holds are not limited by the member's loan count or debt.
+- Borrowing a book set aside for you is still subject to the 5-loan limit and the 1000-cent debt limit.
+- Borrowing on the readyUntil date itself is allowed.
+- Renewal is allowed even if the member owes money.
+- Returns are always accepted for the member holding the loan, regardless of debt.
+- Fine = 0 for 0-2 days late; from 3 days late, fine = days late × 25, capped at 500. The fine is added to the member's owed amount.
+- A loan returned on a day when holds exist is set aside immediately for the first member in line with readyUntil = return date + 3.
+- A book that is on loan with an empty hold line cannot be renewed only if it has holds; renewal is blocked whenever the hold line is non-empty, including a set-aside reservation.
+- The renewal count is tracked per loan and resets when the book is borrowed again.
+- A payment must be an integer amount greater than 0 and no more than the amount owed.
+- payFine, getMember, and the other methods also run the expiry check using their date.
+- getMember lists holds in book insertion order and loans in book insertion order; the spec says order does not matter.
+- readyUntil in getMember is null for holds on books set aside for someone else.

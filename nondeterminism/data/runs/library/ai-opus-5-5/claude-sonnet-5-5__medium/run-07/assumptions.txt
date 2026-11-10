@@ -1,0 +1,9 @@
+- A call with a valid date (not earlier than the current date) advances the clock and runs hold expiry even if its other arguments are invalid or it fails for a business reason; a call with a malformed or missing date, or a non-object argument, does neither.
+- addBook and addMember do not use the clock and take no date.
+- A payFine amount that is not a number type (for example a numeric string or a float) fails.
+- Failed calls still include a `reason` string, which the spec says is ignored.
+- getMember on failure returns `{ ok: false, reason }`.
+- The loan overdue check for borrow looks at all of the member's current loans, using `dueDate < date`.
+- A member's hold list is kept in placement order, and a hold is removed when it is fulfilled by borrowing or when it expires.
+- When the expiry chain moves to the next hold, `readyUntil` becomes previous `readyUntil` + 8 days, which equals (previous + 1) + 7.
+- A member who is first in the queue of a set-aside book is the only one who can borrow it, even if the member also holds other books.

@@ -1,0 +1,20 @@
+- Arguments that are not plain objects (including arrays, null, and primitives) are treated as invalid and return a failure.
+- Any non-empty string is a valid id, including whitespace-only strings. No other normalization is applied.
+- Date validation accepts year 0000 as a valid proleptic Gregorian year, and rejects non-string dates.
+- Day arithmetic uses integer day numbers internally, so comparisons are exact. Output dates are formatted with at least four year digits; results beyond year 9999 are not specified and are not handled specially.
+- An expired hold is removed entirely from the book's queue and from the member's holds list; the member is not notified and no record is kept.
+- A hold expires only when its readyUntil is strictly earlier than the call date, so a member may still pick up on readyUntil itself.
+- Expirations are processed for every book on each dated call; the order in which books are scanned does not affect results because each book's chain is independent.
+- Loans for getMember are ordered by borrow date, with ties broken by a global call-sequence counter; renewals do not affect order.
+- Holds for getMember are ordered by a global placement counter shared with loans, so the relative order among holds is preserved.
+- position in getMember is computed from the hold's current index in its book's queue at call time, so it reflects removals and shifts.
+- readyUntil in getMember is null unless the hold is the first in a readyForPickup queue.
+- A member may place a hold on a book that is on loan to someone else or set aside for someone else, regardless of owed amount.
+- A member who is set aside a book and then borrows it has the hold removed from both the book queue and the member's holds, and the other holds keep their order.
+- Renewal is allowed when the date equals the current dueDate (overdue means strictly later).
+- Returning a book is allowed even when the member owes 1000 or more, as stated in the requirements.
+- payFine requires amount to be an integer greater than zero; Number.isInteger is used, so very large integers are accepted without a separate upper bound.
+- Failure reason strings are free-form and chosen by the implementation.
+- Undated calls (addBook, addMember) do not read or move the clock, and do not trigger expirations.
+- The clock is set and expirations are processed even when the business action in a dated call then fails, as the requirements specify.
+- Each public method is wrapped so an unexpected exception (for example from a throwing getter on the argument object) returns a failure result; state changes made before such an exception are not rolled back.

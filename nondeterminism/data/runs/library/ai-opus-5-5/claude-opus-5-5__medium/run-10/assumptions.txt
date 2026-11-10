@@ -1,0 +1,13 @@
+- If the argument object is present and the date is valid and not earlier than the current date, the clock advances and hold expiry runs even if other fields are invalid. Expiry depends only on dates, so running it early never changes the result.
+- If the argument object is missing or the date is invalid, the clock is not changed.
+- Any non-null value with typeof 'object' (including arrays) is accepted as the argument object; missing fields then fail validation.
+- Date arithmetic uses pure integer proleptic-Gregorian day counting, not Date.UTC, so years 0001–0099 work correctly. The result is the same as UTC computation.
+- Computed dates past 9999-12-31 (e.g. a due date) are still produced and formatted with the year as-is, not rejected.
+- On a successful renewal the due date is max(old due date, date + 21); per the spec this is always date + 21.
+- A member may place a hold on a book that is set aside for a different member; the hold joins the queue behind the ready hold.
+- When the ready hold is fulfilled by borrowing, the book goes on loan and the next hold (if any) waits; it becomes ready only when the book is returned.
+- Successful results contain only the documented fields; failures return { ok: false, reason }.
+- getMember returns ok: true together with loans, owed and holds.
+- getMember lists loans in borrow order, using Map insertion order keyed by bookId. It lists holds in placement order.
+- An expired or fulfilled hold no longer counts toward the member's 5 active holds.
+- Holds of other members on the same book do not affect a member's own limits.

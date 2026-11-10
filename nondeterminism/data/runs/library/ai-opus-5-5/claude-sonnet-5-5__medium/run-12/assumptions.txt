@@ -1,0 +1,9 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if other arguments are invalid or a business rule then fails.
+- A missing argument object, or an invalid or malformed date, fails without touching the clock or any state.
+- Loans are tracked per member in borrow order, and a loan's renewal count lives on the book's loan record.
+- Holds are ordered for `getMember` by a global placement counter.
+- `payFine` with an invalid or non-safe-integer amount fails, but the clock still advances and expiry still runs when the date is valid.
+- Dates that overflow past year 9999 through addition (e.g. a due date) are formatted with more than 4 digits and not rejected.
+- A hold is "ready" only when it is at position 1 of a set-aside book, and `readyUntil` is null for every other hold.
+- Overdue means the loan's `dueDate` is strictly earlier than the call date, as the requirements state.
+- Dates are compared as strings, which is correct for zero-padded `YYYY-MM-DD`.

@@ -1,0 +1,10 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or it fails for a business reason. A call with a missing argument object or an invalid date does neither.
+- addBook and addMember are not dated, so they do not touch the clock or expiry.
+- A date is checked before ids, so a call with an invalid id but a valid date still advances the clock.
+- Date strings are compared lexically, which is valid because every accepted date has the same fixed-width format.
+- Dates that arithmetic pushes past year 9999 are not rejected. They are formatted with the year as-is.
+- A set-aside book blocked by a borrow rule keeps its hold untouched.
+- A member's holds are listed in placement order, kept in a per-member list that is updated when a hold is fulfilled or expires.
+- A hold placed on a set-aside book by a member who is not first in the queue gets position equal to the new queue length.
+- `reason` strings are added to failure results only as informational text.
+- Non-string `memberId`/`bookId` values, and a non-integer, non-positive or unsafe `amount`, count as invalid input and fail.

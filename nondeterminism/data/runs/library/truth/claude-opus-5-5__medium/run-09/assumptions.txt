@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused with { ok: false }; ids must be non-empty strings or finite numbers.
+- Any call referencing an unknown member or unknown book returns { ok: false } and changes nothing; getMember for an unknown member returns { ok: false }.
+- An invalid or malformed date string causes { ok: false }.
+- Days late = return date minus due date in calendar days; when more than 2 days late, every late day (including the first two) is charged at 25 cents, capped at 500 cents.
+- Owing 1000 cents or more blocks only borrowing, not renewing, placing holds, returning or paying.
+- Renewal limit is per loan; a new borrow of the same book starts with 0 renewals.
+- A renewal that is refused (any reason) does not count toward the renewal limit.
+- "Anyone has a hold" for rule 11 means any member currently in the book's hold line.
+- Hold expiry is evaluated lazily: on each call, any set-aside book whose readyUntil is earlier than the call's date has its expired holds dropped (possibly several in a chain, each new readyUntil = previous readyUntil + 3 days).
+- A book set aside for a member can only be borrowed by that member; while set aside, other members (including those further down the line) are refused.
+- A member may place a hold on a book that is set aside for someone else; a member cannot place a hold on a book already set aside for themselves (they are already in line).
+- Holds can be placed regardless of the member's current loan count or amount owed.
+- Payment amounts must be positive integers (cents); non-integer amounts are refused.
+- Paying exactly the amount owed is allowed; paying when nothing is owed is refused (any positive amount exceeds 0).
+- The order of holds returned by getMember is unspecified (follows the order books were added).
+- Successful responses include ok: true, including getMember; refusals include an informational reason field.
+- When a member borrows a set-aside book, the remaining hold line stays attached to the book (now on loan) with everyone moved up one position.

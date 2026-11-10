@@ -1,0 +1,25 @@
+- Loan period is 21 days; due date is borrow date plus 21 days.
+- A renewal adds 21 days counted from the renewal date, not from the old due date.
+- Renewals are capped at 2 per loan.
+- A renewal is refused if the loan is overdue, the cap is reached, or any hold (ready or waiting) exists for the book.
+- A book is overdue only when the date is after the due date; renewing on the due date is allowed.
+- Fines are 25 cents per day, but the first 3 days late are free (grace period).
+- Each loan's fine is capped at 1000 cents.
+- Fines are calculated and added to the member's balance when the book is returned; getMember's owed does not include accruing fines on loans not yet returned.
+- A member may only return a book that is on loan to them.
+- A hold may only be placed when the book is currently on loan to a different member.
+- A member cannot place a hold on a book they currently have on loan, or one they already hold in the queue.
+- Holds are first-in-first-out; position is the 1-based place in the waiting line.
+- There is no limit on the number of concurrent loans or holds per member.
+- When a book is returned and holds exist, the first person in line is set aside for pickup for 7 days; readyUntil is the return date plus 7 (inclusive).
+- A set-aside book can only be borrowed by the member it is set aside for, and that borrow consumes their hold.
+- If a set-aside pickup window lapses (after readyUntil), that hold is removed and the next person in line is set aside with a window starting the day after the lapse (previous readyUntil plus 7).
+- A set-aside book cannot be placed on hold, since it is not on loan.
+- Outstanding fines do not block borrowing, renewing, or placing holds.
+- Any registered member may borrow an available book with no reservation, regardless of current loans.
+- Payments must be positive integer cents and must not exceed the amount owed; overpayments are rejected and not credited.
+- Adding a duplicate book or member is rejected.
+- Unknown members or books, invalid dates (not 'YYYY-MM-DD'), and invalid payment amounts return { ok: false } with no state change.
+- getMember returns { ok: false } for an unknown member or invalid date.
+- Calendar-day arithmetic is done in UTC so no time zone or daylight-saving effects occur.
+- Ids are compared by strict equality and may be any non-null value.

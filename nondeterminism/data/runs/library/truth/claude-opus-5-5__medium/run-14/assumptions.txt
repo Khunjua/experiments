@@ -1,0 +1,17 @@
+- Adding a book or member with an ID that already exists, or an empty or invalid ID, is refused.
+- Any call with an unknown member, an unknown book or an invalid date string is refused. getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- Expired set-asides (rule 17) are processed lazily at the start of every dated call, using that call's date. The book is still set aside on the readyUntil day itself.
+- When a set-aside passes to the next member, the new readyUntil is the old readyUntil + 3. This can repeat several times if many days have passed.
+- The fine is 25 cents × the total days late when the return is 3 or more days late, capped at 500. Days late = return date − due date.
+- Owing 1000 cents or more blocks only borrowing. It does not block renewals, holds or returns.
+- The loan limit and the owed limit are also checked when a member collects a book set aside for them. If either check fails, the book stays set aside and the hold is kept.
+- A refused borrow is checked in this order: book on loan, set aside for someone else, owed limit, loan limit. Only ok/false matters.
+- A member who already holds a book cannot place a second hold on it, including while it is set aside for them.
+- Holds can be placed no matter how much the member owes or how many books they have on loan.
+- A renewal is refused while any hold exists on the book, including while the book is set aside. In practice a set-aside book cannot be on loan anyway.
+- The renewal count belongs to a single loan and starts at 0 each time the book is borrowed.
+- Payment amounts must be positive integers. Non-integer amounts are refused. A refused payment returns the current owed amount.
+- A refused return returns fine: 0.
+- Returned dueDate and readyUntil use the 'YYYY-MM-DD' format. Date arithmetic uses UTC calendar days.
+- getMember lists loans and holds in the order the books were added.
+- Successful responses also include ok: true, including getMember.

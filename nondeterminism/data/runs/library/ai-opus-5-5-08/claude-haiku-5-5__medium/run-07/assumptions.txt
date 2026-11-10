@@ -1,0 +1,26 @@
+- Each call's argument must be a non-null object (arrays included); any other value fails with `{ ok: false }` and no processing.
+- The returned failure objects contain only `ok: false`; no `reason` field is added.
+- A getter or proxy that throws while reading arguments is caught and treated as a failed call.
+- Dates are validated before any hold expiration runs; an invalid or missing date skips expiration entirely.
+- Internally, dates are stored as integer day numbers from the UTC epoch, and formatted back to zero-padded `YYYY-MM-DD` on output.
+- Years are formatted with at least four digits, so year 0000 and any year beyond 9999 are handled by the same arithmetic.
+- The Map key lookup is exact and case-sensitive, so keys such as `__proto__` are ordinary IDs.
+- A book is treated as set aside only when it is not on loan, its queue is non-empty, and `readyUntil` is set.
+- Expiration sets the next `readyUntil` to previous `readyUntil` + 8, following "start day = previous readyUntil + 1" and "readyUntil = start day + 7".
+- The expiration loop processes books in their insertion order; this order does not change any observable result.
+- When an expired hold removes a member, that member's hold list drops the book; no other state of that member changes.
+- A borrow of a set-aside book clears `readyUntil` even though the book's queue may still contain other members.
+- A return of a book whose queue is non-empty sets `readyUntil` to the return date + 7, which is the same start-day rule as the spec's return rule.
+- The `loanedTo` field is the single source of truth for who holds a book; the member's loan map is kept consistent with it.
+- The overdue check at borrow uses `dueDate < date` strictly, so a loan due on the current date does not block borrowing.
+- A renewal is blocked when the book's queue is non-empty, which also blocks renewal while a book is set aside.
+- A hold can be placed on a book that is on loan even when the queue is empty; the hold then takes position 1 and has `readyUntil` null until the book is returned.
+- `position` in `getMember` is computed from the book's queue each time, and `readyUntil` is reported only when the hold is at position 1 and the book is not on loan.
+- Holds are listed in the member's placement order, and borrowing a set-aside book removes that hold from the member's list.
+- The "active holds" count for the 5-hold limit includes holds that are set aside.
+- The fine cap of 1000 is applied after the per-day charge, and the cap is applied per return.
+- `owed` has no upper limit beyond the cap applied to each individual fine.
+- `payFine` returns `owed` after the payment, and an amount equal to the full balance is accepted.
+- Loans are sorted numerically by due day and then by `bookId` using code-unit string comparison.
+- A method that fails after expiration has run returns no processing changes apart from the expiration itself.
+- Backwards date input is not checked; the arithmetic may yield a negative lateness, which is clamped to zero for fines.

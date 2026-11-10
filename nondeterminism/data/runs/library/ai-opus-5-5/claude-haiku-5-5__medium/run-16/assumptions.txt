@@ -1,0 +1,15 @@
+- Identifiers are valid only if they are non-empty strings; no trimming or case folding is applied.
+- Argument objects that are null, non-objects, or missing fields return `{ ok: false }` with no clock change.
+- A dated call with a valid date advances the clock even when it then fails for a business reason, as the spec requires.
+- Expiry is processed for all books before any rule in every dated call, including getMember and failed calls.
+- Due dates and readyUntil dates that would pass 9999-12-31 are capped at 9999-12-31 so the output format stays valid.
+- Renewal is allowed on the due date itself; only dates after dueDate count as overdue.
+- A loan is overdue when its dueDate is strictly earlier than the call date, and this blocks borrowing of any book.
+- Only the head of a book's hold queue can pick up a set-aside book; a member who is not the head is refused.
+- Fines from returns are added to owed with no cap on the total owed balance.
+- The fine for a return is computed even when the return is on time (fine 0).
+- Holds are ordered for getMember by a global placement sequence number, so ordering across books is well-defined.
+- A hold's position is its index in its book's queue plus 1; readyUntil is non-null only for the head of a set-aside book.
+- Active holds for the 5-hold limit include both waiting and ready holds, and are counted by scanning all book queues.
+- payFine requires `amount` to be a safe integer greater than 0; non-numeric or fractional amounts fail.
+- Returned objects from getMember are freshly built, so callers cannot alter library state through them.

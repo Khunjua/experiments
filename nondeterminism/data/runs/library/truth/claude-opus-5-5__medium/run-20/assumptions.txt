@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused; ids must be non-empty strings or finite numbers.
+- Any call that names an unknown member or book, or has an invalid date, returns { ok: false }; getMember for an unknown member returns { ok: false }.
+- Successful getMember results also include ok: true.
+- Expired set-asides are processed lazily at the start of each dated call: a book is still set aside on its readyUntil day and expires the day after.
+- When a set-aside passes on to the next member, each new readyUntil is the previous readyUntil + 3, even if several expire before the next call.
+- The late-day count is the return date minus the due date; up to 2 late days costs 0, and from 3 late days on every late day is charged at 25 cents, capped at 500 cents.
+- A fine of 0 still counts as a successful return.
+- Members who owe 1000 cents or more can still renew, return, place holds and pay; only borrowing is blocked.
+- Members at the 5-loan limit or with debt can still place holds; if they cannot borrow the set-aside book in time, their hold expires normally.
+- When the set-aside member tries to borrow but is refused (loan limit or debt), the book stays set aside for them.
+- A member may place a hold on a book that is already set aside for someone else, and the hold goes to the end of the line.
+- The renewal count stays with the loan, and a new borrow starts at 0 renewals.
+- Renewing is refused when any hold exists on the book, including the renewing member's own hold (which cannot exist, since holding a book you have on loan is refused).
+- Holds stay on a book while it is on loan and keep their order; the hold position in getMember is the 1-based index in the line.
+- readyUntil in getMember is set only for the member in position 1 while the book is set aside and not on loan; otherwise it is null.
+- Payments must be positive integers no greater than the amount owed; paying the exact amount owed is allowed.
+- addBook and addMember take no date and do not trigger expiry processing.

@@ -1,0 +1,11 @@
+- The current date advances, and hold expiry runs, whenever the argument object exists and its date is valid and not earlier than the current date. This happens even if other fields, such as IDs or amount, are invalid or the call then fails.
+- If the argument object is missing or not an object, or the date is invalid, the clock does not advance and nothing happens.
+- When a member has several loans, they are listed in borrow order. A renewal keeps a loan in its original place in that order.
+- If a computed due date or readyUntil falls after year 9999, it is still returned, formatted with the full year number. Inputs with such years would still be rejected as invalid dates.
+- Hold order across books in getMember uses one global placement counter, so holds placed in the same call order are ordered as they were placed.
+- A member can place a hold on a book that is set aside for someone else, as long as the other hold rules allow it.
+- When a set-aside book is borrowed by its ready member, the next hold in the queue is not given a readyUntil, because the book is now on loan. That hold only becomes ready when the book is next returned.
+- payFine rejects a non-number amount. This includes numeric strings and BigInt values.
+- Any unexpected internal exception, such as a throwing getter on the argument object, is caught and returned as { ok: false }.
+- Failure results include a reason string.
+- addBook and addMember take no date, so they do not affect the clock and do not trigger hold expiry.

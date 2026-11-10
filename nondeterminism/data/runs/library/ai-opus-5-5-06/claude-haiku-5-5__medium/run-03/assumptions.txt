@@ -1,0 +1,17 @@
+- Argument must be a non-null object; arrays and other objects are treated the same way and fail on missing properties.
+- For dated calls, the date is checked first. A valid date that is not earlier than the clock moves the clock and runs expiration catch-up even if the IDs or amount are malformed or a business rule rejects the call.
+- An invalid date or a date earlier than the clock rejects the call before any clock or expiration change.
+- Argument checks run in the order given in the spec: date, then IDs, then existence, then business rules.
+- Rejection `reason` strings use the suggested codes from section 13; for overpayment and zero or negative amounts the code is BAD_AMOUNT.
+- Any unexpected exception from a method is turned into `{ ok: false, reason: 'INVALID_INPUT' }`, so no method throws.
+- Dates are validated with the proleptic Gregorian leap rule. Year 0000 is accepted, and day arithmetic uses UTC day numbers.
+- Expiration catch-up runs over every book on each valid dated call.
+- A set-aside hold expires when the call date is greater than its `readyUntil` day, and the book is then freed on `readyUntil` + 1.
+- When a set-aside hold is fulfilled by borrowing, the remaining waiting holds keep their order with `readyUntil` null. Nothing is re-set aside at that moment.
+- A book with a set-aside hold is treated as "out" for placing holds, so holds may be placed while it is set aside.
+- Loans and holds share one placement sequence counter, so "created" and "placed" ordering are both globally consistent.
+- `renew` rule 7 checks for any waiting holds on the book; a book on loan has no set-aside hold, so this covers all holds.
+- The fine is computed as an integer from the due day to the return day, and is capped at 500 cents.
+- Owed balance changes only through fines and payments. Fines are added at return time only.
+- `getMember` returns `readyUntil` only for the first hold when the book is set aside; all other holds return null.
+- A member may place a hold on a book that is currently on loan to another member, and may not hold a book they already have on loan.

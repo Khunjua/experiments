@@ -1,0 +1,21 @@
+- Loan period is 21 days; due date is the borrow date plus 21 days.
+- There is no limit on how many books a member may have on loan or on hold.
+- Members with unpaid fines may still borrow, renew, and place holds.
+- A renewal sets the new due date to the renewal date plus 21 days, allows at most 2 renewals per loan, and is refused if the book is overdue or someone is waiting.
+- Renewing on the due date itself is allowed.
+- A book returned more than 3 days late is charged 25 cents for each day beyond those 3 grace days, counted from the due date.
+- A single loan's fine is capped at 1000 cents.
+- The fine from a return is added to the member's amount owed immediately.
+- A hold may be placed only on a book that is on loan or set aside for another member; it is refused for available books, for books the member has on loan, and for books the member already holds.
+- Position 1 is the next person in line. A member whose book is set aside keeps position 1 until they pick it up or the hold expires.
+- When a book comes back and people are waiting, it is set aside for the first in line for 7 days; readyUntil is the return date plus 7.
+- If a set-aside pickup window passes, that hold is removed and the next waiting member is set aside from the day after the expired window, repeating if needed; if no one is waiting, the book returns to the shelf.
+- Expiry is processed at the start of every call that takes a date.
+- Borrowing a set-aside book by its member consumes that hold; no one else can borrow a set-aside book.
+- readyUntil is null for a hold that is waiting and not set aside.
+- payFine refuses non-integer amounts, amounts of zero or less, and amounts greater than the amount owed, so there is no overpayment or credit.
+- Returning a book is refused unless that member currently has it on loan.
+- addBook and addMember refuse duplicate ids; all methods refuse unknown ids.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- loans are listed in borrow order and holds in the order they were placed.
+- Input dates are valid 'YYYY-MM-DD' strings in non-decreasing order, as the interface states.

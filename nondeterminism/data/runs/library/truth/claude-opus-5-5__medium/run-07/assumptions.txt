@@ -1,0 +1,18 @@
+- Adding a book or member whose id already exists is refused; ids that are undefined, null or an empty string are refused.
+- Actions involving an unknown member or unknown book are refused.
+- Dates that are malformed or not real calendar days are refused (getMember ignores a bad date and simply skips updating expired set-asides).
+- Expired set-asides are handled lazily: before any dated call, every book's set-aside is moved forward past the call date, possibly skipping several members in a row.
+- A member stays in the line while the book is on loan; a hold only expires during a set-aside period.
+- "Late days" means the number of days the return date is after the due date (return on due date + 3 = 3 days late = 75 cents).
+- A fine is added to the amount owed at return time; the book is still returned even if a fine applies.
+- Borrow checks are applied in this order: book on loan, set aside for someone else, loan limit, amount owed. Only one refusal is reported.
+- A member with a hold who is not position 1 cannot borrow the book while it is set aside for someone else; once the line empties the book is free for anyone.
+- When the set-aside member borrows the book, only their hold is removed; the others stay in line, and when it is returned it is set aside for the new position 1.
+- The 5-loan limit and the 1000-cent rule also apply to a member picking up a book set aside for them; if refused, the set-aside remains until readyUntil.
+- A renewal check that fails for any reason (limit, holds, overdue) does not count as a renewal.
+- A member can place holds on several different books; the number of holds per member is not limited.
+- A member who owes money or is at the loan limit may still place holds.
+- A hold on a book set aside for the same member is refused because they already hold it.
+- Payment amounts must be integers; non-integer or non-number amounts are refused. Paying when nothing is owed is refused (overpayment).
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- Holds in getMember have position counted from 1 within each book's line; readyUntil is shown only for position 1 while the book is set aside.

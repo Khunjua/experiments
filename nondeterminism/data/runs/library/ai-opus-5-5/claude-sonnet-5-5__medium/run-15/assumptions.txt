@@ -1,0 +1,10 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if other arguments (ids, amount) are invalid or the call fails for a business reason.
+- If the arguments object is missing or the date is invalid, the clock is not touched and no expiry runs.
+- The hold queue is the source of truth for a set-aside book: a book is set aside when it has no loan and a non-empty queue, and its `readyUntil` is stored per book.
+- A hold's `readyUntil` is reported only when it is at position 1 of a book that is not on loan.
+- Active holds are counted by scanning all books for the member's queue entries.
+- `getMember` orders holds by a global placement sequence number, which gives the oldest-first order.
+- `payFine` requires `amount` to be a safe integer greater than 0, and fails when `amount` exceeds `owed`.
+- Failures include a short `reason` string.
+- The overdue check on borrow uses strict `dueDate < date`, as specified.
+- Dates are stored internally as UTC day numbers and formatted back to zero-padded `YYYY-MM-DD`. Years 0001–9999 are handled with `setUTCFullYear` so that years below 100 are not shifted to 19xx.

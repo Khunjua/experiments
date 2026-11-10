@@ -1,0 +1,17 @@
+- Loan period is 21 days from the borrow date.
+- A renewal adds 21 days to the current due date, allows at most 2 renewals per loan, and is refused if anyone is waiting on the book or the loan is already overdue.
+- A member may hold at most 5 books on loan at once.
+- Late fee is 25 cents per day, with the first 3 days late free, and is capped at 1000 cents per loan.
+- A fine is added to the member's balance only when the book is returned; overdue loans do not accrue a balance before then.
+- A member whose balance is 1000 cents or more cannot borrow or place holds (renewals are not blocked by balance).
+- A hold can be placed only on a book that is on loan to someone else or already set aside for someone else; holds on available books are refused (borrow instead), and a member cannot hold a book they already have on loan or already hold.
+- There is no limit on how many holds a member may have.
+- When a book is returned with a waiting line, the first person in line gets it set aside, with pickup allowed from the return date through 3 days later (inclusive).
+- If a pickup window lapses unused, the book passes to the next in line with a window of 3 days after the lapsed window's last day; this cascades as needed and is applied at the start of every call.
+- A set-aside book can be borrowed only by the person it is set aside for; everyone else is refused.
+- A person set aside for a book has hold position 1 and reports their pickup deadline as readyUntil; all other holds report readyUntil as null.
+- A book can only be returned by the member it is on loan to.
+- addBook and addMember reject duplicate IDs.
+- payFine rejects amounts that are not positive integers or that exceed the amount owed; no overpayment or credit is kept.
+- getMember for an unknown member returns ok: false with empty loans, zero owed, and empty holds.
+- getMember lists loans and holds in the order books were added to the library.

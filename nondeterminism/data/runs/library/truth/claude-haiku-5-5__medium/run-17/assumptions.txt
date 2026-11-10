@@ -1,0 +1,13 @@
+- Borrow, return, renew, hold, payFine and getMember on an unknown book or member return ok:false (or an empty result for getMember); addBook and addMember refuse duplicate ids.
+- A set-aside book counts as not on loan, so a member with a set-aside book can borrow it, subject to the same 5-loan and 1000-cent limits as any borrow.
+- The member holding a set-aside stays in the line at position 1 until they borrow the book or the set-aside lapses.
+- Set-asides are checked lazily: every method first drops any set-aside whose readyUntil is before its date, then passes the book to the next member with readyUntil = old readyUntil + 3.
+- A set-aside member whose hold lapses loses their place entirely; if they hold again later, they join the back of the line.
+- A late return adds its fine to the amount owed even if that takes the member to 1000 cents or more.
+- Fines are charged on whole late days: 0 if returned on or before the due date, 0 for 1 or 2 days late, otherwise 25 cents per late day, capped at 500 cents.
+- Renewal is not blocked by the member's amount owed or by their other loans, only by the rules in the requirements (renewal count, any hold on the book, overdue loan).
+- A member may place holds regardless of amount owed, overdue loans, or the number of holds they already have.
+- A hold may be placed on a book that is on loan or set aside, but not on a book that is free on the shelf; this is checked before the check for the member's own loan or existing hold.
+- A payment must be a positive integer no greater than the amount owed; a refused payment returns the current owed amount.
+- getMember reports the set-aside readyUntil only for the member the book is set aside for; otherwise readyUntil is null.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are compared using UTC day numbers.

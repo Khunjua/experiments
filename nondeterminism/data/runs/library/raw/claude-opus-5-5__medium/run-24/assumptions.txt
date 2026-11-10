@@ -1,0 +1,26 @@
+- "Three weeks" means the due date is 21 days after the borrow date.
+- "A couple of times" means a maximum of 2 renewals per loan.
+- Each renewal adds 21 days to the current due date, not to the renewal date.
+- A renewal is refused if anyone is waiting for the book (any hold on it).
+- A renewal is refused once the loan is overdue (date after the due date).
+- Returning on the due date is on time; each day after the due date counts as one day late.
+- "Not harsh" means a grace period: returns up to 2 days late cost nothing. From the 3rd late day on, all late days are charged at 25 cents each.
+- "Not harsh" also means the fine is capped at 500 cents per loan.
+- Fines are charged only at return time. Overdue books that are still out do not add to "owed".
+- A member who owes 500 cents or more cannot borrow or renew. Returns, holds and payments still work.
+- A member may have at most 5 books on loan at once.
+- Only the member who borrowed a book can return or renew it.
+- Holds can only be placed on a book that is on loan or set aside for someone else. If the book is freely available, the hold is refused and the member should borrow it instead.
+- A member cannot hold a book they currently have, or one they already hold. There is no limit on how many different books a member can hold.
+- Holds are served first come, first served. When a held book is returned, it is set aside for the first person in line.
+- A set-aside book can be picked up until the return date + 7 days, inclusive.
+- If a set-aside book is not picked up in time, that hold is dropped. The book is then set aside for the next person, with a new 7-day window starting the day after the previous window ended.
+- While a book is set aside, only that member can borrow it. Borrowing it fulfills and removes their hold.
+- Hold positions count from 1, and the member the book is set aside for is position 1. readyUntil is null for everyone except the member the book is set aside for.
+- Payments must be a positive integer amount and may not be more than what is owed. Overpayments are refused.
+- Book and member IDs must be non-empty strings or finite numbers. Adding a duplicate ID is refused.
+- Unknown members or books, and dates that are malformed or not real calendar dates, give { ok: false }.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }. Known members also get ok: true.
+- Loans in getMember are listed in the order they were borrowed. Holds are listed in the order the books were added.
+- Expired pickup windows are handled lazily, using the date of later calls; getMember also triggers this.
+- The library starts empty. There are no methods to remove books or members or to cancel holds.

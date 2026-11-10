@@ -1,0 +1,16 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Unknown member or book ids cause { ok: false } in every method; getMember for an unknown member returns { ok: false }.
+- Invalid or malformed date strings are refused with { ok: false }.
+- getMember returns ok: true alongside loans, owed and holds.
+- Expiry of set-aside books is processed lazily at the date of each dated call; a book is still reserved on its readyUntil day and released the day after.
+- When a set-aside expires and passes to the next member, each subsequent readyUntil is the previous readyUntil + 3 days, chained as many times as needed to catch up to the current date.
+- A member who borrows the 6th book is refused before checking anything about the book's hold queue; refused borrows do not consume or alter holds.
+- Fines for late days: days late = return date − due date; 0 if ≤ 2, otherwise 25 × days late capped at 500.
+- Debt only blocks borrowing; members with debt may still return, renew and place holds.
+- A member's own loan count limit does not restrict placing holds.
+- A member cannot place a hold on a book already set aside for them (they are already in the line, so it counts as a duplicate hold).
+- A member who is in the hold line (not first) on a book cannot borrow it while it is set aside for someone else.
+- Renewal limit, hold check and overdue check are all applied; any failing check refuses the renewal; renewals count per loan and reset on a new borrow.
+- Payment amounts must be positive integers; non-integer amounts are refused. Paying exactly the amount owed is allowed.
+- payFine and getMember accept a missing date and then skip expiry processing.
+- A hold placed by the member currently borrowing the book is refused; a returning member is never automatically in the hold line.

@@ -1,0 +1,25 @@
+- An argument object is accepted only if it is a non-null object; arrays and other objects are treated like any object and checked by their fields.
+- Dates are valid from 0001-01-01 through 9999-12-31; any computed date outside that range is treated as an invalid result.
+- A borrow, renewal or return that would produce a date beyond 9999-12-31 fails and changes nothing.
+- A return that would set a book aside with a pickup window ending beyond 9999-12-31 fails and changes nothing.
+- If hold expiry would schedule the next hold beyond 9999-12-31, all remaining holds on that book are dropped and the book becomes available.
+- Syntactically invalid arguments (bad ids, bad dates, bad amounts) cause no clock change; a valid date that is not earlier than the current date advances the clock even when the call then fails for a business reason.
+- getMember and payFine with an unregistered member still advance the clock and run hold expiry when the date is valid.
+- The clock check is applied before any unregistered-id check, so a valid, non-earlier date with an unknown member or book still advances the clock.
+- The maximum-holds limit of 5 counts all of a member's holds across all books, whether waiting or ready.
+- Holds are never cancelled, so a member's hold stays in place until borrowed or expired.
+- Returning a book with a waiting queue sets the first hold ready with readyUntil = return date + 7.
+- Borrowing a set-aside book removes only that member's hold; the other holds keep their order and positions shift up.
+- The 5-loan limit is checked against the count of current loans before the new loan is added.
+- The overdue check uses strict comparison (dueDate earlier than the call date), so a loan due on the call date does not block borrowing.
+- Renewal is allowed on the due date itself (only dates after the due date are refused).
+- Renewal count is per loan and resets on return and reborrow, since a reborrow creates a new loan.
+- Renewal's new due date is always date + 21, which is never earlier than the old due date because the call date is not earlier than the last renewal or borrow date.
+- Owed balance has no upper cap; fines can push it above 1000 cents, and only borrowing is blocked by that threshold.
+- Each fine is capped at 500 cents per return, but there is no cap on the total owed.
+- Partial payments are allowed, and any amount above the owed balance (including any amount when owed is 0) is refused.
+- Loan order in getMember follows the order of borrowing; renewals do not change a loan's position.
+- Hold order in getMember follows the global placement sequence across all books, not per book.
+- Hold position is the index in the book's queue plus 1; readyUntil is shown only for the set-aside hold of this member.
+- Hold expiry runs over every book on every dated call, including calls that fail.
+- addBook and addMember take no date and do not advance the clock.

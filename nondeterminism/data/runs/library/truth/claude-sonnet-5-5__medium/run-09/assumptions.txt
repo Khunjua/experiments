@@ -1,0 +1,15 @@
+- Duplicate addBook or addMember with an existing id is refused with ok:false and changes nothing.
+- Operations naming an unknown member or book are refused.
+- Hold expiry is evaluated lazily at the date of each call. A hold set aside until D is still valid on D and is dropped from D+1.
+- If the next member's window (old readyUntil + 3) has already passed, it expires in the same pass and the book moves on down the line.
+- A member in the waiting line stays at their position, with the ready member at position 1, until they borrow or their hold expires.
+- After a ready member borrows, the remaining holders stay in line behind the new loan. Their positions shift up by one.
+- Fines under 3 days late are 0. From 3 days late the fine is 25 × all late days, capped at 500.
+- Owing money does not block renewing, placing holds, or returning books. Only borrowing is blocked, at 1000 cents or more.
+- Unpaid fines are never limited by the 500 cap across multiple returns. The cap applies per returned book.
+- payFine requires an integer amount greater than 0 and no more than owed. A member who owes 0 cannot pay.
+- getMember for an unknown member returns { ok: false }.
+- A member may borrow a book that is free on the shelf even if others once held it. Holds only exist while the book is on loan or set aside.
+- A member holding a book that is set aside for them may not place another hold on it (duplicate rule). A member whose book is set aside for someone else may place a hold on it.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.
+- Renewing requires the date to be on or before the current due date, and the renewal count counts only successful renewals.

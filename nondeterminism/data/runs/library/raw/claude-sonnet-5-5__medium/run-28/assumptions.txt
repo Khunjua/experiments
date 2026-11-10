@@ -1,0 +1,17 @@
+- Loan period is 21 days; due date = borrow date + 21.
+- Maximum 2 renewals per loan; each renewal sets the new due date to renewal date + 21 (not old due date + 21).
+- Renewal is refused if anyone has a hold on the book, if the loan is already overdue (date after due date), or if the member owes 500 cents or more.
+- Fine is 25 cents per day late, with a 3-day grace period: only days beyond the 3rd late day are charged (returning 3 days late costs 0). Fine is capped at 1000 cents per loan.
+- A return on the due date or earlier costs nothing; fines are added to the member's owed total at return.
+- Borrowing is refused if the member owes 500 cents or more, has an overdue loan, already has 5 loans, or the book is on loan.
+- Borrowing a book the member already holds, while it is on loan, fails as the book is on loan.
+- Holds can only be placed on a book that is out or set aside for someone; holding an available book fails, as does holding a book you have on loan or already holding it.
+- Holds are a first-come first-served queue; position is 1-based. There is no limit on holds and owing money does not block holds.
+- When a book is returned and a queue exists, the first member's hold is set aside with readyUntil = return date + 3 days (inclusive last pickup day).
+- A book set aside can only be borrowed by the member at the front; borrowing removes their hold and the next hold (if any) shows no readyUntil.
+- If a set-aside hold is not picked up by readyUntil, it expires after that day (lazily evaluated on any later dated call); the next member in line gets readyUntil = previous readyUntil + 3. If no one is waiting, the book becomes available.
+- Expired holds are removed entirely, and positions shift up.
+- payFine fails unless amount is a positive integer no greater than the amount owed (no overpayment, no zero payments).
+- Invalid dates (bad format or non-existent day), unknown members/books, and duplicate addBook/addMember ids return ok:false.
+- getMember for an unknown member returns empty loans/holds and owed 0. Loans are listed in borrow order; holds in order of books as added to the library.
+- Failed calls change nothing, except that time-based hold expiry may be applied as a consequence of the call's date, which doesn't alter outcomes.

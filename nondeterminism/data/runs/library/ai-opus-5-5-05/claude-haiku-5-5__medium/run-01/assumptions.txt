@@ -1,0 +1,17 @@
+- Any non-null object is accepted as the argument; extra fields are ignored, and missing or wrongly typed fields cause a failure result.
+- Failure `reason` strings are free text chosen by the implementation.
+- Date output is zero-padded to at least 4 digits; results beyond 9999-12-31 are not capped or rejected and would print with more than 4 year digits.
+- Each dated call, including one that fails a business rule, advances the clock and processes expiry once the input is valid; calls that fail input validation change nothing.
+- A dated call with a valid format and an unknown member or book still advances the clock, because existence checks come after time processing.
+- Date and amount validation runs before clock processing, so an invalid argument never advances the clock.
+- A return to a book with a waiting queue sets `readyUntil` to the return date plus 7 days, not to the due date plus 7 days.
+- A set-aside member borrows the book on or before `readyUntil` (inclusive), which expiry processing guarantees.
+- Borrowing a set-aside book when the member already has 5 loans or owes at least 500 cents fails, and the hold stays in place.
+- Renewal on the due date itself is allowed, because "overdue" means strictly later than the due date.
+- Fines are not capped against the existing `owed` total, so `owed` can exceed 500 through several fines.
+- A member can place a hold while owing money; the debt does not block holds.
+- A member who is set aside for a book and also still has a loan on that book cannot occur; a hold on a book on loan to the same member is rejected.
+- `getMember` lists loans in creation order and holds in placement order; re-borrowing or re-placing creates a new entry at the end.
+- Expiry processing iterates over all books and repeats per book until stable; the result does not depend on book order.
+- Passing a `Map`/`Set`-based internal structure means prototype-like IDs such as `__proto__` or `constructor` are treated as ordinary IDs.
+- Any unexpected exception inside a method is caught and returned as `{ ok: false, reason }` as a last-resort guard.

@@ -1,0 +1,12 @@
+- A dated call with a valid date earlier than the current date fails without changing state or the clock; a call with an invalid date fails without touching the clock.
+- For payFine and getMember, an invalid argument or a past date is rejected before the clock is advanced and before expiry runs; an unregistered member still advances the clock and runs expiry, since the date was valid.
+- For the other dated methods, an unregistered member or book also advances the clock and runs expiry, since the date was valid.
+- Invalid IDs (non-string or empty) fail without advancing the clock.
+- For payFine, the amount is validated before the clock is touched; an invalid amount does not advance the clock.
+- A non-object argument (null, undefined, primitive) fails.
+- A set-aside book's ready hold is always the first in its queue, and `readyUntil` is stored per book.
+- Hold expiry removes the hold from the member's active holds, which frees a slot toward the 5-hold limit.
+- Holds are kept in the order placed per member; position is computed live from the book's queue.
+- The overdue check on borrow uses strict `dueDate < date`, as the requirements state.
+- A member borrowing a book set aside for themselves is still subject to the loan-limit, overdue and owed checks, and the hold stays if blocked.
+- Date arithmetic uses UTC day numbers, and years below 100 are handled with setUTCFullYear to avoid the Date two-digit-year mapping.

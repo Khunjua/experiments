@@ -1,0 +1,20 @@
+- Adding a book or member whose id already exists is refused; ids must be non-empty strings or finite numbers.
+- Any call that names an unknown member or unknown book is refused.
+- Dates must be valid 'YYYY-MM-DD' calendar dates; an invalid date is refused. Out-of-order dates are not checked, because the interface guarantees order.
+- Hold expiry is handled lazily. Before each dated call, every book set aside past its readyUntil (date > readyUntil) passes to the next member in line. Each step adds 3 days to the old readyUntil, repeating as many times as needed.
+- The book is still set aside for the member on the readyUntil day itself, so borrowing on that day is allowed.
+- A late return's fine is days late × 25, applied only when days late > 2, capped at 500.
+- A late return is still accepted, and the fine is added to the amount owed.
+- A member who owes 1000 or more can still return, renew, place holds and pay; only borrowing is blocked.
+- Borrowing a book the member already has on loan is refused like any book on loan.
+- When a book is set aside for a member, only that member can borrow it; anyone else is refused.
+- A member cannot place a hold on a book that is set aside for them, because they already hold it.
+- There is no limit on the number of holds per member or per book.
+- Holds stay active while the member has 5 loans or owes 1000 or more; they are dropped only through the readyUntil expiry.
+- When a book with holds is returned, it is set aside immediately, even if the returning member is in the hold line (they cannot be, since holding your own loan is refused).
+- A renewal is refused if any hold exists on the book, including a hold made while the book is set aside.
+- Renewal checks run in this order: loan exists for the member, renewal limit, holds, overdue. Any failure refuses the renewal.
+- payFine requires a positive integer amount that is no more than what is owed.
+- getMember with an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- getMember lists holds in the order the books were added. readyUntil is shown only for position 1 while the book is set aside for that member; otherwise it is null.
+- Successful results contain only the documented fields plus ok. Refusals return { ok: false, reason } with no other fields.

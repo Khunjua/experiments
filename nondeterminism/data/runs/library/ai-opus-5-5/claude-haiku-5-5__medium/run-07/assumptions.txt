@@ -1,0 +1,17 @@
+- Arguments that are not non-null objects, or whose identifiers or amount are invalid, are rejected before the clock is touched; only a structurally valid dated call with a date not earlier than the current date advances the clock.
+- A structurally valid dated call that fails a business rule still sets the current date and runs hold expiry, per §3.3.
+- getMember with a valid date but an unregistered member still advances the clock and runs hold expiry before returning ok:false.
+- Arrays and other objects that carry the required fields are accepted as argument objects; extra fields are ignored.
+- Failure results are exactly { ok: false } with no reason field.
+- Date arithmetic that produces a date after 9999-12-31 is not clamped; it is formatted with more than four year digits.
+- Loans are stored in borrow order; renewing a loan does not change its position in getMember's list.
+- A new loan starts with a renewal count of 0, and each loan's renewal count is independent of earlier loans on the same book.
+- A member has at most one hold per book, so holds are identified by bookId within the member's list.
+- When a set-aside hold is fulfilled by borrowing, the book has no ready hold until it is returned, so readyUntil is cleared at borrow and set again at return.
+- When a book is returned and holds are waiting, the first hold becomes ready with readyUntil = return date + 7, regardless of any previous readyUntil.
+- Hold expiry is processed for every book on every dated call, not only for the member named in the call.
+- The position reported by getMember for a set-aside hold is 1, and readyUntil is null for any hold that is not set aside for that member.
+- Owed balance has no upper bound beyond the fines themselves.
+- A payment amount must be a safe integer greater than 0; non-integer numbers, strings and zero are rejected.
+- The overdue check in borrow considers all of the member's current loans, using each loan's due date.
+- Renewal is rejected only for the stated reasons; the member's owed balance has no effect on it.

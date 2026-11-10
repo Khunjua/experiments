@@ -1,0 +1,20 @@
+- A dated call whose date is not a valid YYYY-MM-DD string does not move the clock and runs no catch-up; it is rejected with INVALID_INPUT.
+- A dated call with a valid date that is earlier than the clock is rejected without moving the clock and without running catch-up.
+- A dated call with a valid, non-earlier date moves the clock and runs catch-up even if its other arguments are invalid or its business rule rejects it.
+- Catch-up is applied to every book in the library, not only the book named in the call.
+- Arguments are read as plain property accesses. Any exception raised while reading or processing is caught and returned as { ok: false, reason: 'INVALID_INPUT' }, with no state change for the methods that validate everything before mutating.
+- Arrays and other non-null objects are accepted as the argument object; they are rejected only if the required properties are missing or malformed.
+- Year 0000 is accepted as a valid year. Dates past 9999-12-31 are formatted with more than four year digits instead of being rejected.
+- Book IDs and member IDs are stored in separate maps, so the same string can name a book and a member.
+- Hold position for a set-aside hold is 1 and the set-aside hold's readyUntil is returned; holds that are waiting return readyUntil null.
+- A member can place a hold on a book that is set aside for someone else; that hold is appended to the line.
+- A member who holds a book that is set aside for them can borrow it only when they are the first hold in the line; the hold is removed on borrow and the remaining holds keep their positions relative to each other.
+- A book that becomes free with an empty line becomes available; a book that becomes free with a non-empty line is set aside for the first hold with readyUntil = freeing day + 7.
+- Expirations are applied in calendar order per book, and the next hold's window starts the day after the previous window ended, as in section 9.4.
+- Renewal is blocked by any active hold on the book, including a set-aside hold for another member.
+- The renewal due date is the renewal date plus 21 days, even when that is earlier than the current due date (which cannot happen because renewal is only allowed on or before the due date).
+- Fines are computed from the loan's current due date, which reflects any renewals.
+- Loans and holds are ordered for output by one shared creation counter that increments on each loan creation and each hold placement.
+- payFine validates the amount type and range before checking whether the member exists; both rejections return the same { ok: false } shape, so the order affects only the reason string.
+- payFine with an amount greater than the current owed balance is rejected with reason BAD_AMOUNT.
+- Rejection objects include a reason string drawn from the suggested codes in section 13.

@@ -1,0 +1,17 @@
+- Arguments that are null, non-objects, or arrays are invalid; extra fields in arguments are ignored.
+- Ids are any non-empty string, compared exactly, with no trimming or normalization.
+- Dates must be strings; date objects and numbers are rejected. Years 0000 to 9999 are supported.
+- A dated call with invalid arguments does not advance the clock and does not process expirations.
+- For dated calls that pass validation, the clock advances and expirations are processed before business checks, even when the business action then fails, as §3.5 specifies.
+- Failure results include a short descriptive reason string, which is not part of the contract.
+- Unexpected exceptions are caught and returned as `{ ok: false }`; no rollback is performed, but the code is written so that state changes happen only after all checks pass.
+- Hold expiry happens only when `readyUntil` is strictly earlier than the processing date.
+- Renewal is allowed on the due date itself and blocked only when the date is later than the due date.
+- Member loans are derived from book state, sorted by borrow date and then by a global loan creation counter.
+- Member holds are derived from hold queues, sorted by the global placement counter.
+- The `owed` threshold applies only to borrow and renew; returns, holds, and fine payments are not blocked by it.
+- A member can have any number of loans and holds across different books.
+- Placing a hold on a book on loan to someone else with an empty queue is allowed, consistent with §6.6.
+- A member who already has a loan on a book cannot borrow that book again, because the book is `onLoan`.
+- `payFine` with a zero or non-integer amount fails argument validation before any clock change.
+- `addBook` and `addMember` do not read or move the clock.

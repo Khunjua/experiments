@@ -1,0 +1,23 @@
+- "Three weeks" = 21 days; due date = borrow date + 21 days.
+- "A couple of times" = at most 2 renewals per loan.
+- A renewal adds 21 days to the current due date (not to the renewal date).
+- Renewal is refused if anyone has a hold on the book, if the loan is already overdue, or after 2 renewals.
+- Returning on the due date is on time; a day late = each calendar day after the due date.
+- "Not harsh": a 2-day grace period; only days beyond the grace period are charged at 25 cents (e.g. 3 days late = 25 cents).
+- "Not harsh": the fine for a single loan is capped at 500 cents.
+- Fines are added to what the member owes at the moment of return; nothing accrues while a book is still out.
+- A member can have at most 5 loans at once.
+- Borrowing is refused if the member owes 1000 cents or more, or has any overdue loan.
+- Only the member who borrowed a book can return or renew it.
+- Holds can only be placed on a book that is on loan or already set aside for someone; not on a book sitting available on the shelf.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice; there is no limit on the number of holds.
+- The hold line is first come, first served.
+- When a held book is returned it is set aside for the first person in line; they can pick it up through the return date + 7 days (that day is readyUntil).
+- If the pickup window passes, that hold is cancelled and the book is set aside for the next person, with a new 7-day window starting the day after the previous one ended.
+- A set-aside book can only be borrowed by the member it is set aside for; borrowing it removes their hold.
+- The member a book is set aside for has position 1.
+- Hold expirations are processed lazily using the date of each call.
+- payFine requires a positive integer amount no greater than what is owed; overpayment is refused.
+- Duplicate or invalid bookId/memberId in addBook/addMember returns { ok: false }.
+- Unknown members/books or invalid dates return { ok: false }; getMember returns null for an unknown member or invalid date.
+- getMember lists loans in borrowing order and holds in the order they were placed.

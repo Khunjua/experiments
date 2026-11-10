@@ -1,0 +1,22 @@
+- The loan period is 21 days, and the due date is the borrow date plus 21 days.
+- A loan can be renewed at most 2 times.
+- A renewal sets the due date to the renewal date plus 21 days. It never moves the due date earlier.
+- A renewal is refused if any member has a hold on the book. This includes a hold placed by the borrower.
+- An overdue loan cannot be renewed.
+- The fine is 25 cents for each day after the due date. Returning on the due date costs nothing. There is no grace period.
+- To keep fines from being harsh, the fine for one return is capped at 500 cents.
+- A member who owes 500 cents or more cannot borrow or renew. Smaller debts do not block anything.
+- There is no limit on how many books a member can have on loan at once.
+- A hold can only be placed on a book that is on loan or set aside for another member. A hold on a book sitting on the shelf is refused.
+- A member cannot place a hold on a book they currently have on loan. They also cannot hold the same book twice.
+- The hold line is first come, first served. Position 1 is the next member, including the member the book is currently set aside for.
+- When a book with holds is returned, it is set aside for the first member in line. readyUntil is the return date plus 7 days, inclusive.
+- If the member does not borrow the book by readyUntil, their hold expires the next day. The book is then set aside for the next member, whose readyUntil is the day after the previous readyUntil plus 7 days. If nobody is left in line, the book goes back on the shelf.
+- Hold expiry is applied whenever a call with a date is made.
+- While a book is set aside, only the member it is set aside for can borrow it. Borrowing it removes their hold.
+- The member who has a book must be the one who returns it.
+- A payment must be a positive integer that is no more than the amount owed. Overpayments are refused.
+- Unknown members or books, duplicate IDs, invalid IDs and invalid dates all return { ok: false }.
+- getMember for an unknown member returns { ok: false }. Successful getMember results also include ok: true.
+- Loans in getMember are listed in borrow order. Holds are listed in the order the books were added.
+- Members cannot cancel holds, because the interface has no method for it.

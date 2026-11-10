@@ -1,0 +1,28 @@
+- Unknown member or book IDs make the method return { ok: false }; getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- Duplicate addBook or addMember calls return { ok: false } and change nothing.
+- IDs are compared with strict equality, with no normalization.
+- Dates are assumed valid 'YYYY-MM-DD' strings; date arithmetic uses UTC day numbers.
+- Set-aside expiry is applied lazily at the start of every call, across all books, using that call's date.
+- readyUntil is inclusive: a hold lapses on the day after readyUntil.
+- When a set-aside lapses, the next member's readyUntil is the lapsed readyUntil + 3, even if that date has also already passed; the process cascades down the line.
+- Lapsed holds carry no fine and are simply removed from the line.
+- A borrower who is set aside for may borrow even if they have overdue loans or owe fines, as long as the owed and loan-count limits are not exceeded.
+- Borrowing a book the member already has on loan is refused (it is on loan, so the normal refusal applies).
+- Borrowing a book that is on loan to someone else is refused, whatever the holds.
+- Overdue members are not blocked from borrowing; only the 1000-cent owed limit blocks borrowing.
+- Renewal is not blocked by the member's owed amount.
+- Renewal on the due date is allowed; renewal after the due date is refused.
+- Renewal counts only renewals, not the original borrow, against the limit of 2.
+- A member may place a hold while owing money or at the 5-loan limit; only the stated hold rules apply.
+- A member with a hold on a book cannot place a second hold on it, and a member who has the book on loan cannot hold it.
+- A hold on a book that is set aside for someone else is allowed and is added to the back of the line.
+- A late return that triggers a set-aside still charges the fine; the fine is charged regardless of holds.
+- Late days are counted as calendar days between the return date and due date; returns on or before the due date are free.
+- The per-return fine cap of 500 cents applies to each returned loan separately; owed amounts have no overall cap.
+- Returning a book the member does not have on loan returns { ok: false, fine: 0 } and changes nothing.
+- payFine amounts must be integers from 1 up to the amount currently owed; non-integers are refused.
+- payFine on an unknown member returns { ok: false, owed: 0 }; on a refused payment it returns the current owed amount.
+- getMember lists loans in borrow order and holds in the order of book insertion; the success result omits the ok field.
+- Position numbers are 1-based indexes in the line, with the set-aside member at position 1 until they borrow or lapse.
+- Borrowing a set-aside book removes that member's hold, so everyone behind moves up one place.
+- The holds list in getMember reports readyUntil only for the member currently set aside for; otherwise it is null.

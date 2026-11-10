@@ -1,0 +1,16 @@
+- A dated call with a valid date that is not earlier than the clock moves the clock and runs catch-up even if its IDs are invalid or the member or book does not exist.
+- A dated call with an invalid or out-of-order date runs no catch-up and changes nothing.
+- Catch-up processes expirations across all books in any order; books are independent, so the order does not change the result.
+- A set-aside hold is still valid on its readyUntil day; borrowing on that day succeeds.
+- Day arithmetic uses UTC day numbers; dates are formatted with a 4-digit minimum year.
+- Results that would fall after 9999-12-31 are not guarded; such dates are assumed not to occur.
+- Year 0000 is accepted as a valid date, since the rules define a proleptic Gregorian calendar.
+- Borrowing a book that is on loan, or set aside for another member, returns reason NOT_AVAILABLE.
+- Placing a hold on a book the member already has on loan returns reason ALREADY_BORROWED.
+- Placing a hold when the member already has a waiting or set-aside hold on that book returns reason ALREADY_HOLDING.
+- Loans and holds share one creation sequence counter, used only to order results in getMember.
+- Only the head of a line carries a readyUntil value; getMember reports readyUntil only for a set-aside head hold of that member.
+- A return that finds other holds in line sets the book aside for the first hold, with readyUntil equal to the return date plus 7.
+- payFine checks amount type and safe-integer range before checking that the member exists; both paths reject with no state change.
+- Each method is wrapped in a try/catch that returns { ok: false, reason: 'INVALID_INPUT' } so hostile inputs such as throwing getters cannot escape. Mutation happens only after all validation, so a caught error cannot leave partial changes in practice.
+- addBook and addMember IDs live in separate namespaces, so a book and a member may share an ID string.

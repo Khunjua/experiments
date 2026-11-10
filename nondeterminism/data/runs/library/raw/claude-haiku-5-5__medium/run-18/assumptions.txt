@@ -1,0 +1,28 @@
+- Loan period is 21 days from the borrow date; due date is borrow date plus 21 days.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- Maximum of 2 renewals per loan.
+- Renewal is refused when the book has any holds waiting, or when the loan is already overdue (renewal on the due date itself is allowed).
+- Late fine is 25 cents per full day past the due date, with no grace period.
+- Late fine is capped at 1000 cents per loan.
+- Fines are assessed on return and added to the member's balance; overdue loans that have not been returned add nothing to "owed" until returned.
+- Overdue status does not block borrowing, renewing, or placing holds for other books; only the borrowing limit below applies.
+- Owing money does not block borrowing.
+- Maximum of 5 concurrent loans per member; borrowing beyond that returns ok false.
+- A book can be on loan to only one member at a time.
+- A hold can be placed only on a book that is currently on loan or set aside for another member; placing a hold on an available book is refused.
+- A member cannot hold a book they currently have on loan, cannot hold a book already set aside for them, and cannot hold the same book twice.
+- Holds are served first-come, first-served in placement order; position 1 is next in line.
+- When a book is returned and holds exist, it is set aside for the first person in line, who has 7 days to pick it up including the return day (readyUntil = return date + 6 days).
+- A set-aside member's entry in getMember holds uses position 0 and readyUntil; waiting entries use position n and readyUntil null.
+- A set-aside member who does not pick up by readyUntil loses that hold; the book passes to the next person in line, who gets 7 days starting the day after the lapsed window ends. If nobody is waiting, the book becomes available.
+- Set-aside books can only be borrowed by the member they are set aside for, and only on or before readyUntil.
+- Expiry of set-aside holds is processed lazily at the start of each method call using that call's date.
+- A member who holds a set-aside book cannot be counted as having it on loan; set-aside books do not count toward the loan limit.
+- payFine accepts only positive integer amounts not exceeding the current balance; overpayment is rejected rather than credited.
+- addBook and addMember reject duplicate or empty IDs.
+- Borrow, return, renew, placeHold, and payFine return ok false for unknown members or books.
+- getMember for an unknown member returns an empty view (no loans, owed 0, no holds) rather than ok false, since the interface defines no failure shape for it.
+- Returning a book requires that the returning member is the one it is currently on loan to.
+- Loans are listed in order of book registration in getMember; holds are listed in book registration order.
+- No time zones: dates are compared and shifted as UTC calendar days.
+- Input dates are assumed well-formed 'YYYY-MM-DD' strings and non-decreasing across calls, per the interface.

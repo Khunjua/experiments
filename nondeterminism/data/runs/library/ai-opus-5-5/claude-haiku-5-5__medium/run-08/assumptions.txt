@@ -1,0 +1,15 @@
+- Dates are stored internally as day numbers; any date computation that would pass 9999-12-31 is clamped to 9999-12-31 (affects due dates, renewal dates and hold readyUntil dates).
+- Invalid input (bad argument object, bad or missing ID, wrong amount type, malformed or non-existent date) returns { ok: false } with no state change, including no clock change.
+- The clock advances to a valid date even when the business rules then fail, and expiry runs at that point; a call with an earlier valid date fails with no effect.
+- Expiry processing runs over all books on every successful dated call and on getMember, as of that call's date.
+- When an expired hold is removed and the next hold becomes ready, its readyUntil is set to previous readyUntil + 8, clamped to 9999-12-31 if needed.
+- A book on loan has no ready hold; all its holds are waiting with readyUntil null until the loan is returned.
+- Returning a book with a waiting queue sets the first hold's readyUntil to return date + 7 even if that date is the return day itself.
+- A member's active holds are kept in placement order, and a hold's position is recomputed from its book's queue at getMember time.
+- A hold is removed from the member's active list when it is fulfilled by borrowing or expires.
+- A member is blocked from borrowing a book only by the listed rules; a set-aside hold for them is not removed by a failed borrow attempt.
+- The renewal check for an overdue loan uses date > dueDate, as stated; a loan on its due date may still be renewed.
+- Returning a book has no restrictions based on the member's owed balance, overdue status or loan count, and the fine may take owed above 1000 cents.
+- Loans are listed in borrow order (by a global sequence number), and the same sequence ordering is used for holds.
+- The arguments object may be any non-null object; extra properties are ignored and no getter errors are handled.
+- A call to borrow for a set-aside book uses the ready hold only if its memberId matches; if it does not match, borrow fails.

@@ -1,0 +1,27 @@
+- Loan period is 21 days counted from the borrow date; the due date is borrow date plus 21 days.
+- A member may renew a loan at most 2 times.
+- A renewal grants 21 more days counted from the renewal date (not from the old due date).
+- Renewal is refused if the loan is already overdue or if any hold is waiting for the book.
+- A grace period of 2 days applies: a return up to 2 days after the due date is not charged.
+- Fines are 25 cents per day for each day late beyond the grace period, so a return 3 days late costs 25 cents.
+- A single loan's fine is capped at 1000 cents.
+- Fines are assessed only when the book is returned; overdue loans add nothing to "owed" until then.
+- A returned book is set aside for the first waiting hold, with a pickup window of 7 days counted from the day it became available (the return day, or the day after the previous holder's window ended).
+- A set-aside hold reports position 1; waiting holds behind it report 2, 3, and so on.
+- A hold can be placed only on a book that is currently on loan; placing a hold on an available or set-aside book is refused.
+- A member cannot hold a book they currently have on loan, nor place a second hold on the same book.
+- A member may have at most 5 active holds at once (waiting plus set aside).
+- A member may have at most 5 books on loan at once.
+- A member with any overdue loan cannot borrow other books.
+- A book set aside for one member can be borrowed only by that member, and borrowing consumes that hold.
+- When a set-aside hold expires unclaimed, the book passes to the next waiting member with a new 7-day window; if nobody is waiting, the book becomes available.
+- Expiry is processed lazily on every call using the call's date, so results do not depend on how often expiry was checked.
+- A hold can be placed only by a registered member on a registered book.
+- Borrowing, returning, and renewing require the book and member to exist; a return or renewal by someone who does not hold the loan is refused.
+- Fines are paid partially or fully; a payment must be a positive integer number of cents no greater than the amount owed, and overpayment is refused.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] } instead of throwing.
+- addBook and addMember refuse duplicate ids; ids must be non-empty strings.
+- Dates that are not valid calendar dates in 'YYYY-MM-DD' form cause the call to be refused with { ok: false }.
+- getMember lists loans and holds in the order books were added.
+- There is no method to cancel a hold, so holds leave the queue only by being claimed by borrowing or by expiring.
+- Returning a book that is not on loan, or by a member who does not hold the loan, is refused with { ok: false }.

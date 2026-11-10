@@ -1,0 +1,21 @@
+- Unknown members or books make an action fail with { ok: false }; for getMember an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- Adding a book or member whose id already exists is refused; null or undefined ids are refused.
+- A badly formed date string makes dated actions fail. For payFine and getMember, a bad date is ignored.
+- Hold expirations are worked out lazily: any dated call first drops expired set-asides on all books for that date, even if the call itself is then refused.
+- The member a book is set aside for can still borrow it on the readyUntil day itself. Their hold is dropped on the day after.
+- If several set-aside periods have passed with no calls in between, each next member in line gets the old readyUntil + 3 days. This repeats until a readyUntil is not yet past or the line is empty.
+- "N days late" means the return date minus the due date in calendar days. The fine is 25 × N when N ≥ 3, capped at 500.
+- A late return is still accepted even if the member owes a lot. The fine is simply added to what they owe.
+- The 1000-cent owed limit blocks borrowing only. It does not block renewing, returning or placing holds.
+- The 5-loan limit and the owed limit also apply when a member picks up a book set aside for them.
+- A refused borrow of a set-aside book does not remove the member's hold.
+- When a book with holds is borrowed by the member it was set aside for, the remaining holds stay in line on the new loan. The book is set aside for the next member only when it is returned.
+- The renewal count belongs to the loan and resets to 0 on a new borrow.
+- Renewals are refused while any hold exists on the book, including the borrower's own (which cannot happen under rule 14).
+- A member can place a hold on a book that is set aside for someone else. A member cannot hold a book they have on loan.
+- There is no limit on how many holds a member can have.
+- getMember shows readyUntil only for the member in position 1 when the book is currently set aside, and null otherwise.
+- payFine amounts must be integers. Non-integer amounts are refused.
+- Refused calls return extra fields set to null, 0 or the current owed, plus a reason field.
+- Successful getMember results also include ok: true.
+- Dates are computed in UTC, so day arithmetic is exact.

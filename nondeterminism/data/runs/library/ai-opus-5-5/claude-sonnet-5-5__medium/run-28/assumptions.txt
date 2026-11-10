@@ -1,0 +1,9 @@
+- A call with a valid date but otherwise invalid arguments (bad IDs, bad amount) still advances the clock and runs hold expiry, since the date is valid and the call is "dated".
+- A call with a missing argument object or an invalid date does not touch the clock or expiry.
+- addBook and addMember are not dated, so they do not affect the clock or expiry.
+- A set-aside book is tracked as: no loan, non-empty queue, readyUntil set. Once a book is borrowed, the ready date is cleared and remaining holds simply wait.
+- A hold's `readyUntil` is reported only while its book is set aside for that member, and is otherwise null.
+- Dates that overflow past year 9999 after adding days are formatted with the ISO extended year format rather than rejected.
+- Years 0001–0099 are handled with `setUTCFullYear` to avoid the `Date.UTC` two-digit-year quirk.
+- Failed calls change nothing except the clock and expiry processing mandated by the spec.
+- Hold expiry is processed for all books on every valid dated call, including calls that then fail.

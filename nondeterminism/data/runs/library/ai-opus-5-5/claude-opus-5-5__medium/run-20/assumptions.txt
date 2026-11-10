@@ -1,0 +1,11 @@
+- The clock advances and hold expiry runs only when every argument of the call is well-formed (valid ids, valid date, valid amount); calls with malformed input change nothing at all, including the clock.
+- Calls with well-formed arguments that fail for a business reason (including unregistered member/book) still advance the clock and process hold expiry.
+- getMember and successful results include `ok: true` in addition to the documented fields.
+- Failure results include a `reason` string.
+- Date arithmetic uses a pure integer proleptic-Gregorian day-count algorithm (equivalent to UTC arithmetic) rather than Date objects, to avoid Date.UTC's two-digit-year mapping for years 0001–0099.
+- Computed dates beyond 9999-12-31 (e.g. due dates) are formatted with more than 4 year digits rather than rejected; such dates cannot be used as call dates.
+- Renewal sets dueDate to max(old dueDate, date + 21), which equals date + 21 given the overdue check.
+- A ready (set-aside) hold is identified as queue position 1 while the book is not on loan; readyUntil is null for all holds on books currently on loan.
+- payFine rejects non-number amounts (e.g. numeric strings) and non-safe integers as invalid input.
+- When a member's set-aside book is borrowed, the readyUntil is cleared; any remaining holds wait for the next return.
+- Extra unknown fields and inherited properties on argument objects are ignored; argument must be a non-null object (arrays accepted if they carry the fields).

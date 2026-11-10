@@ -1,0 +1,22 @@
+- Adding a book or member whose id already exists is refused with { ok: false }.
+- Any method naming an unknown member or book is refused; getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- A return by someone who does not have that book on loan returns { ok: false, fine: 0 }.
+- Fine: 1 or 2 days late costs 0; 3 or more days late costs 25 cents per late day (including the first two), capped at 500 per book.
+- A fine is added to the member's owed amount at the moment of return; it is not charged at borrow or renewal.
+- A member who owes 1000 or more cannot borrow, but can still return books, renew, place holds and pay.
+- The 5-book limit counts only books currently on loan to the member.
+- Renewal is allowed even when the member owes fines or holds the maximum number of loans.
+- Renewal is refused whenever the hold queue for the book is non-empty, including when the book is set aside for someone.
+- Renewal on the due date is allowed; a loan is overdue only when the date is after its due date.
+- Holds have no per-member limit, and a member owing 1000 or more may still place holds.
+- A member already in a book's hold line cannot place a second hold on it, even if they are the one set aside for.
+- A book that is on loan with an empty hold line and a book set aside for someone both accept holds; a book on the shelf with no set-aside is refused.
+- The member set aside for a book stays at position 1 in the hold line until they borrow it or the set-aside lapses.
+- Set-aside lapses are processed lazily at the start of every method call, using that call's date; a lapse is only treated as happening once the date is strictly after readyUntil.
+- When a set-aside lapses and the next member's readyUntil (old readyUntil + 3) is already before the current date, the set-aside cascades to the following member within the same processing step.
+- When the line is empty after a lapse, the book becomes free for anyone with no set-aside.
+- Borrowing a set-aside book removes that member's hold; the remaining line members keep their order and shift up.
+- Borrowing requires the book to be free on the shelf or set aside for the borrower; a member in the line but not set aside for cannot borrow.
+- payFine refuses non-integer amounts, amounts of 0 or less, and amounts greater than the amount owed; a refusal returns the current owed.
+- The date argument is assumed to be a valid 'YYYY-MM-DD' string and calls are assumed to be in time order, as stated.
+- readyUntil and due dates are computed with UTC calendar-day arithmetic, so there are no time zone or daylight saving effects.

@@ -1,0 +1,12 @@
+- A dated call with a valid, non-earlier date advances the clock and runs hold expiry even if its other arguments are invalid or unknown; expiry only does what any later call would do anyway.
+- A call whose date is invalid or missing, or whose argument object is missing or not an object, does not change the clock and does nothing.
+- If reading the arguments throws (for example a throwing getter), the method returns { ok: false }.
+- Computed dates past 9999-12-31 (a due date or readyUntil) are still returned, formatted with a 5-digit year; such calls do not fail.
+- `getMember` returns `ok: true` alongside loans, owed and holds, as section 9 shows.
+- A failed call returns just { ok: false }, with no dueDate, fine, position or owed fields and no reason.
+- Renewing sets the due date to the later of the old due date and date + 21; per the spec the new date is never earlier anyway.
+- Fulfilling a ready hold by borrowing clears its pickup window. The remaining holds wait behind the loan with no readyUntil until the book is returned.
+- `borrow` checks for overdue loans across all of the member's current loans, using dueDate < call date.
+- Hold order in `getMember` uses a global placement counter, so holds on different books are listed in the order they were placed.
+- `addBook` and `addMember` are undated, so they neither change the clock nor run expiry.
+- `amount` must be of type number; numeric strings and BigInt are rejected.

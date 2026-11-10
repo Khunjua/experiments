@@ -1,0 +1,13 @@
+- A non-object argument, or a missing or malformed date, fails without touching the clock.
+- A valid date that is not earlier than the clock advances the clock and runs hold processing, even when other fields are invalid or a business rule then fails.
+- Any date that would pass 9999-12-31 is clamped to 9999-12-31, so every returned date is a valid string.
+- Hold processing chains the next head's window as addDays(addDays(oldReadyUntil, 1), PICKUP_DAYS) and repeats while the new head is also expired.
+- Fine lateness is computed as (return date − due date) in days.
+- The fine per return is capped at 1000 cents per loan, but the member's total owed is not capped.
+- A member's owed balance does not block placing holds or returning books.
+- Loans in getMember are ordered by the sequence in which they were borrowed, and holds by the sequence in which they were placed.
+- A hold's readyUntil is reported only when that hold is the ready head of its queue; otherwise it is null.
+- Member IDs and book IDs are any non-empty strings, including whitespace; no trimming or normalization is applied.
+- Each call's returned objects and arrays are newly created, so callers cannot affect library state.
+- Any unexpected exception (for example, from a hostile getter on the argument object) is caught and returned as { ok: false }.
+- Failed calls return only { ok: false } with no reason field.

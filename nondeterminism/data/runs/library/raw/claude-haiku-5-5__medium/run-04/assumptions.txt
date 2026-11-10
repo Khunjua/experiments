@@ -1,0 +1,24 @@
+- Loan period is 21 days from the borrow date.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- Each loan can be renewed at most 2 times.
+- Renewal is refused if any hold is waiting on the book, including a book set aside for someone.
+- Renewal is refused if the loan is already overdue (date after due date).
+- Renewal is refused if the member does not hold the loan.
+- Fines are 25 cents per day for days late beyond a 3-day grace period (returning 3 or fewer days late costs nothing).
+- A fine is capped at 1000 cents per loan.
+- Fines are assessed only when a book is returned; overdue loans that are not yet returned add nothing to the owed balance.
+- A member may hold at most 5 books on loan at once.
+- A member whose owed balance is 1000 cents or more cannot borrow.
+- Payments must be a positive integer number of cents no greater than the amount owed; otherwise the payment is rejected.
+- A hold is placed in the queue at the end, so position equals the queue length after the hold is added.
+- A hold can be placed only if the book is on loan or already has a waiting line; a free book with no line cannot be held.
+- A member cannot hold a book they have on loan or already hold a place for.
+- When a book is returned and has a waiting line, the first member in line is set aside the book for 3 days, counting the return date as day 0 (last pickup day is the date plus 3).
+- Set-aside books can only be borrowed by the member they are set aside for, and only on or before the last pickup day.
+- If a set-aside member does not pick up by the last pickup day, they lose their place and the next member in line gets the book for 3 days from the date of that call; if nobody is waiting, the book becomes free.
+- Expired pickup windows are processed at the start of every call, based on that call's date.
+- A return is accepted from the member who holds the loan, on any date, even if it is overdue.
+- Unknown members or books, and duplicate addBook or addMember calls, return { ok: false }.
+- getMember for an unknown member returns empty loans and holds with owed 0.
+- Loans and holds in getMember are listed in the order books were added.
+- A hold's position is its 1-based place in the waiting line, which counts the member set aside for the book as position 1.

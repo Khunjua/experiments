@@ -1,0 +1,18 @@
+- Ids must be non-empty strings; any other value, unknown id, or duplicate add is refused with { ok: false }.
+- Dates are assumed valid 'YYYY-MM-DD' strings and are handled as UTC day numbers.
+- A hold on a book set aside for someone is allowed, since rule 13 permits holds on set-aside books.
+- A member who was dropped from a line (lapsed hold) may place a new hold later if the book is still on loan or set aside.
+- The set-aside member keeps position 1 in the line until they borrow or the set-aside lapses.
+- Set-asides lapse lazily: at the start of every call, any set-aside whose readyUntil is before the call date is passed on, cascading as needed.
+- A passed-on set-aside gets readyUntil = previous readyUntil + 3 even if that date has already passed; the cascade continues until a valid one is reached or the line is empty.
+- A set-aside member who cannot borrow (5 loans or owes 1000+) keeps the set-aside until it lapses.
+- Borrowing the set-aside book removes the borrower's hold; the other holders move up automatically.
+- No limit on how many holds one member may have.
+- Holds and renewals are not blocked by unpaid fines; only borrowing is blocked by owing 1000 or more.
+- Fines are added to the member's owed amount immediately on return.
+- A late fine is 0 for 0 to 2 days late; from 3 days late it is 25 cents per late day, capped at 500 per book.
+- A return by someone without that loan is refused and charges nothing.
+- Payments must be positive integer cents and must not exceed the amount owed.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- Loans in getMember are listed in no particular order.
+- Renewal is refused if any hold exists on the book, including a set-aside hold.

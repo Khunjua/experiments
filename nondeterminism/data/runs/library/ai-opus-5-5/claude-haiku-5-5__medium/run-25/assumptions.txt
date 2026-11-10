@@ -1,0 +1,15 @@
+- The clock advances only when the arguments are well formed and the date is valid and not earlier than the current date; malformed arguments change nothing, including the clock.
+- Once a valid, non-earlier date is given, the clock advances and hold expiry runs even if the call then fails a business rule, including for an unregistered member in getMember and payFine.
+- Hold expiry runs for every book on every dated call, including calls that fail.
+- Dates produced by arithmetic past 9999-12-31 are not rejected; they are formatted with more than four year digits.
+- Identifiers must be primitive strings; String objects, numbers and other types are invalid. Whitespace is significant and nothing is trimmed.
+- A payment amount must be a primitive safe integer greater than 0; non-integers and strings are invalid.
+- A book's hold queue is stored as entries in placement order; index 0 is the ready hold when the book is set aside.
+- A global increasing sequence number orders a member's holds across books for getMember.
+- A member's active holds are counted by scanning all books for queue entries belonging to that member.
+- Loans are listed in borrow order; renewals do not change that order.
+- Renewal on the due date itself is allowed, since overdue means strictly after the due date.
+- The fine on return uses the current due date, including any renewals.
+- A borrow that succeeds for a set-aside book removes that member's hold from the queue and leaves the other holds in order; the book's state becomes on loan.
+- Owed balance may exceed 1000 cents through fines; only the borrowing block uses the threshold.
+- Failed calls return only `{ ok: false }` with no reason field.

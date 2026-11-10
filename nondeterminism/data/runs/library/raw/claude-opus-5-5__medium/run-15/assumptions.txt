@@ -1,0 +1,19 @@
+- Loan period is 21 days; dueDate = borrow date + 21 days.
+- A loan can be renewed at most 2 times; each renewal adds 21 days to the current due date (not to the renewal date).
+- Renewal is refused if anyone holds the book, or if the loan is already overdue (date after due date).
+- "Not harsh" fines: 3-day grace period (no fine if returned up to 3 days late); beyond that 25 cents for every day late, capped at 1000 cents per loan.
+- Days late = calendar days between due date and return date; returning on the due date is on time.
+- Fines are charged only when a book is returned; unreturned overdue books do not add to owed.
+- A member may not borrow while owing 1000 cents or more.
+- A member may have at most 5 books on loan at once.
+- Holds may only be placed on a book that is on loan or set aside for another member; a hold on an available book is refused (just borrow it).
+- A member cannot hold a book they currently have on loan, nor hold the same book twice.
+- Holds form a first-come-first-served queue per book; position counts from 1 including the member the book is set aside for.
+- When a held book is returned it is set aside for the first in line; readyUntil = return date + 7 days.
+- If not picked up by readyUntil, that hold is dropped and the book is set aside for the next in line with readyUntil = the day after the previous readyUntil + 7 days; expirations are evaluated lazily on each call using its date.
+- While a book is set aside, only that member can borrow it; borrowing it fulfils and removes their hold.
+- readyUntil is null for holds whose book is not currently set aside for that member.
+- payFine requires a positive integer amount not exceeding the amount owed; overpayment is refused.
+- Duplicate book/member ids, non-string or empty ids, unknown ids, and invalid date strings return { ok: false }.
+- getMember for an unknown member returns { ok: false }; loans are listed in borrow order and holds in placement order.
+- Members cannot cancel holds, books are never lost/removed, and there are no due-date reminders, since no methods exist for these.

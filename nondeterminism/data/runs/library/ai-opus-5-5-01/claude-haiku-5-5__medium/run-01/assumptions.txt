@@ -1,0 +1,19 @@
+- The argument must be a non-null object; arrays and other objects missing the required fields fail with invalid_input.
+- Input validation (object, field types, id non-empty, date format and real calendar date, amount integer > 0) runs before the date-order check and before any state change.
+- The latest date is updated only by calls that pass input validation and are not out of order; calls with a malformed field do not move it.
+- Expiry (§7) is applied only for calls that pass input validation and the date-order check, and it runs before member and book existence checks.
+- Equal dates are allowed; comparisons use whole-day integer day numbers computed in UTC.
+- Date parsing accepts years 0000 to 9999 only in the YYYY-MM-DD form, with exact round-trip validation for leap years.
+- Holds carry a global placement counter so getMember can list a member's holds in the order they were placed, even across books.
+- A book keeps its hold queue while on loan; when the front member borrows it, that member is removed and the rest stay in place.
+- A returned book with a non-empty queue is set aside for position 1 with readyUntil = return date + 7.
+- When an expired set-aside hold is dropped and the queue is non-empty, the new front member gets readyUntil = previous readyUntil + 7, and the loop repeats while readyUntil < current date.
+- payFine checks amount validity before the date, then date order, then member existence, then overpayment.
+- payFine and getMember apply expiry like every other dated call.
+- The fine cap of 500 applies per loan only; a member's owed balance has no cap across loans.
+- The renew check for the loan's existence uses the member's own active loans list; a book on loan to someone else yields not_borrowed.
+- readyUntil is null in getMember for any hold that is not the set-aside front position.
+- Any unexpected exception (such as a throwing getter on the argument) is caught and returned as invalid_input, with state unchanged because all mutations happen after all checks.
+- Reason strings are included in every failure result as specified.
+- Ids are compared exactly and case-sensitively, with no trimming.
+- Book and member namespaces are separate Maps, so identical id strings do not collide.

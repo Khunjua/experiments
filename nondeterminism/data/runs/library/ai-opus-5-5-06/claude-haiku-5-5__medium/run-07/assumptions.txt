@@ -1,0 +1,16 @@
+- Arguments that are arrays are treated as non-objects and rejected with INVALID_INPUT.
+- Malformed arguments (bad ID, bad date format, bad amount) are rejected before the clock is read, so they do not move the clock.
+- A valid, non-earlier date moves the clock and runs hold expirations even when the call is then rejected for a missing member, a missing book, or a business rule.
+- An amount that is not a safe integer of 1 or more is rejected with reason INVALID_INPUT; an overpayment is rejected with reason BAD_AMOUNT.
+- Any exception raised while reading arguments is caught and returned as { ok: false, reason: 'INVALID_INPUT' } before any state changes.
+- Hold expirations are applied to every book on each dated call, whether or not that call succeeds.
+- IDs consisting only of whitespace are treated as non-empty and valid, since the spec says there is no trimming.
+- Calendar dates from year 0000 to 9999 are accepted, and day arithmetic uses the proleptic Gregorian calendar via integer day numbers.
+- Renewal is allowed on the due date itself (date on or before the due date is accepted).
+- The loan creation counter and the hold placement counter share one sequence, which is used only to order results.
+- A renewal keeps the loan's creation sequence number, as the spec requires.
+- Fines are computed from the current due date, which includes any renewals already applied.
+- Owed balances are not capped, and a member can place holds or borrow regardless of owed amount.
+- A book freed with an empty line becomes available and has no readyUntil.
+- getMember returns readyUntil only for a set-aside hold that belongs to the requested member.
+- Rejection reason codes are taken from the suggested list in section 13 of the requirements.

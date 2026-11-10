@@ -1,0 +1,1 @@
+Hi! We run a small community library and need a simple system for loans. Members borrow books for three weeks and can renew them a couple of times, unless someone else is waiting for the book. If a book comes back late we charge 25 cents a day, but we don't want to be harsh with people. Members can put a hold on a book that's out. And we need to keep track of who owes us what.

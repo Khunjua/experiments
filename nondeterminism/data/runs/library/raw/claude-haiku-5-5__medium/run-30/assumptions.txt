@@ -1,0 +1,28 @@
+- Loan period is 21 days from the borrow date.
+- Each bookId is a single physical copy.
+- A member may renew at most 2 times per loan.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- Renewal is refused if the loan is already overdue (date after due date).
+- Renewal is refused if any hold is waiting on the book.
+- Fines have a 3-day grace period: returns up to 3 days late are free.
+- Beyond the grace period, the fine is 25 cents for each full day late beyond the 3 grace days.
+- Each fine is capped at 1000 cents (10 dollars).
+- A fine is added to the member's owed balance at the time of return.
+- A member may hold at most 5 books on loan at once.
+- Members with 1000 cents or more owed cannot borrow, renew, or place holds; they can still return books and pay fines.
+- A hold can be placed only when the book is on loan or already set aside for another member.
+- A member cannot place a hold on a book they currently have on loan, or one they are already waiting for.
+- The member at position 1 is the one the book is set aside for, and is still counted in the queue.
+- When a book is returned with a waiting queue, it is set aside for position 1 for 3 days, counting the return date as day 1.
+- The pickup window is inclusive of its last day.
+- A set-aside book cannot be borrowed by anyone except the member it is set aside for.
+- Borrowing a set-aside book removes that member from the queue.
+- If a set-aside window lapses unclaimed, that member is dropped and the next waiting member is set aside starting the day after the lapsed window ended, for another 3 days.
+- Lapses are processed lazily at the start of every method call that carries a date.
+- payFine rejects non-integer, non-positive, or over-balance amounts; partial payments are allowed.
+- getMember for an unknown member returns an empty structure instead of ok: false.
+- Methods with an invalid date string (not a real YYYY-MM-DD calendar date) return ok: false; returnBook returns fine: 0 in that case.
+- Duplicate addBook or addMember calls return ok: false.
+- getMember lists loans in the order the books were first added.
+- Returning a book requires that the member is the one who currently has it on loan.
+- Returning a book is allowed even when the member is blocked by an outstanding balance.

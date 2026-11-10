@@ -1,0 +1,28 @@
+- Each bookId is a single physical copy.
+- Adding a book or member with an existing or empty/invalid id returns ok:false.
+- Unknown member/book, malformed dates, or impossible calendar dates return ok:false.
+- Loan period is 21 days; due date = borrow date + 21.
+- A member may renew at most 2 times per loan.
+- A renewal extends the current due date by 21 days (not counted from the renewal date).
+- A renewal is refused if anyone holds the book or if the loan is already overdue.
+- Renewal is allowed even if the member owes money.
+- The fine is 25 cents per day after the due date; returning on the due date is free.
+- "Not harsh" is implemented as a cap of 1000 cents ($10) per loan, with no grace period.
+- The fine is charged when the book is returned (added to owed); getMember's owed does not include accruing fines on unreturned books.
+- A member may hold at most 5 books on loan at once.
+- Borrowing is refused if the member has any overdue loan or owes 500 cents or more.
+- A hold can only be placed on a book that is out or already has a waiting line; holds on an available, unreserved book are refused.
+- A member cannot hold a book they currently have or already hold.
+- There is no limit on the number of holds per member.
+- Holds are served first-come-first-served.
+- When a held book is returned, it is set aside for the first in line with readyUntil = return date + 7 days.
+- If not borrowed by readyUntil (inclusive), the hold lapses on the next day and the book is set aside for the next member, whose readyUntil = old readyUntil + 1 + 7.
+- If nobody is left, the book becomes available.
+- Lapsed holds are processed lazily based on the date of each incoming call.
+- While set aside, only the member it is set aside for can borrow the book; borrowing removes their hold.
+- A hold position counts members ahead in line, including the one the book is set aside for; the set-aside member is position 1.
+- payFine requires a positive integer amount no greater than what is owed; overpayment is refused.
+- Failed results include the method's other fields with null (or current owed / 0 fine) values.
+- getMember for an unknown member returns ok:false with empty loans/holds and owed 0.
+- Successful getMember results include ok:true.
+- Loans are listed in borrow order; holds are listed in the order books were added to the library.

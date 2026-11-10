@@ -1,0 +1,11 @@
+- A call with a valid argument object and a valid, not-earlier date advances the current date and runs hold expiry even if its other arguments are invalid (e.g., bad memberId, unknown member, bad amount); expiry is idempotent for a given date so this has no other observable effect.
+- A call with a missing argument object, malformed date, or earlier date does not change the clock and does not run expiry.
+- addBook and addMember are undated, so they do not touch the clock or run expiry.
+- borrow and renew fail if the resulting due date would be after 9999-12-31; readyUntil dates beyond 9999 are not guarded and are formatted with a year longer than 4 digits.
+- Dates are handled internally as UTC day numbers built with setUTCFullYear (to avoid Date.UTC's 0–99 year remapping) and formatted with a zero-padded 4-digit year.
+- getMember's loans omit the renewal count and include only bookId and dueDate; its holds include only bookId, position and readyUntil.
+- Failure results include a `reason` string.
+- A non-number amount (including numeric strings and bigints) is invalid for payFine.
+- When a ready hold expires or is fulfilled, it is also removed from the member's list of active holds, freeing a hold slot.
+- placeHold on a book set aside for another member, or on a book on loan to someone else, is allowed if the other rules pass; placeHold on a book set aside for the same member fails because they already hold it.
+- The returned getMember result is built fresh on every call, so callers may mutate it freely.

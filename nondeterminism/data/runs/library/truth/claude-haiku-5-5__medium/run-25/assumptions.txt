@@ -1,0 +1,24 @@
+- Unknown memberId or bookId makes borrow, returnBook, renew, placeHold, and payFine return { ok: false }.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- addBook and addMember return { ok: false } when the id already exists.
+- Ids are used as Map keys with strict equality; no type or format validation is done on ids or dates.
+- The set-aside member stays at position 1 in the line until they borrow the book or their hold expires, and is counted in positions.
+- Set-aside expiry is applied lazily at the start of every call that has a date, and also in getMember.
+- A set-aside is valid through readyUntil inclusive and expires on the day after readyUntil.
+- When a set-aside expires and the next member is set aside, the new readyUntil is the old readyUntil + 3 days; if that is also already past, the process repeats.
+- An expired hold is removed from that member's holds list.
+- A book set aside for one member cannot be borrowed by anyone else, including members who hold it later in the line.
+- A set-aside member who borrows the book is subject to all normal borrow limits (5 loans, owed under 1000 cents); if they fail a limit, the hold stays in place.
+- Borrowing a set-aside book removes that member from the front of the line; the book then stays on loan with the remaining members still queued.
+- Renewal is refused whenever the hold line for the book is non-empty, including when a book is set aside.
+- Renewal does not check the member's owed amount; a member who owes money can still renew.
+- Renewal of a loan is allowed only on or before the due date; there is no separate check for the loan being returned or missing.
+- A return with lateDays of 3 or more is charged 25 cents per late day from the first day, capped at 500 cents, and the fine is the total days times 25.
+- Returning a book that has no holds leaves it free on the shelf with no set-aside.
+- Placing a hold is refused only for a book that is free on the shelf, a book the member has on loan, or a book the member already holds.
+- There is no limit on how many holds one member may have.
+- A hold may be placed on a book that is set aside for another member.
+- payFine rejects non-integer amounts, amounts of 0 or less, and amounts greater than the amount owed.
+- getMember returns holds in the order the member placed them, and loans in insertion order.
+- Renewal and borrow both use the date passed in the call as the transaction date; getMember's date also advances state.
+- The loan object is shared between the book and the member, so renewals update both views.

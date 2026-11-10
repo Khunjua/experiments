@@ -1,0 +1,22 @@
+- Loan period is 21 days; due date = borrow date + 21.
+- A member may renew at most 2 times per loan.
+- A renewal sets the new due date to the renewal date + 21 days, not the old due date + 21.
+- Renewal is refused if anyone is in the hold queue for the book.
+- Renewal is refused if the loan is already overdue (date after due date).
+- Fine is 25 cents per full day after the due date, with no fine on the due date itself.
+- Fines are capped at 1000 cents per returned book, to avoid being harsh.
+- Fines are charged when the book is returned, and add to the member's owed balance.
+- Borrowing is not blocked by unpaid fines, and there is no limit on the number of loans.
+- Duplicate addBook or addMember returns ok:false.
+- Unknown members or books make any action return ok:false.
+- A hold is allowed only when the book is on loan or already set aside for someone. If the book is freely available, placeHold fails and the member should borrow it.
+- A hold is refused if the member already holds the book or currently has it on loan.
+- Hold position is the 1-based place in the queue. The member the book is set aside for is position 1.
+- When a book is returned and a queue exists, it is set aside for the first holder. readyUntil is the return date + 7 days (inclusive last pickup day).
+- If the pickup window passes (date > readyUntil), that hold is dropped. The next holder gets a new window of 7 days, counted from the end of the previous one. If no one is left, the book becomes available. This is evaluated lazily on every call, using that call's date.
+- A set-aside book can be borrowed only by the member it is set aside for, and borrowing removes their hold.
+- Holds are not cancellable, because there is no cancel method.
+- payFine requires an integer amount greater than 0 and no more than what is owed. Overpayment or a non-positive amount returns ok:false and changes nothing.
+- getMember for an unknown member returns ok:false with empty loans and holds and owed 0.
+- Loans in getMember are listed in book insertion order, and holds likewise. readyUntil is null for holds that are not set aside.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings, and are compared as strings and as UTC day counts.

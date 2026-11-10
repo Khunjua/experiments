@@ -1,0 +1,16 @@
+- Calls with invalid arguments (bad ids, bad dates, bad amount, non-object argument) change nothing, including the current date and hold expiries.
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even when it then fails a business rule, as §3.3 requires.
+- addBook and addMember do not take a date, so they do not advance the clock or run expiry.
+- Dates are stored as whole-day numbers since 1970-01-01 UTC; arithmetic is unbounded, so a computed date past 9999-12-31 is formatted with more than four year digits.
+- Hold expiry runs over every book on each dated call, including getMember, in the order books were registered.
+- When several holds expire in one call, each successive ready window starts at (previous readyUntil + 1) and lasts 7 days, per §7.4, even if that window has already passed by the call date; the loop keeps expiring until the call date falls inside a window.
+- A book set aside for a member is borrowed by that member only; when it is borrowed, the remaining holds stay queued and the book is on loan with no readyUntil.
+- When a book is returned and holds are waiting, the book is set aside for the first hold with no eligibility check against that member's current state.
+- Overdue for borrowing and renewing means dueDate strictly earlier than the call date; a loan due on the call date is not overdue.
+- Renewal on the day of borrowing is allowed and counts toward the 2-renewal limit.
+- Holds are checked for the 5-active-holds limit across all books, counting both waiting and ready holds.
+- A member placing a hold on a book set aside for them is rejected by the duplicate-hold rule.
+- Holds placed by different members on the same book are ordered by a single global placement counter, which is used to sort getMember's holds.
+- The owed balance has no upper cap; fines can accumulate beyond 1000 cents across several returns.
+- payFine with amount equal to owed is allowed and leaves owed at 0; any payment when owed is 0 fails.
+- Loans returned in getMember are listed in the order they were borrowed, based on the member's Map insertion order; renewals do not change that order.

@@ -1,0 +1,15 @@
+- addBook and addMember are undated; they do not read or change the current date and do not run hold expiry.
+- In a dated call, if the argument object and the date are valid and the date is not earlier than the current date, the clock advances and expiry runs. This happens even if other fields (memberId, bookId, amount) are invalid or unregistered.
+- If the argument is not an object, or the date is missing or malformed, the call fails without touching the clock or running expiry.
+- The argument must be a non-null object of type "object". Fields are read as plain properties. Any unexpected exception is caught and returns { ok: false }.
+- borrow and renew fail if the resulting due date would be after 9999-12-31.
+- A readyUntil past year 9999 is still computed and is formatted with a zero-padded year of 4 or more digits.
+- On borrow, the overdue check covers only the member's existing loans, not the book being borrowed.
+- A member who has a waiting (not ready) hold on a book that is on loan to someone else cannot borrow it, because the book is on loan.
+- The "already has a hold on this book" check in placeHold covers both waiting and ready holds in that book's queue.
+- The 5-hold limit counts every queue entry the member has across all books, whether waiting or ready.
+- Loans are ordered oldest first by a global sequence number assigned at borrow time. Renewals do not change this order.
+- Holds are ordered by a global sequence number assigned when they are placed.
+- A ready hold is the first queue entry of a book that is not on loan and has a readyUntil set. Holds on books that are on loan always report readyUntil null.
+- payFine requires amount to be a number (not a BigInt or a numeric string).
+- Dates are converted to whole-day numbers with UTC Date methods (setUTCFullYear) so that years 0001–0099 are handled correctly.

@@ -1,0 +1,17 @@
+- Invalid argument shapes (missing object, non-string or empty IDs, invalid dates) return { ok: false, reason } and skip advance, as the spec requires for invalid dates.
+- Any unexpected exception inside a method is caught and returned as { ok: false, reason: 'error' }, so no method throws.
+- Advance runs after argument validation and before member/book lookup, so it also runs on calls that later fail for unknown IDs or business rules.
+- Holds are ordered for getMember by a global placement sequence number, so the order across different books matches placement order.
+- A member's holds are derived by scanning all book queues; the position is the 1-based index in that book's queue.
+- Set-aside status is reported only for a first queue entry on a reserved book.
+- readyFrom is stored internally but not exposed, since the interface only returns readyUntil.
+- In borrow, a pickup removes the member from the queue only after all checks pass, so a failed pickup leaves the hold unchanged.
+- Borrowing a reserved book for a member who is not first in the queue fails with a reserved-for-another reason, as rule 5 requires.
+- Overdue means dueDate strictly before the call date; a loan due on the call date is not overdue.
+- A renewal on the due date is allowed, and a renewal after the due date is rejected.
+- Returning a book when the queue is non-empty sets the first waiting member as set aside with readyFrom = return date and readyUntil = return date + 6 days.
+- Loans are stored per member in creation order, and getMember returns them in that order.
+- payFine checks member existence before amount validity, and amount validity before the overpayment check, following the listed order.
+- Date strings are validated against the regex and then round-tripped through a UTC Date, so impossible days such as 2023-02-29 are rejected.
+- Year values are zero-padded to four digits when formatting dates.
+- Holds count toward MAX_HOLDS whether or not they are set aside, and placing a hold on a book the member already has on loan is rejected.

@@ -1,0 +1,20 @@
+- Unknown memberId or bookId in any method (other than addBook/addMember) returns { ok: false } with no state change.
+- addBook or addMember with an already-existing id returns { ok: false }.
+- getMember for an unknown memberId returns { loans: [], owed: 0, holds: [] }.
+- Date arithmetic uses UTC day numbers so no time zone or DST effects apply.
+- A set-aside (readyUntil) is honored through its last day inclusive; the hold lapses only when the date is after readyUntil.
+- Lapse handling is applied lazily at the start of every dated call, cascading through the line if several set-asides have expired by the call's date.
+- A lapsed member's hold is removed entirely, not moved to the back of the line.
+- The member set aside for stays at position 1 in the queue until they borrow the book, so positions and getMember holds reflect them as position 1.
+- Holds count from the set-aside member at position 1; a book being set aside is never on loan at the same time.
+- A borrow by the set-aside member removes only that member's entry; everyone behind moves up one place.
+- Returning a book with holds sets it aside for position 1 with readyUntil = return date + 3, even if the return was late.
+- Late fine is 0 when returned on or before the due date, 0 for 1 or 2 days late, and min(days late × 25, 500) for 3 or more days late.
+- Fines are added to the member's owed amount at the moment of return, even if the return is the member's last loan.
+- Renewal is refused if the book has any holds, including a hold that is currently set aside.
+- Renewal does not check the member's owed amount; only overdue status, renewal count, and holds apply.
+- Renewal count is tracked per loan and resets when the book is borrowed again.
+- Placing a hold is allowed regardless of the member's owed amount or number of current loans.
+- A hold can be placed on a book that is set aside for another member, provided the requester is not already in the line.
+- payFine accepts only integer amounts from 1 up to the amount currently owed; anything else returns { ok: false } with no change.
+- Reading state via getMember applies lapse processing as of its date, so holds and readyUntil values never show an expired set-aside.

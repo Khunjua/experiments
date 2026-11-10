@@ -1,0 +1,14 @@
+- If a dated call has a valid date that is not earlier than the current date, the clock advances and hold expiry runs even if other arguments are invalid. Expiry depends only on dates, so this has no other visible effect.
+- Hold expiry also runs before a dated call whose member or book is not registered.
+- If a dated call's date is malformed or earlier than the current date, the clock does not change and expiry does not run.
+- `addBook` and `addMember` have no date, so they do not touch the clock or run expiry.
+- A missing or non-object argument (including null) is invalid input and returns `{ ok: false }`.
+- `amount` must be a JavaScript number that is a safe integer. Numeric strings and other types are rejected.
+- Failure results include a `reason` string.
+- Due dates and readyUntil dates past 9999-12-31 are not rejected. They are formatted with the year as computed, which may have more than 4 digits.
+- The 0001–9999 year limit applies only to input dates, not to computed dates.
+- Dates are computed with UTC `Date` objects, and `setUTCFullYear` is used so that years 0001–0099 are handled correctly.
+- When a set-aside book is borrowed by its ready member, the other holds stay waiting with readyUntil null. The next hold becomes ready only when the book is returned.
+- A member whose book is set aside for them is not blocked from placing a hold on that book because of a loan. They are blocked only because they already hold it.
+- The overdue check for `borrow` looks at all of the member's current loans, using strict `dueDate < date`.
+- `getMember` loans keep borrow order, and holds keep placement order. Both use one global sequence counter.

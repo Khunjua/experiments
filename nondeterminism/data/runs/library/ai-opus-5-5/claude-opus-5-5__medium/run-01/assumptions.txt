@@ -1,0 +1,12 @@
+- If a dated call's date is valid and not earlier than the current date, the clock advances and hold expiry runs even if other arguments are invalid. Expiry depends only on the date, so this cannot be observed.
+- A dated call with a malformed or missing date fails without changing the clock.
+- addBook and addMember are undated, so they do not touch the clock and do not run expiry.
+- A non-object argument (null, undefined, a primitive) is treated as having all fields missing, so the call fails.
+- Any `reason` field on a failure is informational only.
+- "Date earlier than the current date" is compared as calendar days. The same day is allowed.
+- Due dates or pickup windows that pass beyond 9999-12-31 are still computed and formatted. No overflow check is made.
+- In getMember, `position` is the hold's 1-based index in its book's queue at the time of the call, after expiry has run.
+- Holds are ordered "as placed" by a global placement counter. getMember sorts by it.
+- Overdue loans block borrowing even when the member is picking up a book set aside for them. Their hold stays in place.
+- A member with a loan due on the call's date is not overdue for borrowing. Only a dueDate strictly earlier than the date counts as overdue.
+- When a hold is fulfilled or expires, it stops counting toward the member's 5-active-holds limit immediately.

@@ -1,0 +1,20 @@
+- An argument is an object only if it is non-null, typeof 'object', and not an array; anything else returns invalid_input.
+- Ids are accepted as any non-empty string, with no trimming and no whitespace normalization.
+- Invalid input (including a malformed date or invalid amount) changes nothing, including the latest-date record and pickup expiry, because §9 says it changes nothing.
+- A call with a valid date that passes input validation advances the latest date even when it later fails a business rule or the member/book lookup.
+- Pickup expiry runs after the date-order check and before member/book existence checks.
+- A call rejected as date_out_of_order does not run pickup expiry; this is a no-op because the earlier call already applied expiry at the later date.
+- Years 0000 to 9999 are accepted. Dates computed past 9999-12-31 (for example a due date) are formatted with more than four year digits, and this case is not otherwise handled.
+- getMember's success result includes `ok: true`, following the example in §5.8.
+- The `amount` check uses Number.isInteger and amount > 0; amounts above the safe integer range are not separately rejected.
+- returnBook charges the fine even if the member already owes 500 or more, and does not check overdue status or existing debt.
+- returnBook on a book with a non-empty queue sets it aside for position 1 with readyUntil = return date + 7, as specified in §5.4.
+- When borrow succeeds from a set-aside hold, the remaining queue stays in place on the now-on-loan book, and its members keep their relative order.
+- A book on loan may have a non-empty queue; those holds are kept and shown in getMember with readyUntil null.
+- Hold ordering across books in getMember uses a global placement sequence number, so holds are listed in the order they were placed.
+- holds[].readyUntil is non-null only when the book is set aside and the member is at position 1.
+- A member whose hold expires and who is then placed in the queue again is treated as a new hold placement with a new sequence number.
+- The has_holds check in renew looks at any queue entry, including members whose hold is still waiting behind an on-loan book.
+- placeHold checks for an active loan of the same book before checking for an existing hold, following the order in §5.6.
+- Any unexpected exception inside a method is caught and returned as `{ ok: false, reason: 'invalid_input' }`; state is only mutated after all checks pass, so this path leaves the library unchanged.
+- Each method's extra fields are ignored and missing optional fields are not needed; all listed fields are required.

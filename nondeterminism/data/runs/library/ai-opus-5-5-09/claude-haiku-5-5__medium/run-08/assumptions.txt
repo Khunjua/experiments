@@ -1,0 +1,25 @@
+- Dates are stored internally as integer day numbers since 1970-01-01 UTC and converted back to 'YYYY-MM-DD' strings only in results.
+- Date validity uses a round trip through the UTC calendar, so year 0000 is accepted as a valid proleptic Gregorian year.
+- Any non-null object is accepted as the argument object; extra properties are ignored.
+- Identifiers are accepted as any non-empty string, with no trimming or normalization.
+- The clock advances and expirations are processed for every dated call that passes argument validation, including calls whose business check then fails, such as an unknown member or book.
+- A dated call with an invalid argument does not advance the clock or process expirations.
+- Failure results include a free-form `reason` string.
+- Unexpected exceptions inside a method are caught and returned as `{ ok: false }` with state left as it was before the call, so no method throws.
+- Books and members are stored in Maps keyed by the id string to avoid prototype-key collisions such as `__proto__`.
+- A hold whose `readyUntil` equals the processing date is not expired, so pickup is allowed through that day inclusive.
+- A borrow by the member a book is set aside for is allowed on any day through `readyUntil`, and removes that hold, shifting the other holds' positions up.
+- Returning a book on the due date costs nothing, and renewing on the due date is allowed; only a date strictly after the due date is treated as overdue for renewal.
+- The fine is computed from the loan's current due date, which includes any renewal extensions.
+- A member can place a hold on a book that is on loan to someone else, and can place at most one hold per book.
+- A `readyForPickup` book held for a different member rejects both borrow and renew attempts at the renewal stage: renew fails because the queue is non-empty.
+- `payFine` accepts only integer amounts greater than 0, checked with `Number.isInteger`, and rejects amounts above the current owed balance.
+- `getMember` returns `loans` in the order loans were created, which is borrow-date order because calls arrive in time order.
+- `getMember` returns `holds` sorted by an internal placement counter, oldest first.
+- `position` in `getMember` is computed live as the index in the book's current queue plus one.
+- `readyUntil` in `getMember` is null for every hold except a hold that is the front of a `readyForPickup` queue.
+- `getMember` on an unknown member still advances the clock and processes expirations, then returns the failure result.
+- `renew` requires the book's current status to be `onLoan` to this member; a book that is not on loan at all is rejected.
+- A returned loan is removed from the member's loan list, and the book's loan reference is cleared.
+- The members' `owed` is only increased by fines computed at return time, and never reduced below 0.
+- `addBook` and `addMember` never read or advance the clock and never process expirations.

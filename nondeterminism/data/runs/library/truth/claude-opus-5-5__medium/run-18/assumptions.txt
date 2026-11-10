@@ -1,0 +1,17 @@
+- Unknown memberId or bookId in any method returns { ok: false }.
+- Adding a book or member whose id already exists returns { ok: false }; null/undefined ids are refused.
+- Set-aside expiry is handled lazily: before every dated call, all set-asides whose readyUntil is earlier than the call date are expired, cascading (old readyUntil + 3) as many times as needed.
+- A set-aside is still valid on its readyUntil day and expires on the day after.
+- Lateness = return date minus due date in calendar days; if it is 3 or more, fine = min(25 × lateness, 500), otherwise 0.
+- The borrowing limits (5 loans, owing 1000+) also apply when picking up a set-aside book; a refused pickup keeps the hold and set-aside unchanged.
+- A member owing 1000 or more may still return, renew, place holds and pay.
+- A book that is set aside for someone counts as unavailable for others to borrow, and may receive holds.
+- A member already in a book's hold line (including the one it is set aside for) cannot place another hold on it.
+- Renewal is refused if the hold line for the book is non-empty.
+- Renewal count stays with the loan; a new borrow starts with 0 renewals.
+- A hold is ended only by borrowing the set-aside book or by expiry; there is no hold cancellation.
+- Payment amounts must be integers; non-integer or non-number amounts are refused.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- getMember lists holds in the order the books were added to the library.
+- Successful results include ok: true; getMember for a known member has no ok field.
+- Input dates are assumed valid 'YYYY-MM-DD' strings and are not validated.

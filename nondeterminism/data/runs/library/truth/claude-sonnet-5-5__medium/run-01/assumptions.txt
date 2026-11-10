@@ -1,0 +1,18 @@
+- Adding a book or member whose id already exists is refused with ok: false and changes nothing.
+- Operations on an unknown member or book are refused.
+- An expired set-aside is processed lazily at the start of every method that carries a date, using that call's date. A set-aside is expired when the date is later than readyUntil.
+- The member a book is set aside for stays at position 1 in the hold line, and their hold is dropped when the set-aside expires.
+- When a set-aside moves to the next member, the new readyUntil is the old readyUntil + 3 days, even if that date has already passed. In that case it keeps cascading.
+- A member who has the book set aside for them cannot place another hold on it, because they are already in the line.
+- A book set aside for someone cannot be borrowed by another member, even if that member has no hold.
+- Holders behind the first one in line stay queued while the book is on loan, and a book that is on loan does not need to be set aside before it can be held.
+- The 1000-cent borrowing block checks owed >= 1000 at the time of the borrow.
+- The fine is days late × 25 when 3 or more days late, capped at 500. Fewer than 3 days late costs 0.
+- Fines are added to owed on return, and returning does not require the member to be under any limit.
+- payFine refuses non-integer amounts, amounts of 0 or less, and amounts above what is owed. Paying exactly the amount owed is allowed.
+- Renewal checks run in this order: loan exists, renewal count, holds, overdue. All must pass, and a refusal changes nothing.
+- A renewal counts toward the 2-renewal limit only when it succeeds.
+- getMember for an unknown member returns empty loans and holds and owed 0.
+- A member's hold on a book is listed with readyUntil only while the book is set aside for that member. Otherwise readyUntil is null.
+- The borrow limit counts the member's current loans across all books, and books set aside for the member do not count.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.

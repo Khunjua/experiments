@@ -1,0 +1,18 @@
+- A non-object argument object returns { ok: false } with no advance; advance runs whenever the argument is an object and its date is valid, even if IDs are invalid or the member or book is unknown.
+- Any non-empty string is a valid ID, including whitespace-only strings.
+- Year 0000 is accepted as a valid proleptic Gregorian year, since the regex and calendar rules do not exclude it.
+- Date arithmetic uses setUTCFullYear so years 0000–0099 are not shifted to 1900–1999.
+- Hold entries keep a creation sequence number across queue shifts, and getMember sorts holds by it.
+- readyUntil in getMember is null for waiting entries and the set-aside end date for the first entry of a reserved book.
+- Advance processes books in insertion order; the result is the same regardless of order because books are independent.
+- Advance loops on each reserved book until its first entry is no longer expired, so cascades on a single call are fully applied.
+- A return on a loan past its due date is allowed and charged the computed fine; only renew rejects overdue loans.
+- borrow treats a reserved book as unavailable to any member other than the first queue entry, including members who are waiting further back.
+- borrow and renew check their business rules in the order given in the requirements, and each failure returns a distinct reason string of my choosing.
+- payFine checks the ID and date, then the member, then the amount, and it rejects amounts above the current owed balance.
+- getMember with an invalid date returns { ok: false } without running advance.
+- Each public method is wrapped in a try/catch that returns { ok: false, reason: 'internal error' }, so no input can make a method throw.
+- Returned loan and hold objects are freshly constructed on every call, so callers cannot mutate library state.
+- Renewal counts the new due date from the old due date, and a renewal on the due date itself is allowed.
+- placeHold rejects a hold on a book the member already has on loan before checking whether the member is already in the queue.
+- A returned book with a non-empty queue is set aside for the first waiting member starting on the return date, with pickup through return date plus 6 days.

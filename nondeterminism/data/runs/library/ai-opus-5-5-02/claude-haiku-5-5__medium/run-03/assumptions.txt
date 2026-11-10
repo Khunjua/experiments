@@ -1,0 +1,15 @@
+- A dated call with a valid, not-earlier date advances time and runs expiry even if its IDs are invalid or the entity does not exist, because the spec says time passes regardless of the call's business outcome.
+- A non-object argument (undefined, null, string, number) is treated as an empty object, so the call fails without throwing.
+- Date arithmetic can produce dates after 9999-12-31 (e.g. a renewal near the end of the range); these are formatted with more than four year digits rather than rejected.
+- Money fields have no upper bound; fines accumulate in `owed` without a total cap beyond the per-loan fine cap.
+- `amount` in `payFine` must pass `Number.isInteger`, so NaN, Infinity, non-number types and numeric strings are rejected.
+- A book with a non-empty queue and status on shelf is treated as an invalid state and `borrow` rejects it, per the safety rule.
+- On expiry, the expired holder's hold record is removed from their holds by book ID, since a member can hold a given book at most once.
+- The hold record stored on a member is not reordered when a hold moves from waiting to set-aside; holds are kept in placement order.
+- `getMember` reports `position` for a set-aside holder as 1 with `readyUntil` set, regardless of queue contents.
+- A member who is set aside a book and is at the loan limit or owes the borrow-block amount cannot pick it up; the hold remains until expiry.
+- Holds and renewals are not blocked by a member's outstanding balance, per the spec, and no other restriction is added.
+- `placeHold` does not check whether the member has a loan on another book; only the listed rules are applied.
+- Expiry processing iterates all books in insertion order; the spec says results are order-independent, so this choice does not change outcomes.
+- Failure results contain only `ok: false`; no `reason` field is added.
+- IDs are used exactly as given, including any whitespace; no trimming or normalisation is applied.

@@ -1,0 +1,24 @@
+- Loan period is exactly 21 days; due date = borrow date + 21 days.
+- "A couple of times" means at most 2 renewals per loan; the count resets on a new borrow.
+- Each renewal extends the current due date by 21 days (not counted from the renewal date).
+- Renewal is refused if the loan is already overdue.
+- Renewal is refused if anyone has a hold on the book.
+- "Not harsh": the first day late is free (1-day grace); returned 2+ days late, the fine is 25 cents for every day late including the grace day.
+- The fine per returned book is capped at 1000 cents ($10).
+- Days late = return date minus due date; returning on the due date is on time.
+- Fines are charged only at return time; overdue loans not yet returned do not add to owed.
+- A member owing 1000 cents or more cannot borrow; there are no other borrowing limits (no max number of loans, overdue items don't block).
+- Holds can be placed only on a book that is on loan or set aside for someone else; a hold on an available book is refused.
+- A member cannot hold a book they currently have on loan, have set aside, or already hold; there is no limit on the number of holds.
+- Holds are served first come, first served.
+- When a held book is returned, it is set aside for the next member in line, who has 7 days to pick it up; readyUntil = return date + 7 days.
+- If not picked up by readyUntil, the hold is dropped on the following day, and the book goes to the next in line with readyUntil = previous readyUntil + 7; if no one is waiting the book becomes available.
+- Expirations are evaluated lazily using the date of each incoming call.
+- A book set aside for a member can only be borrowed by that member; borrowing it fulfils and removes their hold.
+- The member the book is set aside for has position 1; queued members come after them.
+- Holds cannot be cancelled (no method in the interface).
+- payFine requires a positive integer amount not greater than what is owed; overpayment is refused.
+- Unknown members/books, duplicate ids, empty or non-string/number ids, and invalid dates return { ok: false }.
+- getMember for an unknown member or an invalid date returns { ok: false }.
+- Only the borrowing member can return or renew a book.
+- getMember lists loans in borrow order and holds in book-insertion order.

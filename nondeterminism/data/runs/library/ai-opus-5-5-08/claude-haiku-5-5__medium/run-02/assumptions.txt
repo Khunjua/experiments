@@ -1,0 +1,20 @@
+- Expiration is processed for all books, in map insertion order, before validating memberId, bookId, or amount, because only an invalid date or a non-object argument is excluded from processing.
+- An invalid memberId or bookId in a dated call still triggers expiration, as the spec allows for unknown member or book.
+- Dates are converted to integer day numbers via a UTC Date at midnight, and all comparisons use these numbers.
+- Year 0000 is accepted as a valid proleptic Gregorian year.
+- A date that fails the format or calendar check causes the call to fail without expiration processing.
+- Every public method is wrapped so that an exception from a hostile input (for example, a throwing getter) returns `{ ok: false }`. All checks run before any mutation, so no partial state change is expected.
+- Failure responses are `{ ok: false }` with no reason field.
+- Overdue check in borrow uses `dueDay < day`, so a loan due today does not block borrowing.
+- A book on loan keeps its hold queue; queued members remain waiting and their positions count from the queue.
+- Hold expiry and the borrow of a set-aside book both remove the hold from the member's holds list, so the 5-hold limit frees up.
+- Expired holds shift the next member's pickup window to start the day after the previous readyUntil, as specified.
+- The member's holds list is kept in placement order; removal preserves the order of the remaining entries.
+- `owed` is not capped; fines may push it above 1000, and the borrow block applies as written.
+- `payFine` with an invalid amount, or an amount above owed, changes nothing after expiration is processed.
+- `getMember` sorts loans by numeric due day, then by bookId using code-unit string comparison. Equivalent to sorting by dueDate string.
+- `readyUntil` in `getMember` is reported only when the book is set aside and the member is at queue position 1.
+- `getMember` returns freshly built arrays and objects, so caller mutations cannot touch library state.
+- `renew` requires the due date to be today or later, and the queue to be empty; a renewal does not change the book's pickup or hold state.
+- `placeHold` returns position as the queue length after appending, which is the member's 1-based position.
+- Each library object keeps its own private Maps, so separate `createLibrary()` calls share no state.

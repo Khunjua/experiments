@@ -1,0 +1,21 @@
+- Loan period is 21 days; the due date is the borrow date plus 21 days.
+- A member can renew at most 2 times per loan.
+- A renewal sets the new due date to the renewal date plus 21 days, not the old due date plus 21.
+- Renewal is refused if the loan is overdue (date after due date), if anyone has a hold on the book (ready or waiting), or if the renewal limit is reached.
+- Fine is 25 cents per full day late. Returning on the due date is free.
+- To avoid being harsh, the fine for a single loan is capped at 1000 cents.
+- Fines are added to the member's owed balance at return time. Nothing accrues while a book is still out.
+- A member who owes 1000 cents or more cannot borrow. Smaller balances do not block borrowing.
+- There is no limit on the number of simultaneous loans.
+- Duplicate or null IDs in addBook/addMember return ok:false. Unknown members or books, or invalid dates, return ok:false.
+- A book can be borrowed only if it is not on loan. A book with a ready hold can be borrowed only by the first holder, and doing so removes that hold.
+- A hold can be placed only if the book is on loan or set aside for someone. Holds on a freely available book are refused.
+- A member cannot hold a book they currently have on loan, or one they already hold.
+- Hold position is the 1-based place in the queue. Holds are first come, first served, and a ready hold counts as position 1.
+- When a book is returned and someone is waiting, it is set aside for the first in line. readyUntil is the return date plus 7 days, inclusive.
+- If the holder does not pick the book up by readyUntil, the hold is dropped lazily at the next call whose date is later than readyUntil. The next in line gets readyUntil equal to the previous readyUntil plus 7, and this repeats if that has also passed.
+- readyUntil is null for holds not yet set aside.
+- payFine requires a positive integer amount no greater than the amount owed. Overpayment is refused with ok:false and nothing changes.
+- getMember for an unknown member returns empty loans and holds with owed 0.
+- getMember lists loans in borrow order and holds in book-creation order.
+- A return by a member who does not have that book on loan is refused.

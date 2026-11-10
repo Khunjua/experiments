@@ -1,0 +1,15 @@
+- An argument that is an array counts as not an object and yields invalid_input.
+- Valid dates are years 0000 through 9999 with two-digit months and days; date results that would pass year 9999 are formatted without any special handling.
+- The latest-date marker is updated only by calls that pass input validation (step 2), so calls with malformed fields change nothing, including the latest date.
+- Pickup expiry is applied only by calls that pass validation and the time-order check; an out-of-order call changes nothing.
+- In payFine, the amount check runs before the date check and before the member check, so an invalid amount always returns invalid_input.
+- getMember applies expiry before checking whether the member exists.
+- Holds in getMember are ordered by a global placement sequence number, which is the order in which placeHold succeeded across all books.
+- Holds removed by expiry are simply dropped from the queue; the member's owed balance is not changed.
+- When a book is returned with a non-empty queue, readyUntil is set to the return date plus 7 days, the same as for a set-aside book after expiry.
+- A member may place a hold on a book that is set aside for another member, since the spec does not forbid it.
+- Overdue checks in borrow consider all of the member's active loans, and the fines-owed check uses only the stored owed balance.
+- Renewal and return on the due date are handled as specified: renewal is allowed on the due date, and a return on the due date carries no fine.
+- Any exception thrown while reading or processing input (for example, a throwing getter on the argument) is caught and returned as invalid_input, so methods never throw.
+- Missing or non-string date fields are treated the same as malformed dates and return invalid_input.
+- Books and members are stored in separate Maps, so a book and a member may share an id string without conflict.

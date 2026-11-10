@@ -1,0 +1,13 @@
+- A non-integer `amount` in payFine is treated as an argument-format failure (step 1), so it fails before the clock is advanced; `amount < 1` and `amount > owed` are business rules checked after the clock.
+- Member and book existence is checked after the clock step, so a call with an unknown ID still advances `lastDate` and runs expiry processing.
+- Invalid or malformed dates fail without changing `lastDate`; dates earlier than `lastDate` fail without running time processing.
+- Empty strings are rejected as IDs; whitespace-only and otherwise odd non-empty strings are accepted as-is (no trimming).
+- Failure results carry a free-text `reason` string; success results follow the interface exactly.
+- Hold ordering in `getMember` uses a global placement counter, so holds placed on the same day keep their call order.
+- Loan ordering in `getMember` is the order in which loans were created (array push order), unaffected by renewals or returns of other loans.
+- `readyUntil` is stored internally as a day number and is `null` whenever the book is on loan or available, so `getMember` reports it only for a set-aside book at position 1.
+- A fine is added to `owed` in full even if that pushes `owed` above 1000 cents, since the debt limit only blocks borrowing and renewing.
+- Years are proleptic Gregorian, so `0000` is accepted as a leap year; date arithmetic uses UTC day numbers.
+- Dates after 9999-12-31 are not specially handled; output pads years to at least four digits and would show five digits if a due date ever passed year 9999.
+- A catch-all wrapper turns any unexpected exception (for example from a malformed argument with a throwing getter) into `{ ok: false, reason }`, so no method throws.
+- `addBook` and `addMember` with a duplicate ID fail with `{ ok: false }` and do not touch the clock.

@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused; ids must be non-empty strings or finite numbers.
+- Any call that refers to an unknown member or book is refused with { ok: false }.
+- Invalid or malformed dates are refused with { ok: false }.
+- getMember for an unknown member, or with an invalid date, returns { ok: false, loans: [], owed: 0, holds: [] }. For a known member it also includes ok: true.
+- Expired set-asides are processed lazily at the start of every dated call, using that call's date. A set-aside expires when the date is later than readyUntil.
+- Days late = return date minus due date. When 3 or more days late, all late days are charged at 25 cents each, then capped at 500.
+- A book with holds that is returned goes straight to the member in position 1, even if that member is at the loan limit or owes 1000 or more. Their borrow can still be refused for those reasons, and the set-aside then runs out normally.
+- Renewal is allowed even if the member owes money; only the rules listed apply (limit of 2, no holds, not overdue).
+- Renewal is refused if any hold exists on the book, including holds from members who are set aside elsewhere in line.
+- The renewal count belongs to the loan and resets when the book is borrowed again.
+- A member who borrows a book set aside for them leaves the hold line. Others move up because positions come from line order.
+- When a hold is placed on a book that is set aside for someone, the new member joins the end of the line. The member the book is set aside for cannot place another hold, because that would be a duplicate.
+- The hold position returned is the member's place in the full line, including the member the book is currently set aside for (position 1).
+- Payments must be positive integers; non-integer amounts are refused. A payment when nothing is owed is refused as an overpayment.
+- A member may borrow a book they hold only when it is set aside for them; a free book with no holds can be borrowed by anyone.
+- Borrowing checks in order: book on loan, owed at least 1000, loan limit, set aside for someone else. Only { ok: false } matters, so the order has no visible effect.
+- Due dates and readyUntil use plain calendar-day arithmetic, with no special handling for weekends or closures.

@@ -1,0 +1,14 @@
+- A call with malformed arguments (non-object argument, missing or empty ID, bad date, non-safe-integer or non-positive amount) has no effect at all, including on the current date and hold expiry.
+- A valid dated call advances the current date and processes hold expiry even when the member or book is unregistered or a business rule then fails.
+- Dates are handled as day numbers counted from 1970-01-01 in UTC, using the proleptic Gregorian calendar.
+- A date computed by a call that would fall after 9999-12-31 makes that call fail with no other change. This applies to a new due date on borrow or renew, and to a readyUntil on return when holds are waiting.
+- During expiry cascades, a computed readyUntil later than 9999-12-31 is capped at 9999-12-31 so the cascade can finish.
+- Active holds are the member's waiting or ready holds; holds are removed only when borrowed or expired, so the 5-hold limit counts all of them.
+- A hold for a book that is set aside for the member counts as already held, so placeHold fails for that book.
+- A book set aside for a member who then borrows it is removed from that member's active holds, and the remaining holds keep their order.
+- Overdue for borrowing means a loan with dueDate strictly earlier than the call date. Renewal is refused only when the call date is strictly later than dueDate.
+- Fines added on return are not capped by the borrowing threshold, so owed may exceed 1000 cents after a return.
+- A return with no waiting holds leaves the book available; with holds it becomes set aside for the first hold with readyUntil = return date + 7.
+- A member's loans are listed in borrow order, and renewals do not change that order.
+- The reason field is omitted from failure results.
+- Unregistered member or book IDs with a valid date still advance the current date and process expiry.

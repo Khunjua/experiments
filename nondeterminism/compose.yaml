@@ -1,0 +1,54 @@
+# The stand's long-lived Docker objects: the two networks and the gate. Rooms are started by
+# lib/room.mjs for seconds at a time and are not here. `coder` only builds the coder room's
+# image and never runs. Everything carries the label `stand`, so scripts/clean.sh can remove
+# it all. Images are pinned: the Node image by digest, Claude Code by version.
+
+name: stand
+
+services:
+  gate:
+    image: node:26-slim@sha256:36793bcbb160a6a16cede1e62b93f84e26b78a972a8a4c0b879c1c12f22761ec
+    container_name: stand-gate
+    command: ["node", "/gate/gate.mjs"]
+    working_dir: /gate
+    user: node
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 64
+    mem_limit: 256m
+    environment:
+      ALLOW: api.anthropic.com,platform.claude.com
+      PORT: "3128"
+    volumes:
+      - type: bind
+        source: ./rooms/gate
+        target: /gate
+        read_only: true
+    networks: [inner, outer]
+    restart: unless-stopped
+    labels:
+      stand: "1"
+      stand.role: gate
+
+  coder:
+    image: stand-coder:2.1.310
+    build:
+      context: ./rooms/coder
+      labels:
+        stand: "1"
+    profiles: [build]
+    command: ["claude", "--version"]
+    labels:
+      stand: "1"
+
+networks:
+  inner:
+    name: stand-inner
+    internal: true
+    labels:
+      stand: "1"
+  outer:
+    name: stand-outer
+    labels:
+      stand: "1"

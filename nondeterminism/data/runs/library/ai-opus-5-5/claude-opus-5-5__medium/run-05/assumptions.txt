@@ -1,0 +1,13 @@
+- If a dated call's date is valid and not earlier than the current date, the clock advances and hold expiry runs. This happens even when other fields (IDs, amount) are invalid. Expiry depends only on dates, so this does not change any later outcome.
+- If the date is invalid or earlier than the current date, the clock does not move and expiry does not run.
+- If the argument is not a non-null object, the call fails and the clock is untouched.
+- `addBook` and `addMember` take no date. They do not affect the clock and do not trigger expiry.
+- Any exception while reading arguments (for example a throwing getter) gives `{ ok: false }`.
+- Failure results include a `reason` string.
+- Computed dates (due dates, `readyUntil`) that go past year 9999 are formatted as-is. They are not rejected.
+- `amount` is checked with `Number.isSafeInteger`. Numeric strings and non-integer numbers are rejected.
+- A member who already has 5 loans cannot borrow a book set aside for them. The hold stays until it expires, as §6.1 says.
+- When a hold expires and is removed, it no longer counts toward the member's 5 active holds. The same applies when a hold is fulfilled.
+- In `getMember`, `readyUntil` is non-null only for the hold at position 1 of a book that is currently set aside.
+- When expiry passes a book to the next hold, that hold's `readyUntil` is the previous `readyUntil` + 8 (day after the old window, plus 7).
+- The current date is shared across all methods of one library instance. It is not tracked per member or per book.

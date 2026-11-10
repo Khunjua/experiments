@@ -1,0 +1,20 @@
+- Invalid argument input (non-object argument, missing or wrongly typed fields, malformed or non-existent dates, non-safe-integer or non-positive amounts) fails before the clock is touched, so the clock does not advance.
+- A well-formed dated call that is not earlier than the current date advances the clock and runs hold expiry even when it then fails for a business reason, including unregistered member or book.
+- Date arithmetic is clamped to the valid range: any operation whose resulting due date or pickup date would exceed 9999-12-31 fails and changes nothing.
+- When hold expiry would set the next hold's readyUntil beyond 9999-12-31, readyUntil is clamped to 9999-12-31.
+- Expiry runs for every book on every dated call, including books unrelated to the call.
+- A call with a date earlier than the current date fails without running expiry or changing any state.
+- getMember with an unregistered member still advances the clock and runs expiry, since it is a dated call, but returns { ok: false }.
+- A member's active holds are all entries in their holds list; a hold leaves that list only when it is fulfilled by borrowing or expires.
+- The ready hold is always the first entry in a book's queue when the book is not on loan; the book's readyUntil is null whenever it is on loan or has an empty queue.
+- borrow by a member whose set-aside hold exists is blocked by the same rules as any borrow (overdue loan, 5 loans, owed at least 1000); the hold then stays in place, as the requirements state.
+- A member who already holds a set-aside book cannot place a second hold on it, since the ready hold counts as a hold.
+- renew on a book set aside for someone else is refused by the hold-queue rule, because a set-aside book has a non-empty queue.
+- Renewal is checked only against the member's loan, the renewal count, overdue status and the hold queue; owed money does not block it.
+- Owed balance has no upper limit; fines accumulate without a ceiling beyond the per-return cap.
+- The loans list in getMember is ordered by the time each loan was borrowed (oldest first), and renewals do not change that order.
+- The holds list in getMember is ordered by the time each hold was placed (oldest first).
+- The position in getMember and placeHold is the current index in the book's queue plus 1.
+- Identifiers are compared as exact JavaScript strings, so Map keys follow the case-sensitive, untrimmed matching the requirements require.
+- A safety try/catch wraps each method and returns { ok: false } on any unexpected exception such as a throwing getter; state is validated before it is mutated, so no partial change is left behind.
+- Returned failure objects contain only the ok field; the optional reason field is omitted.

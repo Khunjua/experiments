@@ -1,0 +1,17 @@
+- Hold expiration runs for dated calls whenever the argument is an object and the date is valid, before the member, book, ID and amount checks. This covers the failure cases listed in §3.5, including malformed IDs and amounts.
+- A non-object argument or an invalid date returns `{ ok: false }` without running expiration.
+- An ID is any string of length ≥ 1, so whitespace-only IDs are accepted as-is.
+- Arrays passed as arguments are treated as objects, and their missing fields fail validation.
+- Dates use the proleptic Gregorian calendar for years 0000–9999, with day arithmetic done on integer day numbers from the Unix epoch.
+- A book borrowed by the member it was set aside for is loaned out immediately. Any other members still in its queue stay waiting, and `readyUntil` is cleared while the book is on loan.
+- A book on loan is never reported as set aside, so `readyUntil` is `null` in `getMember` even when the loaned book's queue position is 1.
+- On return, a book with a non-empty queue is set aside for the new first member with `readyUntil = return date + 7`, as specified.
+- Holds are stored per member in placement order, and a hold is removed from the member's list when it expires or is converted into a loan.
+- Holds count toward the limit of 5 active holds, including a hold that is currently set aside.
+- A member may place a hold on a book that is on loan to someone else, but not on a book they currently have on loan.
+- The per-return fine cap of 1000 applies to each return separately, so the member's total `owed` can exceed 1000 across several returns.
+- Loans in `getMember` are sorted by numeric due day, then by `bookId` using JavaScript `<` string comparison. This matches sorting the formatted date strings.
+- `owed` is never negative, because `payFine` rejects overpayment.
+- Calls with a date earlier than an existing `readyUntil` do nothing during expiration, because the expiration condition is simply false.
+- Each method body is wrapped so that any unexpected exception, such as a throwing getter on the argument object, returns `{ ok: false }`. All inputs are read and validated before any state is changed.
+- The optional `reason` field is omitted from failure results.

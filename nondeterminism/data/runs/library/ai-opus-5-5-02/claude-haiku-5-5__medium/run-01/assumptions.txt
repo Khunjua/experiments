@@ -1,0 +1,17 @@
+- Dates are converted to integer day numbers internally; output dates are formatted back to YYYY-MM-DD.
+- A date produced by arithmetic beyond year 9999 is formatted with a five-digit year rather than rejected, since the requirements do not cover it.
+- A missing or non-object argument is treated as an empty object, so the call fails with { ok: false } without throwing.
+- For dated calls, the date is validated first; if valid and not earlier than the latest date, the latest date is updated and expiry runs before any member or book existence check.
+- A dated call with an unknown member or book still advances the latest date and runs expiry, as §3.4 says these steps happen before business rules.
+- Rejected dated calls caused by an earlier-than-latest date do not run expiry.
+- Failure results contain only { ok: false }, with no reason field.
+- Success results contain exactly the listed fields; getMember success omits ok as the interface shows.
+- A book's hold queue is kept separately from the set-aside holder; a member appears at most once in a book's holds, because a second hold on the same book is rejected.
+- A member's hold count includes waiting holds and set-aside holds, and a hold stays in the member's list when promoted from the queue to set-aside.
+- The loan count for MAX_LOANS includes only active loans, not set-aside holds.
+- Loans for a member are returned in creation order using Map insertion order; renewing updates the existing entry in place.
+- A member's set-aside hold reports position 1 in getMember and placeHold never returns a position for a set-aside member beyond the rule in §5.6.
+- The return fine is computed as min(max(0, date − GRACE_DAYS − dueDate) × FINE_PER_DAY, MAX_FINE_PER_LOAN), with GRACE_DAYS equal to 0.
+- payFine accepts only JavaScript integers for amount; non-number values fail.
+- Expiry iterates over all books on each accepted dated call, processing each book independently, which gives the same result as the repeat-until-stable rule in §6.4.
+- Maps are used for books, members and loans so arbitrary string IDs (including names like "constructor") behave as plain keys.

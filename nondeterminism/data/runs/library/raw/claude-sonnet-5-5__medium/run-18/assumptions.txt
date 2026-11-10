@@ -1,0 +1,22 @@
+- Loan period is 21 days; dueDate = borrow date + 21.
+- A loan can be renewed at most 2 times.
+- A renewal sets the new due date to the renewal date + 21 days, not the old due date + 21.
+- Renewal is refused if the loan is overdue (date after due date), if any hold exists on the book, or if the member does not have that loan.
+- Fine is 25 cents per full day late, charged when the book is returned and added to the member's owed amount.
+- To avoid being harsh, the fine for a single loan is capped at 1000 cents. There is no grace period, so returning on the due date is free and each late day costs 25.
+- A member who owes any money cannot borrow.
+- There is no limit on how many books a member may have on loan.
+- A member cannot borrow a book that is already on loan.
+- Duplicate bookId or memberId on add returns ok:false.
+- Unknown members or books, and invalid or malformed dates, return ok:false.
+- A hold can only be placed when the book is on loan or is set aside for someone. Holds on an available book are refused.
+- A member cannot place a hold on a book they currently have on loan, and cannot place a second hold on the same book.
+- Hold queues are first-come-first-served. Position is 1-based, and a member whose book is set aside is at position 1.
+- When a held book is returned, it is set aside for the first holder. readyUntil is the return date + 7 days, inclusive.
+- A set-aside book can only be borrowed by the member it is set aside for. Borrowing removes their hold.
+- If the pickup window passes (the date is later than readyUntil), the hold is dropped and the next holder gets the book. Their readyUntil is the day after the expiry + 7 days.
+- Hold expiry is evaluated lazily at the date of each call, including getMember.
+- payFine rejects non-integer amounts, amounts <= 0, and amounts above what is owed (no overpayment or credit).
+- getMember for an unknown member returns empty loans and holds with owed 0.
+- Loans in getMember are listed in book-add order.
+- Holds in getMember are listed in book-add order.

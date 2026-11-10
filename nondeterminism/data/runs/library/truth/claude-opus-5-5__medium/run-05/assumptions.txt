@@ -1,0 +1,16 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Calls that refer to an unknown member or book are refused with { ok: false }; getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- An invalid or malformed date on borrow/returnBook/renew/placeHold is refused.
+- Hold expiry is checked whenever a call with a date comes in, before that call is handled. Several expiries in a row are handled in one pass, each new readyUntil being the old readyUntil + 3 days.
+- A member can borrow a book set aside for them on its readyUntil day. The hold is dropped from the day after.
+- Late days are counted as (return date − due date). If that is 3 or more, every late day is charged at 25 cents, capped at 500.
+- A late return still clears the loan and charges the fine, even if the member owes 1000+ cents.
+- The member in position 1 whose book is set aside still counts as a hold (position 1) until they borrow it or it expires.
+- A hold placed on a set-aside book joins the end of the line and does not change the current set-aside or its readyUntil.
+- Rule 11 is checked against every hold on the book.
+- Renewing is not blocked by money owed or by the 5-loan limit. Only rules 10–12 apply.
+- The 1000-cent borrowing limit compares against the total owed at the moment of borrowing (>= 1000 is refused).
+- payFine needs a positive integer amount no larger than owed, so any payment when nothing is owed is refused. The date is only used to process hold expiries.
+- Whoever borrows a set-aside book still has to pass the debt and loan-limit checks. If refused, the book stays set aside for them until readyUntil.
+- Holds a member places on several books are independent. Holds have no limit per member.
+- Returning a book with no holds makes it free on the shelf right away.

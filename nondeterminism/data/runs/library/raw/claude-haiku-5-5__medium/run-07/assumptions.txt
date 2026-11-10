@@ -1,0 +1,22 @@
+- Loan period is 21 days from the borrow date, and the due date is that date plus 21 days.
+- A renewal gives 21 more days counted from the renewal date, not from the old due date.
+- A loan can be renewed at most 2 times.
+- A loan cannot be renewed when someone is waiting for the book.
+- A loan cannot be renewed after its due date has passed.
+- Late returns get a 3-day grace period; the 25-cent daily fine applies only to days beyond those 3 days.
+- Fines are capped at 1000 cents ($10) per return.
+- A fine is added to the member's balance when the book is returned, not when it becomes overdue.
+- Members are not blocked from borrowing or holding while they owe money.
+- There is no limit on how many books a member may borrow at once.
+- A hold can only be placed on a book that is currently on loan to someone else.
+- A member cannot place a second hold on the same book, or hold a book they currently have on loan.
+- Hold positions are 1-based in the order the holds were placed.
+- When a book is returned with holds waiting, the first person in line is set aside the book with a pickup window of 7 days, counted from the return date, and the last day is inclusive.
+- Only the member who has the book set aside can borrow it during the pickup window; other borrow attempts fail.
+- If a set-aside member does not pick up by the last day, they lose their place and the next person in line gets the book with a new 7-day window that starts the day after the previous window ended.
+- A set-aside member is removed from the hold list when they borrow the book.
+- Payments must be positive whole cents and cannot exceed the amount owed; partial payments are allowed.
+- Overpayments are rejected with { ok: false } and nothing changes.
+- getMember for an unknown member returns empty loans and holds with owed 0 instead of failing.
+- Returning a book that the member does not have on loan returns { ok: false }.
+- Dates are handled as whole UTC calendar days, so day arithmetic does not depend on time zones.

@@ -1,0 +1,14 @@
+- Any non-empty string is a valid ID, including whitespace-only strings; no other format rule is applied.
+- Input validation runs entirely before the clock is touched, so a call with a malformed field does not advance the clock even if its date is valid.
+- Clock advance and expiry processing run for dated calls even when the named member or book does not exist, as §3.4 orders them before the business rules.
+- Failure reasons are short fixed descriptive strings; their wording is not specified.
+- Dates that would pass 9999-12-31 are capped at 9999-12-31 so output always stays in YYYY-MM-DD form; this applies to due dates, pickup windows and expiry chains.
+- A renewal attempted with a date equal to the current due date is allowed, since the overdue rule only rejects later dates.
+- Owed totals have no upper cap; fines are added without limit beyond the per-return maximum.
+- Loans and holds share one global sequence counter used only to order them oldest-first in getMember.
+- A hold keeps its original placement sequence number when it moves up the queue or is set aside.
+- Holds for a book are stored as one queue whose head is the set-aside member; a set-aside hold is never removed by a return or hold placement.
+- A member who is set aside a book can borrow it only if the loan limit and owed limit allow; otherwise the book stays set aside for them until expiry.
+- payFine accepts a payment equal to the full amount owed.
+- Any unexpected internal exception is caught in each method and reported as `{ ok: false, reason }` so methods never throw.
+- A failed input validation or date-order failure leaves all state, including the clock, unchanged.

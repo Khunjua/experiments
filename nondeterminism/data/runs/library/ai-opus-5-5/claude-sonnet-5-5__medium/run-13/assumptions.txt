@@ -1,0 +1,7 @@
+- A dated call with a valid date and an argument object advances the clock and runs hold expiry even if other fields (ids, amount) are invalid or a business rule fails. A call with a missing argument object or an invalid date changes nothing.
+- Dates beyond 9999-12-31 produced by adding days (due dates, readyUntil) are not rejected; they are formatted with the extra year digits.
+- A set-aside hold's `readyUntil` is tracked per book and is null whenever the book is on loan or available.
+- `getMember` position and readyUntil are computed from the live queue; `readyUntil` is non-null only for the first hold of a set-aside book.
+- Non-integer, NaN, or non-number `amount` values in `payFine` fail.
+- Hold placement on a set-aside book is allowed for any member without an existing hold on it, including one who has it on loan (that case is blocked as specified).
+- Loans in `getMember` and the overdue check use the due date after any renewals.

@@ -1,0 +1,18 @@
+- Argument objects that are not non-null objects, and any call with a missing or wrong-typed field or a malformed or non-existent date, fail without advancing the clock or running expiry.
+- A dated call with a valid date that fails only for a business reason (unregistered member or book, rule violation) still advances the clock and runs hold expiry, as §3.3 states.
+- getMember advances the clock and runs hold expiry like other dated calls, including when the member is not registered.
+- Identifiers are any non-empty string, including whitespace-only strings; nothing is trimmed.
+- Dates after 9999-12-31 produced by arithmetic (due dates, readyUntil) are not rejected; they are formatted with a five-digit year, which is outside the stated string format.
+- Calls whose date equals the current date are accepted; the clock only moves forward.
+- Holds are counted as active across all books, whether waiting or ready.
+- A book is treated as set aside exactly when it has no loan and a non-empty hold queue; its ready hold is the queue head.
+- When a book is on loan, readyUntil is null for every hold, since the book is not set aside.
+- A member whose ready hold is blocked by a rule (loan limit, overdue loan, debt, or a different limit) keeps the hold until it is picked up or expires.
+- A member may not place a hold on a book they currently have on loan, nor a second hold on the same book.
+- Loans are listed in borrow order and holds in placement order, using a single global sequence counter.
+- Renewal count is not reset when a loan is renewed; a renewal on the borrow day counts toward the limit of 2.
+- A renewal replaces the due date with date + 21 (not extended from the old due date), as §6.3 specifies.
+- Fines are added to owed without any upper bound on the total balance; only the per-return fine is capped at 500.
+- Payment amounts must be safe integers greater than 0; a payment of exactly owed is allowed.
+- Returned objects are newly created on each call, so callers cannot mutate library state through them.
+- Methods do not depend on the order of object property access beyond reading each field once.

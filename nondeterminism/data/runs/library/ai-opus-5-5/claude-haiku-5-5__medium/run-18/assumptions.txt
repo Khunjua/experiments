@@ -1,0 +1,11 @@
+- An argument object that is missing, not an object, or has an empty or non-string ID, a malformed or non-existent date, or an invalid amount is treated as invalid input: the call changes nothing and does not advance the clock.
+- A call with a valid, non-earlier date but a business failure (unregistered member or book, or a broken rule) still advances the clock and processes hold expiry, as §3.3 says.
+- The library stores loan records on the member side and holds as ordered queues on the book side; these are internal details not visible to callers.
+- Dates after 9999-12-31 cannot be represented. A borrow or renew whose new due date would exceed 9999-12-31 fails. Return and hold expiry clamp the ready window end to 9999-12-31.
+- Hold expiry is applied to all books on every valid dated call, in book insertion order; the order has no effect on results.
+- A set-aside book's ready hold is always the front of its queue; getMember reports `readyUntil` only for that front hold when the book is not on loan.
+- Waiting holds on a book that is on loan are reported with position = index + 1, the same as holds on a set-aside book.
+- A hold that is removed by pickup or expiry is removed from the member's active holds list, which keeps the remaining holds in placed order.
+- Fines and owed balance have no upper cap beyond the per-return fine cap; owed may exceed 1000 cents through fines.
+- `payFine` checks member registration before comparing amount to owed, and rejects non-integer or non-number amounts.
+- A return that leaves a non-empty hold queue sets `readyUntil` to the return date plus 7, even if that is not the first day of any window.

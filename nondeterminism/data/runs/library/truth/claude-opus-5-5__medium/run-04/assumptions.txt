@@ -1,0 +1,14 @@
+- Unknown memberId or bookId, or a malformed/invalid date string, returns { ok: false }.
+- addBook/addMember with an id that already exists (or a null/undefined id) is refused.
+- Holds and set-asides are processed lazily: on every dated call, expired set-asides (date > readyUntil) are resolved first, chaining through the line as needed.
+- Late days = return date − due date; if late days ≥ 3, fine = 25 × late days, capped at 500; otherwise 0.
+- Renewing has no limit based on money owed; only rules 10–12 apply.
+- Renewal is refused if any hold exists on the book (any position in the line).
+- Placing a hold has no limit on money owed or on number of holds.
+- A member can place a hold on a book currently set aside for someone else; a member already in the line (including the one it is set aside for) cannot hold it again.
+- A member who has the book set aside for them but cannot borrow (5 loans or owing ≥ 1000) is refused; the set-aside keeps running and expires normally.
+- The 1000-cent borrowing block and 5-loan limit apply to borrowing a set-aside book too.
+- When a set-aside expires, the next member's readyUntil is the old readyUntil + 3 even if the call that triggers the update comes later; if that too has passed, the hold chain continues to advance.
+- payFine amount must be a positive integer number of cents not greater than the amount owed; paying the exact amount owed is allowed.
+- The order of holds returned by getMember is not significant (iteration order of books added).
+- getMember for an unknown member returns { ok: false }.

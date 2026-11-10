@@ -1,0 +1,18 @@
+- Argument fields (ids, date, amount) are fully validated before the clock is touched, so an invalid call never advances the clock.
+- Existence checks for members and books happen after the clock advances, since they are business rules and §4.4 applies to them.
+- An argument that is an array is treated as an object; missing fields cause failure.
+- Any non-empty string is a valid id, including whitespace-only strings.
+- Dates that would pass 9999-12-31 (from addDays, including chained pickup windows) are clamped to 9999-12-31 so every returned date stays a valid 4-digit string.
+- A date equal to the clock is accepted; only a strictly earlier date is rejected.
+- Hold processing runs over all books on every dated call, and a chained window that is still expired is processed again in the same loop.
+- A waiting hold stores readyUntil as null; a ready hold stores its date string.
+- Loans are listed in borrow order and holds in placement order, using a global sequence counter.
+- A waiting hold's position is its 1-based index in the queue, and a ready head counts as position 1.
+- A member may place a hold on a book that is set aside for someone else, and the hold goes to the end of the queue.
+- If a queue is non-empty while a book has no loan, the head is treated as ready. If that head is not ready or belongs to another member, borrowing fails. This state should not occur.
+- Fines are added to owed with no cap on the total balance.
+- payFine accepts a payment equal to the full balance (amount == owed).
+- Fine calculation uses day counts from dueDate to the return date, with a negative count treated as early (fine 0).
+- Member and book IDs are separate namespaces, so each has its own map.
+- Every method is wrapped in a try/catch that returns { ok: false }, so no method throws for any input.
+- Failure results contain only `ok: false` and no reason field.

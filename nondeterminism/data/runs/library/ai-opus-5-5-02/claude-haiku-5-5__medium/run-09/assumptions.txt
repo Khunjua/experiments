@@ -1,0 +1,20 @@
+- Dates are stored internally as whole-day numbers since 1970-01-01 UTC, and formatted back to YYYY-MM-DD for output.
+- A date is valid only if it matches the regex `^\d{4}-\d{2}-\d{2}$`, has year 0001 or later, and is a real calendar date.
+- Date results beyond year 9999 (from `date + n`) are formatted with more than four year digits; no further validation is applied to results.
+- A call with a valid, non-stale date advances time and runs expiry even if its IDs or amount are invalid or unknown, since the date alone defines a dated call.
+- Expiry processing is run on every accepted dated call, including when the date equals the latest date seen; this is a no-op when nothing has expired.
+- Non-object arguments (null, undefined, primitives) are treated as an empty argument object, so they produce `{ ok: false }` rather than throwing.
+- An ID is valid if it is a string with length greater than 0; whitespace-only strings are accepted as IDs.
+- Failure results contain only `ok: false` with no `reason` field.
+- Map key lookups are used for books and members, so IDs are case-sensitive and cannot collide with object prototype properties.
+- A member's hold list keeps one entry per active hold in placement order; a hold is removed only on pickup (borrow) or expiry, and it stays while the member is waiting in the queue or is set aside.
+- A waiting hold is never consumed by borrow, because a book with a non-empty queue on the shelf is refused by `borrow`.
+- Loans are stored in a Map keyed by book ID, so loan order is creation order and renewal does not reorder entries.
+- When a set-aside holder borrows, the book's queue is left unchanged, as specified.
+- The fine is added to `owed` with no cap on the member's total balance; only the per-loan fine is capped.
+- `GRACE_DAYS` is applied in the late-day calculation as `max(0, date − dueDate − GRACE_DAYS)`, which is equivalent to 0 with the given value.
+- Renewal requires the loan to be present and owned by this member, and fails if the loan is overdue, already renewed twice, or the queue is non-empty.
+- `payFine` requires `amount` to be a JavaScript integer (`Number.isInteger`) that is greater than 0 and not greater than the current `owed`.
+- A set-aside hold that expires is removed from the member's hold list, and the book is set aside for the next waiter with `readyUntil = previous readyUntil + 1 + 7`, repeating while the new `readyUntil` is still before the current date.
+- `getMember` returns `{ loans, owed, holds }` without an `ok` field on success, as specified, and builds fresh arrays and objects on every call.
+- In `getMember`, a hold on a book set aside for this member reports position 1; a waiting hold reports its 1-based queue index plus 1 if the book is set aside for someone else.

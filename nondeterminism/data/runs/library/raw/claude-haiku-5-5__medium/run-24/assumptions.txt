@@ -1,0 +1,23 @@
+- Loan period is 21 days from the borrow date; due date = borrow date + 21 days.
+- A renewal gives 21 days counted from the renewal date (not from the old due date).
+- Maximum of 2 renewals per loan.
+- Renewal is refused if the loan is already overdue (renewing on the due date itself is allowed) or if any hold is waiting on the book.
+- Overdue grace period is 3 days after the due date; no fine for those days.
+- After the grace period, fine is 25 cents for each day late beyond the grace period.
+- Fine per loan is capped at 1000 cents ($10.00).
+- Fines are charged when the book is returned; getMember's owed includes only charged fines, not fines accruing on books still out.
+- Outstanding fines do not block borrowing, renewing, or placing holds.
+- There is no limit on how many books a member may borrow at once.
+- A hold may be placed on a book that is on loan or set aside for another member, but not on a book sitting on the shelf, not by the member who currently has it, and not twice by the same member.
+- Hold queue is first-come, first-served; position counts everyone in line, including a member whose book is set aside for them (who is position 1).
+- When a returned book has waiting holds, it is set aside for the first holder with a pickup window of 7 days, inclusive of the return date plus 7.
+- Only the set-aside holder can borrow the book, and only on or before the last pickup day.
+- If the pickup window lapses, that holder is removed from the queue with no penalty; the next holder's window starts the day after the lapsed window ends and lasts 7 days.
+- Lapsed holds are processed lazily, by comparing against the date of each call; a failed call may still advance this hold-expiry bookkeeping, but no other state changes.
+- There is no method to cancel a hold.
+- payFine accepts only a positive integer amount that does not exceed the amount owed; partial payments are allowed.
+- Returning a book requires that the member is the one who has it on loan.
+- Member and book IDs must be non-empty strings; duplicate IDs are rejected.
+- Dates must be real calendar dates in YYYY-MM-DD form; invalid dates produce { ok: false } (for getMember, an empty result).
+- getMember for an unknown or invalid member returns { loans: [], owed: 0, holds: [] }.
+- Calendar date validation uses UTC day arithmetic; years 0000 to 0099 are rejected by the round-trip check.

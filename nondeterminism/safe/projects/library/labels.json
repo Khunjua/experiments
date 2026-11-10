@@ -1,0 +1,30 @@
+{
+  "groups": [
+    ["Stated in the request", ["D1", "D5", "D11"]],
+    ["Not stated, but common sense", ["D4", "D8", "D15"]],
+    ["Stated vaguely", ["D6", "D7", "D10", "D13", "D19"]],
+    ["Not stated", ["D2", "D3", "D9", "D12", "D14", "D16", "D17", "D18"]]
+  ],
+  "names": {
+    "D1": "a loan lasts 21 days",
+    "D2": "at most 5 books out at once",
+    "D3": "a $10 debt blocks borrowing",
+    "D4": "a loaned book can't be lent again",
+    "D5": "fine: 25 cents a day *",
+    "D6": "1–2 late days free, then every day counts",
+    "D7": "fine capped at 500 cents",
+    "D8": "can't return a book you don't have",
+    "D9": "renewal counts from the old due date",
+    "D10": "at most 2 renewals",
+    "D11": "no renewal while someone holds the book",
+    "D12": "an overdue loan can't be renewed",
+    "D13": "a hold only on a book that is out",
+    "D14": "no hold on your own loan, no double hold",
+    "D15": "holds are served in order",
+    "D16": "a held book waits 3 days for pickup",
+    "D17": "after the window: next in line, 3 more days",
+    "D18": "pickup clears the hold, the line moves up",
+    "D19": "debt adds up; partial payments allowed"
+  },
+  "footnote": "* The fine-rate test returns a book ten days late; the spread here comes from the vague grace rule next to it."
+}

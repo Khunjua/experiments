@@ -1,0 +1,14 @@
+- Adding a book or member whose id already exists is refused; ids must be non-empty strings or finite numbers.
+- Any call referring to an unknown member or book, or with an invalid date string, returns { ok: false }.
+- getMember for an unknown member returns { ok: false }; successful getMember results also include ok: true.
+- Hold expiry is evaluated lazily at the date of each dated call; a hold is dropped only when the date is strictly after readyUntil, and the drop cascades through the line (each next member gets the previous readyUntil + 3) until someone's window covers the date or the line is empty.
+- Late days are counted as return date minus due date; 1–2 late days cost 0, 3+ late days cost 25 per day including the first two, capped at 500.
+- Renewal checks are applied in this order: has the loan, renewal count < 2, no holds, not overdue; any failure refuses.
+- A member at position 1 of a set-aside book can only borrow it if they also pass the loan limit and owed checks; if refused, their hold and set-aside remain unchanged.
+- Payment amounts must be positive integers no greater than the amount owed; paying exactly the amount owed is allowed.
+- The owed limit for borrowing is checked against the current owed balance (fines count immediately when charged).
+- A book that becomes set aside and whose hold line empties becomes free on the shelf; placing a hold on it is then refused.
+- The member to whom a book is set aside cannot place another hold on it (they are already in the line).
+- getMember holds are listed in the order books were added; readyUntil is shown only for the position-1 member of a set-aside (not loaned) book.
+- Dates being out of order is not checked; calls are trusted to arrive in time order.
+- Failure responses include a reason string field.

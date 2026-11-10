@@ -1,0 +1,25 @@
+- Loan period is 21 days; due date is borrow date plus 21 days.
+- A renewal grants a new 21-day period counted from the renewal date.
+- Maximum of 2 renewals per loan.
+- A loan cannot be renewed if any hold is waiting on the book, if it is already overdue, or if the renewal limit is reached.
+- Late fine is 25 cents per calendar day after the due date, with a 3-day grace period (days 1 to 3 free).
+- Each loan's fine is capped at 500 cents.
+- Fines are charged when the book is returned; overdue loans that are not yet returned add nothing to the member's owed amount.
+- A member's owed amount is recorded fines minus payments.
+- payFine accepts only a positive integer amount not exceeding the amount owed; overpayments are rejected.
+- A member owing 1000 cents or more cannot borrow.
+- A member can hold at most 5 books at once.
+- A member can borrow at most 5 books at once.
+- Holds can only be placed on a book that is currently on loan; a hold on an available book is rejected.
+- A member cannot place a second hold on the same book, and cannot hold a book they currently have on loan.
+- Hold positions are 1-based in placement order; the member set aside for pickup stays at position 1.
+- When a book is returned and holds exist, the first waiting member is set aside the book with a pickup window ending 7 days after the return date.
+- A set-aside book cannot be borrowed by anyone except the member it is set aside for, and that member's borrow consumes the hold.
+- If a set-aside member does not pick up by the last day, the hold is dropped and the next waiting member is set aside starting the day after, for another 7 days; this is applied lazily on each call using the call's date.
+- If no one is waiting after a hold expires, the book becomes available.
+- Only the member who borrowed a book may return or renew it.
+- Unknown members or books, duplicate ids, and invalid amounts return { ok: false } with no state change.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- Loans and holds in getMember are listed in book insertion order.
+- No upper limit is imposed on the number of books or members.
+- Input dates are valid 'YYYY-MM-DD' strings; no validation is performed on them.

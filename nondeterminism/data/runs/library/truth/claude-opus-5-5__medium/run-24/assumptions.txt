@@ -1,0 +1,15 @@
+- Hold expiry is processed lazily: every call that has a date first drops expired set-asides (date > readyUntil) for all books, cascading as needed.
+- addBook/addMember with an id that already exists, or a missing id, is refused.
+- Any call with an unknown memberId or bookId is refused (getMember for an unknown member returns ok:false with empty loans/holds and owed 0).
+- "Days late" is the number of calendar days between the due date and the return date; with 3 or more days late, all late days are charged at 25 cents, capped at 500.
+- Owing 1000 cents or more does not block renewals or placing holds, only borrowing.
+- Rule 11 ("anyone has a hold") counts any member in the book's hold line.
+- A member may place a hold on a book that is set aside for someone else; a member cannot hold a book already set aside for themselves (they are already in line).
+- The member the book is set aside for is position 1 in the line; their position stays 1 until they borrow it or the set-aside expires.
+- Expired set-aside cascades: each new readyUntil is the previous readyUntil + 3 days, even if several expire before the next call.
+- When a book with holds is returned, the hold line stays as is and the first member gets it set aside; a member borrowing a free or set-aside book is removed from that book's hold line.
+- Borrowing checks are made in this order: book on loan, set aside for someone else, loan limit, amount owed; any failure refuses.
+- payFine requires a positive integer amount no greater than what is owed; paying when nothing is owed is refused.
+- Successful results include ok: true; refusals include ok: false and a reason field.
+- The rest of the return value of getMember includes an extra ok field.
+- Dates are assumed well-formed; no validation of the date format is done.

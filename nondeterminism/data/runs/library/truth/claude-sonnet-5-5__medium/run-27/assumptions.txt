@@ -1,0 +1,14 @@
+- Hold expiry is applied lazily at the start of each method call that has a date, using that call's date. A hold is dropped only when readyUntil is strictly earlier than the call date.
+- The member set aside for a book stays in the hold queue at position 1 and is counted in positions.
+- Setting a book aside happens on return only if the queue is non-empty.
+- Holds queued behind the member who borrows stay on hold while the book is on loan.
+- addBook and addMember with an existing id are refused.
+- Unknown members or books make every operation return ok:false.
+- getMember for an unknown member returns empty loans and holds with owed 0.
+- Renewal is refused if the book has any hold, including the one at position 1.
+- A fine is charged only on return. Late days are counted from the due date as it stands after renewals.
+- Fine of 3+ days late is 25 × late days, capped at 500.
+- payFine requires an integer amount greater than 0 and no more than owed.
+- A member may place a hold on a book set aside for another member, but not if already in its queue.
+- A member whose hold is set aside for them can still be refused borrowing for the usual reasons (limit, owing 1000 or more). The hold then expires normally.
+- addBook and addMember have no date, so they do not trigger expiry.

@@ -1,0 +1,16 @@
+- An argument that is an array counts as "not an object" and fails with invalid_input.
+- An id is any string with length greater than 0; whitespace-only strings are accepted.
+- Dates are validated with a strict YYYY-MM-DD regex and a UTC round-trip check; years 0000 to 9999 are supported.
+- When a call's date is valid and not earlier than the latest date, the latest date advances and pickup expiry runs, even if a later field check fails with invalid_input (per §3.5 and §7). A date earlier than the latest date does not advance or expire anything.
+- Field checks for a call run before the date-order check, so a call with malformed fields and an out-of-order date returns invalid_input.
+- The amount check in payFine runs before the member lookup, as an input-validation step.
+- Hold order across books for getMember is the global order in which holds were placed (a sequence counter), not the book order.
+- readyUntil is reported only for a book set aside for that member (queue front); otherwise it is null.
+- When a set-aside book is borrowed by its reserved member, that member is removed from the queue and remaining members keep their relative order; the book stays on loan with the remaining queue.
+- A return with a non-empty queue sets the book aside for the new queue front with readyUntil = return date + 7.
+- Returns on or before the due date charge 0 (daysLate is clamped at 0).
+- Fines are capped per loan at 500 cents, so a member's owed total may exceed 500 through several loans.
+- Pickup expiry that moves a hold forward repeats while readyUntil is still before the current date, as §7 specifies.
+- Renewal checks the loan's own overdue state, the loan's renewCount, and the book's queue, in the order listed in §5.5.
+- Any unexpected exception inside a method (for example, from a throwing getter on the argument) is caught and returned as { ok: false, reason: 'invalid_input' }; state is only modified after all checks pass, so this leaves the library unchanged.
+- Outputs for getMember are freshly constructed objects and arrays, so callers cannot mutate library state.

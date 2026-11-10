@@ -1,0 +1,17 @@
+- Arrays passed as the argument are treated as non-objects and return invalid_input.
+- A call that fails input validation (invalid_input) does not update the latest date and does not apply pickup expiry.
+- A call that fails with date_out_of_order does not apply pickup expiry.
+- For calls that pass the date check, pickup expiry is applied before the member and book existence checks, so it applies to failing calls too.
+- Pickup expiry is applied across all books on every dated call that passes the date check.
+- Holds on different books are ordered for getMember by a global placement sequence number, so "order placed" is preserved across books.
+- amount must be a safe integer (Number.isSafeInteger) greater than 0.
+- Dates are supported for years 0000 to 9999; a computed due date beyond 9999-12-31 is not specially handled.
+- When a set-aside member borrows the book, only that member is removed from the queue; the remaining members stay queued while the book is on loan.
+- When a book is returned with a non-empty queue, it is set aside for position 1 with readyUntil = return date + 7.
+- A loan is found by bookId among the member's active loans; a return or renewal by a member with no such loan returns not_borrowed.
+- placeHold treats "member has the book on loan" as a matching active loan in the member's loan list.
+- Fines are computed and capped per loan only at return; overdue loans that have not been returned contribute nothing to owed.
+- getMember's readyUntil is non-null only when the book is set aside and the member is at queue position 1.
+- getMember's holds include only books whose queue contains the member, sorted by placement order.
+- A safety catch wraps every method and returns invalid_input if an unexpected exception occurs (for example from a throwing getter on the argument); under normal inputs no exception is expected.
+- getMember returns ok: true alongside loans, owed and holds on success.

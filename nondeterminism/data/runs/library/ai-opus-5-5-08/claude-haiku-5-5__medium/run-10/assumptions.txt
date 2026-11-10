@@ -1,0 +1,20 @@
+- Expiration processing runs for any call whose argument is an object and whose date is valid, even if other fields (memberId, bookId, amount) are malformed. The spec lists only some of these cases explicitly.
+- Expiration is not run for addBook and addMember, since they take no date.
+- Dates are stored internally as day numbers (days since 1970-01-01 UTC) and formatted back to 'YYYY-MM-DD' on output.
+- Year 0000 is accepted as a valid year (proleptic Gregorian). Years 0000–9999 are the supported range.
+- A book with no loan and a non-empty queue is treated as set aside for queue[0]. A book with a loan may have a non-empty queue, which is the waiting line for the return.
+- When a set-aside book is borrowed by its member, that member's hold is removed, the queue shifts up, and the book's readyUntil is cleared.
+- When a book is returned and has waiting holds, it is set aside for the first member with start day = return date and readyUntil = return date + 7.
+- When a set-aside hold expires and the queue still has members, the next readyUntil is previous readyUntil + 8, which is the next start day (previous readyUntil + 1) plus 7.
+- A member's holds array is kept in placement order and is kept in sync with the book queues on every removal (expiry or borrow).
+- A fine of 0 is still added to owed and reported as fine 0.
+- A return dated before the due date yields a fine of 0, because daysLate is clamped at 0.
+- The overdue check for renew uses a strict comparison, so renewing on the due date is allowed.
+- The overdue check for borrow uses dueDate < date, so a loan due today does not block borrowing.
+- Non-string IDs, including numbers and objects, are rejected as invalid. IDs are compared exactly with no trimming.
+- The payFine overpayment check rejects amount > owed, so any payment when owed = 0 is rejected.
+- Methods return only { ok } plus the documented fields. No reason string is returned.
+- Each method is wrapped in a guard that converts any unexpected exception into { ok: false }. All validation happens before any state change, so the guard does not leave partial state in normal operation.
+- getMember sorts loans by dueDate string, then bookId string, using plain < and > comparison.
+- getMember returns readyUntil only for a hold at position 1 on a book with no loan (set aside). Otherwise it returns null.
+- placeHold is allowed on a book that is on loan to someone else, including when the book has no queue. It is rejected only if the book is on the shelf, the member has a loan on it, or the member already has a hold on it.

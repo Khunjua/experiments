@@ -1,0 +1,15 @@
+- A dated call whose date is valid and not earlier than the current date advances the clock and runs hold expiry even if other arguments are invalid or the call fails for a business reason; expiry depends only on the date, so this matches what any later call would do anyway.
+- A call with a missing or malformed date does not advance the clock or run expiry.
+- On a date earlier than the current date, the call does not run hold expiry.
+- addBook and addMember are undated. They do not touch the clock or run expiry.
+- The success result of getMember includes ok: true, as shown in §9.
+- The "member owes 1000 cents or more" check for borrowing uses the balance after expiry processing on the call date. Fines are only charged at return time, so no other adjustment applies.
+- A member with a ready (set-aside) hold on a book cannot place another hold on that book, because they already hold it.
+- placeHold on a set-aside book is allowed for other members. It is refused for the member it is set aside for, since they already have a hold.
+- For the overdue check in borrow, every current loan of the member is tested against dueDate < call date.
+- If date + 21 would exceed year 9999, the due date is still computed and formatted with more than 4 year digits. No failure is returned.
+- Any unexpected internal exception, such as a throwing getter on the argument object, is caught and returns { ok: false }.
+- Arguments that are not objects, including null, arrays of the wrong shape and primitives, are invalid. Arrays are accepted only if they happen to have the required fields.
+- Payment amount must be a JavaScript number that is a safe integer. Numeric strings and BigInt are invalid.
+- A loan's renewal count is per loan. It resets when the book is borrowed again.
+- Dates are computed with custom proleptic Gregorian day arithmetic, anchored on Date.UTC, so years 0001–0099 are handled correctly. Time zones have no effect.

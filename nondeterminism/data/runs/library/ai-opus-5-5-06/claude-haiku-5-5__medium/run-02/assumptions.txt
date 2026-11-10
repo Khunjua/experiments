@@ -1,0 +1,18 @@
+- A dated call whose date is valid and not earlier than the clock moves the clock even if its IDs or amount are invalid or the member/book does not exist, since 4.1 keys the clock only on the date.
+- Expiration catch-up runs across all books on every dated call with a valid, in-order date, including calls that are then rejected.
+- Dated calls with an invalid or out-of-order date are rejected before any catch-up, so they change nothing.
+- Argument validation order is: date first, then IDs and other fields, then existence, then business rules.
+- Non-array objects are accepted as arguments; arrays are treated as objects and fail on missing properties.
+- A `borrow` of a book on loan to anyone returns reason NOT_AVAILABLE; the suggested NOT_ON_LOAN code was not used there.
+- A `borrow` of a set-aside book by a member other than the set-aside member returns NOT_AVAILABLE.
+- Renewal is rejected with HAS_HOLDS whenever the book's line is non-empty, including a set-aside hold.
+- A renewal on a day after the due date is rejected as OVERDUE; a renewal on the due date is allowed.
+- Renewal uses `date` + 21 days even if that is earlier than the current due date (possible only on the borrow day, where it is equal).
+- When a set-aside hold expires, the member's hold record is removed at that moment, so it does not appear in `getMember` afterward.
+- A hold's `readyUntil` is null unless the hold is the set-aside first hold, so `getMember` reports a non-null `readyUntil` only for the set-aside hold.
+- `payFine` treats a non-number, non-safe-integer, or amount below 1 as BAD_AMOUNT, and an amount above the owed balance as BAD_AMOUNT.
+- `payFine` checks the date and member ID before the amount, and the member lookup before the overpayment check.
+- Dates from year 0000 through 9999 are accepted as valid, using proleptic Gregorian rules.
+- Each method is wrapped so any unexpected exception returns `{ ok: false, reason: 'INVALID_INPUT' }` instead of throwing.
+- Reason strings are taken from the suggested list in section 13. Not every method returns a reason on rejection, but all rejection paths do.
+- Loans, holds and their order are tracked with one global sequence counter, so ordering by creation or placement is consistent across members and books.

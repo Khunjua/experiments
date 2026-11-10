@@ -1,0 +1,23 @@
+- Loan period is 21 days from the borrow date.
+- A renewal gives 21 more days counted from the renewal date, not from the old due date.
+- A member can renew at most 2 times per loan.
+- Renewal is refused if the book is overdue (date after due date) or if any hold is waiting for it.
+- A loan is due on its due date; the book is overdue only on days after it.
+- A late return is free for the first 7 days past due; after that it costs 25 cents for each additional day.
+- The fine for a single loan is capped at 1000 cents.
+- Fines are assessed when the book is returned and added to the member's owed balance; overdue books accrue nothing until returned.
+- Members with an outstanding balance can still borrow, renew, and place holds; no blocking is applied.
+- There is no limit on how many books a member can borrow or how many holds a member can place.
+- A hold can only be placed on a book that is currently on loan to someone else; holds on available or set-aside books are refused.
+- A member cannot place a second hold on the same book, and cannot hold a book they currently have on loan.
+- Holds form a first-in, first-out queue; position 1 is the next person in line.
+- When a book is returned and someone is waiting, it is set aside for the first person in line for 3 days, including the return day plus 3 (readyUntil = return date + 3).
+- A set-aside book cannot be borrowed by anyone other than the member it is set aside for.
+- If the set-aside member does not pick up by readyUntil, they are removed from the queue and the next person is set aside starting the day after, for another 3 days; if nobody is waiting, the book becomes available.
+- Expired holds are processed lazily at the start of every method call, using that call's date.
+- The set-aside member stays in the holds list at position 1 until they borrow the book or the hold expires.
+- A payment must be a positive integer number of cents no greater than the amount currently owed; otherwise payFine returns { ok: false }.
+- getMember for an unknown member returns an empty result (no loans, owed 0, no holds) rather than { ok: false }.
+- The loans array returned by getMember is ordered by bookId insertion order; the holds array is ordered the same way.
+- Inputs are assumed to be well-formed 'YYYY-MM-DD' strings with monotonically non-decreasing dates, as the interface guarantees; no further validation of dates or ids is performed.
+- Adding a duplicate book or member returns { ok: false } and changes nothing.

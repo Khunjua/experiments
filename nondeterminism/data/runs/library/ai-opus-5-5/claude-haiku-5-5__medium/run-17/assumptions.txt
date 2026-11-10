@@ -1,0 +1,16 @@
+- A dated call with valid arguments advances the clock and runs hold expiry even when it then fails because the member or book is not registered, as the requirements say the clock moves whether or not the business action succeeds.
+- Argument validation (types, identifiers, date format) happens before the clock is touched, so invalid input has no effect at all.
+- Identifiers only need to be non-empty strings; whitespace-only strings are accepted as valid IDs.
+- addBook and addMember take no date and do not affect the clock.
+- Hold expiry is applied to every book on every dated call, including calls that fail.
+- A hold is pickable on its `readyUntil` date (inclusive) and expires only when the call date is strictly later.
+- When a book is returned and holds exist, the first hold becomes ready with `readyUntil = return date + 7`.
+- Due dates, renewal dates and ready-until dates are computed without clamping; a result after 9999-12-31 is formatted with more than four year digits rather than rejected.
+- A loan is overdue only when its due date is strictly before the call date; a loan due on the call date is not overdue.
+- Returning a book is never blocked by overdue status or by money owed.
+- Fines are computed and added to `owed` on return, even if this takes `owed` to 1000 or more.
+- Loans in `getMember` are listed in borrow order; renewals do not change their position in that list.
+- Holds in `getMember` are listed in placement order; `readyUntil` is null for waiting holds and for holds on books that are on loan.
+- A payment amount must be a safe integer greater than 0; a non-integer or non-numeric amount is rejected without changing state.
+- Failure results contain only `ok: false`; no `reason` field is added.
+- Successful results for `getMember` include `ok: true` along with `loans`, `owed` and `holds`.

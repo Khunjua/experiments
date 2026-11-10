@@ -1,0 +1,18 @@
+- Year 0000 is accepted as a valid year (proleptic Gregorian), since the format rule only requires four digits and a real calendar date.
+- Expiry processing runs across all set-aside books on every call whose date is valid, not only the book named in the call.
+- Dates are stored internally as integer epoch days and converted back to YYYY-MM-DD on output.
+- A failed call returns { ok: false } with no reason field, and all validation happens before any state change.
+- A try/catch wrapper converts any unexpected exception into { ok: false }; the code paths after validation do not throw, so no partial change is expected.
+- A book set aside for the borrowing member is removed from the line and the remaining holds move up; if the book is then borrowed, the rest of the line stays in place for the eventual return.
+- On return, a book with holds is set aside for position 1 with readyUntil = return date + PICKUP_DAYS, and its renewal count resets to 0 when it is next borrowed.
+- Renewal count resets to 0 on every borrow, and the due date is cleared on return.
+- A return dated before the due date produces a late count that is negative; chargeable days are clamped to 0, so the fine is 0.
+- Renewals are rejected if the book has any hold line, including holds for members other than the renewer.
+- A member may place a hold on a book that is on loan to someone else even when the hold line is empty.
+- A member may not place a hold on a book they currently have on loan; a book set aside for them rejects a second hold as well.
+- The loan list order follows when each loan started; returning and re-borrowing a book moves it to the end.
+- The hold list order follows when each hold was placed; a hold removed by expiry or by borrowing is removed from the list.
+- getMember reports position as the 1-based index in the book's hold line, and readyUntil only for a book currently set aside for that member.
+- payFine validates amount before checking the member; amount equal to owed is allowed and brings owed to 0.
+- Expiry processing is applied to the date of the call even when the member or book is unknown, provided the date itself is valid.
+- The IDs "__proto__" and similar strings are safe because storage uses Map and Set rather than plain objects.

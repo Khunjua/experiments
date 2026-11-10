@@ -1,0 +1,16 @@
+- Set-aside expiry is applied lazily: before every dated call, each book's set-aside is checked against that call's date, and expired ones move to the next member in line (cascading if needed).
+- A member set aside a book stays at position 1 in the hold line until they borrow it; borrowing removes them from the line.
+- A book is set aside only when returned while it has holds; a free book with an empty line stays free.
+- Late days are calendar-day differences between the return date and the due date; returning on or before the due date costs nothing, and 1 or 2 days late is free.
+- A fine of 25 cents per day from 3 days late is capped at 500 cents per returned book; the cap applies per return, not cumulatively.
+- Fines are not paid off or waived by returning a book; returning only adds to the amount owed.
+- Borrowing is blocked only by owing 1000 cents or more, the 5-loan limit, a book on loan, or a book set aside for someone else; holds and renewals are not blocked by amount owed.
+- Placing a hold has no limit on number of holds and is not blocked by the member's loan count or amount owed.
+- A renewal is refused while anyone is in the hold line, including a member who has a book set aside for them.
+- Renewal on the due date is allowed; renewal after the due date is refused.
+- Payment amounts must be positive integers no greater than the amount owed; otherwise the payment is refused and owed is returned unchanged.
+- Unknown member or book IDs cause { ok: false } for mutating methods; returnBook and renew also return fine: 0 or nothing extra as appropriate.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- getMember lists loans and holds in no particular order; holds are listed in book insertion order.
+- Duplicate addBook or addMember calls return { ok: false } and change nothing.
+- Dates are assumed valid 'YYYY-MM-DD' strings; date arithmetic uses UTC so no time zone or daylight-saving effects occur.

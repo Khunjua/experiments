@@ -1,0 +1,10 @@
+- A dated call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or it fails for a business reason.
+- A call with a missing or non-object argument, or an invalid date, does not touch the clock or expiry.
+- A call dated earlier than the current date returns `{ ok: false }` without expiring anything, including calls that don't otherwise use the clock, such as `payFine` and `getMember`.
+- `addBook` and `addMember` take no date and don't touch the clock.
+- Failure results include a `reason` string, which callers ignore.
+- Dates are compared as strings, which is valid because all valid dates have a fixed width.
+- A payment `amount` that is not a safe integer greater than 0 fails; non-integer numbers and numeric strings are rejected.
+- `getMember` returns `readyUntil` only for the first hold in the queue of a set-aside book, and `null` otherwise.
+- If a member's ready hold is blocked from borrowing, it stays in place until it is borrowed or expires.
+- A member may place a hold on a book that is set aside for someone else, unless they already hold it. The member who is the ready hold holder cannot place a duplicate.

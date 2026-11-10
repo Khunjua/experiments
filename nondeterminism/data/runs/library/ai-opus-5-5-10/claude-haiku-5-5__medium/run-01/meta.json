@@ -1,0 +1,43 @@
+{
+ "project": "library",
+ "spec": "ai-opus-5-5-10",
+ "model": "claude-haiku-5-5",
+ "effort": "medium",
+ "run": 1,
+ "cli": "2.1.310 (Claude Code)",
+ "room": true,
+ "started": "2026-10-29T21:13:42.917Z",
+ "finished": "2026-10-29T21:14:35.734Z",
+ "ok": true,
+ "exit": 0,
+ "signal": null,
+ "costUSD": 0.0077034,
+ "durationMs": 51714,
+ "wallMs": 52442,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 5311,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 13282,
+  "output_tokens_details": {
+   "thinking_tokens": 8734
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 5311,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "hasCode": true,
+ "loadError": null,
+ "matched": 24,
+ "total": 31
+}

@@ -1,0 +1,19 @@
+- Adding a book or member with an id that already exists is refused; null/undefined ids are refused.
+- Any action involving an unknown member or unknown book is refused.
+- An invalid or malformed date string makes the call refused.
+- Hold expiry (rule 17) is evaluated lazily at the start of every dated call, for all books; a hold is dropped on the day after readyUntil.
+- When a hold is dropped and the next member is promoted, their readyUntil is the old readyUntil + 3 days even if that is already in the past, so several holds can expire in one step.
+- The 1000-cent borrowing limit is checked against the amount owed before the borrow; owing exactly 1000 blocks borrowing.
+- A fine is the number of days late times 25 cents only when more than 2 days late, capped at 500 cents; the fine is added to the amount owed at return time.
+- Owing money does not block returns, renewals, holds or payments.
+- When a book with holds is returned, the book becomes set aside for position 1 starting on the return date (readyUntil = return date + 3 days), even if that member is at the loan limit or owes too much.
+- The member the book is set aside for still has to pass the loan-limit and amount-owed checks to borrow it.
+- Members whose hold is not at position 1 cannot borrow the book while it is set aside for someone else.
+- A member may place a hold on a book set aside for someone else, and may place holds regardless of what they owe; there is no limit on the number of holds.
+- Rule 11 counts every hold on the book (including the one set aside), so a renewal is refused whenever the hold line is not empty.
+- Payment amounts must be positive integers; non-integer or non-number amounts are refused.
+- Paying exactly the amount owed is allowed and leaves owed at 0.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }; for a known member it returns no ok field, matching the interface.
+- getMember applies hold expiry as of its date before reporting; holds are reported in book insertion order.
+- readyUntil in getMember is set only for the member in position 1 of a book that is currently set aside; otherwise it is null.
+- Dates are handled as UTC calendar days so month/year boundaries and leap years are calculated correctly.

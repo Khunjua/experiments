@@ -1,0 +1,16 @@
+- Argument type and format checks (object present, non-empty string IDs, integer `amount`, valid date) happen before the clock is touched; existence of member/book and the `amount` < 1 rule are business rules checked after time processing.
+- Any call with valid arguments and a valid, non-regressing date advances `lastDate` and runs expiry even if its business rule then fails, as §3.6 states.
+- Calls with an invalid date or invalid arguments leave `lastDate` and all state unchanged.
+- `getMember` for a non-existent member still advances the clock when its date is valid, consistent with §3.6.
+- Every method is wrapped in a try/catch that returns `{ ok: false, reason: 'internal' }`, so no method throws; state is only mutated after all checks pass, so a caught exception cannot leave partial changes.
+- Dates are converted to day numbers with a proleptic Gregorian algorithm (no `Date` object), so there are no time-zone or two-digit-year quirks; year `0000` is accepted as a leap year because the regex and the Gregorian rule allow it.
+- Output dates are zero-padded to four digits for the year; a date past year 9999 (only reachable through repeated renewals or long holds) would print with five digits.
+- Fines accumulate in `owed` without any cap; the 1000-cent cap applies only per loan, as specified.
+- Holds are returned in global placement order, tracked by a single increasing sequence counter shared across all books.
+- Failure results carry only `ok: false` and a free-form `reason` string.
+- `payFine` accepts only JavaScript numbers passing `Number.isInteger`; strings and non-integers fail as invalid arguments before the clock is touched.
+- Renewing requires the member's own loan of that book, and a book with any hold queue entries cannot be renewed, even if the queue is set aside for someone else.
+- A member who already holds a book in the set-aside state cannot place a second hold on it; a member with a loan on a book cannot place a hold on that same book.
+- Members with an overdue loan are blocked from borrowing but may still renew nothing, since renewal of an overdue loan is rejected by the overdue rule.
+- Borrowing a book that is set aside for the caller is still subject to the debt limit, overdue-loan rule and the 5-loan limit.
+- Expiry iterates over all books on every accepted call, in no particular order; the result is independent of that order.

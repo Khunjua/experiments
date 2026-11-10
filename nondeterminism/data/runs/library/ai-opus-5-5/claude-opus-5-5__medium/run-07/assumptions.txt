@@ -1,0 +1,14 @@
+- When a dated call has a valid, non-earlier date, the clock advances and hold expiry runs even if other arguments are invalid. Expiry depends only on dates, so running it early produces the same result as running it later.
+- `addBook` and `addMember` are undated. They do not touch the clock or run expiry.
+- A non-object argument, including `null`, `undefined` and primitives, is invalid input. Arrays and other objects are read for their named fields.
+- If reading an argument property throws, for example from a getter, it is treated as a missing or invalid field.
+- Date arithmetic uses pure integer proleptic-Gregorian day counts. This is equivalent to UTC and is immune to time zones and DST. It also avoids the Date.UTC quirk that maps years 0–99 to 1900–1999.
+- Computed due dates or `readyUntil` dates may pass 9999-12-31. They are then formatted with a 5-digit year rather than rejected.
+- The overdue check in `borrow` is strict: `dueDate < date`. A loan due on the borrow date does not block.
+- A member may borrow their own set-aside book only if all other borrow rules pass. Otherwise the hold stays until it is picked up or expires.
+- A member with a ready (set-aside) hold on a book cannot place another hold on it. This is the "already has a hold" rule.
+- In `placeHold`, the "currently has this book on loan" check only applies when the book is on loan to that member.
+- A failed `placeHold` or `borrow` does not reorder or otherwise change the queue.
+- `amount` must be of type number. Numeric strings and BigInt are invalid.
+- `reason` strings are included on failures for debugging only.
+- Holds in `getMember` are listed in placement order across all books. Fulfilled and expired holds are removed from the member's list.

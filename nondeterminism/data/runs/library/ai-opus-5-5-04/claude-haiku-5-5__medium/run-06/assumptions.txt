@@ -1,0 +1,16 @@
+- A call whose argument object is missing, or whose IDs or date are invalid, fails without running advance. A call with a valid date and a valid ID shape runs advance before the business rules, even if the member or book is unknown.
+- Dates are validated with the regex plus a calendar check; year 0000 is accepted as a proleptic Gregorian year.
+- Date arithmetic uses integer day numbers derived from UTC, with years formatted to four digits.
+- Hold expiry runs while the first queue entry's readyUntil is strictly before the call date, so a hold is still valid on its readyUntil date.
+- During expiry, a book whose queue becomes empty goes to shelf, and a book with a remaining queue is set aside for the next member starting the day after the expired readyUntil.
+- In borrow, the pickup removes the member's hold before the loan is created; a pickup that fails a later rule leaves the hold unchanged.
+- In borrow, the reserved-for-another-member check is applied before the owed, overdue and loan-count checks, as the requirement's rule order implies.
+- In placeHold, a member with a current loan of the book is rejected with the "already on loan" reason, after the shelf check and before the queue-membership check.
+- payFine checks the amount type and range after confirming the member exists, and rejects an amount larger than the current owed balance.
+- getMember reports position as the 1-based index in the book's queue, and readyUntil only when the member is the set-aside first entry of a reserved book.
+- Fines are added to owed without any cap beyond the per-loan maximum; owed is not otherwise bounded.
+- Holds are stored per member in placement order, and the same ordering is used for the holds in getMember output.
+- Loans are stored per member in creation order, and the same ordering is used for the loans in getMember output.
+- Every method body is wrapped so that any unexpected exception returns `{ ok: false, reason: 'error' }`; this is a defensive fallback that should not normally be reached.
+- Failure reasons are short descriptive strings chosen by the implementation, since callers ignore them.
+- Book IDs and member IDs accept any non-empty string, including whitespace-only strings, and are compared exactly.

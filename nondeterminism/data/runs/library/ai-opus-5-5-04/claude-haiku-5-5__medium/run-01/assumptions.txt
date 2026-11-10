@@ -1,0 +1,16 @@
+- Advance (hold expiry) runs whenever the date string is valid, even if the member or book ID is invalid, since the spec makes it depend only on date validity.
+- Advance runs before the ID and business checks, so a call that fails on an unknown member or book still advances the state.
+- Date validity is checked before ID validity; a call with both invalid returns `{ ok: false }` and does not advance.
+- Failure `reason` strings are free-form text chosen by the implementation; callers ignore them.
+- Holds are stored as queue entries carrying a global creation sequence number, used to return `holds` in placement order.
+- Set-aside fields (`readyFrom`, `readyUntil`) are stored on the first queue entry only while the book is `reserved`; `getMember` reports `readyUntil` only for that entry and `null` for all others.
+- A member's hold count for the `MAX_HOLDS` rule counts every queue entry naming that member across all books, including set-aside entries.
+- A book's `loan` reference and the member's `loans` array share the same loan object, so renewals update both views.
+- `getMember` builds fresh arrays and objects on every call, so callers cannot mutate library state.
+- `payFine` treats an `amount` of `0` or a negative value as invalid, matching the `< 1` rule.
+- Returned values are plain primitives or newly created objects, so no reference to internal state escapes.
+- Each exported method is wrapped in a try/catch that returns `{ ok: false }`, as a safety net; the validation order is designed so no state is changed before a throw could occur.
+- The `position` returned by `placeHold` equals the queue length after appending, as the spec states.
+- Returning a book whose queue is non-empty sets the first entry aside with `readyFrom` equal to the return date, which matches the spec's `readyFrom = date`.
+- A pickup removes the first queue entry, leaving the remaining waiting entries in their existing order with no set-aside state.
+- The `reason` field is included on all failure results, including `getMember`, which returns `{ ok: false, reason }` as the spec requires.

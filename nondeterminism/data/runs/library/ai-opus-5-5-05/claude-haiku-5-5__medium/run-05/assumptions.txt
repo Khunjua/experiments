@@ -1,0 +1,17 @@
+- Input validation (object, IDs, date, amount) runs before the clock step; the clock step (date check, current-date update, hold expiry) runs for every dated call that passes validation, even if the member or book then turns out not to exist.
+- A date equal to the current date is allowed; only a strictly earlier date is rejected by the clock rule.
+- Arrays and other non-function objects are accepted as argument containers if they carry the required fields; functions are rejected.
+- Any unexpected exception (for example from a throwing getter on the argument) is caught and returned as `{ ok: false, reason: 'internal error' }`.
+- Expiry processing for one book repeats while the book is still set aside and expired, so a chain of expired holds collapses in one pass.
+- Expiry processing covers all books on every dated call, not only the book in the current action.
+- When a set-aside hold expires, the expired member's hold is removed from their holds list and no fine is charged.
+- When a set-aside book is borrowed by its member, that member's hold is removed and their position-1 entry is dropped; other members keep their order.
+- A returned book with a non-empty queue is set aside for the head of the queue with `readyUntil = return date + 7`, inclusive.
+- Member `loans` and `holds` are kept in creation and placement order respectively; a hold keeps its place in the holds list while it is set aside.
+- `renew` requires the queue to be empty, as stated; renewal blocking applies even when the queue head is a member who is only set aside, which the spec implies.
+- `payFine` with an amount equal to `owed` is allowed and brings `owed` to 0.
+- `borrow` is rejected for a book set aside for a different member even though the book is not on loan.
+- Output dates are zero-padded to four digit years, so year 0001 is written `0001-...`.
+- Days are counted with a proleptic Gregorian day-number conversion, so no `Date` object or time zone is used.
+- `owed` has no upper cap beyond JavaScript's safe-integer range; no overflow guard is added.
+- Failure `reason` strings are free-form and chosen by the implementer.

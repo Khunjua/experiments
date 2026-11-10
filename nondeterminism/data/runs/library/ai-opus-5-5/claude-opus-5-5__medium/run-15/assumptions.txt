@@ -1,0 +1,11 @@
+- A call whose non-date arguments are malformed (wrong types, empty IDs, bad payment amount) fails without advancing the clock or processing expiry; only calls with well-formed arguments and a valid, non-earlier date advance the clock.
+- A malformed date fails without changing the clock.
+- Unregistered members/books, and an overpayment, count as business failures: the clock still advances and expiry is still processed.
+- addBook and addMember are not dated calls; they do not touch the clock or trigger expiry.
+- A non-object argument (including null, undefined, or a missing argument) is treated as invalid input and returns { ok: false }.
+- Computed due dates or readyUntil dates beyond year 9999 are still returned, formatted with as many year digits as needed; they are not rejected.
+- Expiry is checked for every book on each dated call, including books unrelated to the call.
+- For a hold placed on a book that is set aside for another member, readyUntil is null until that hold itself becomes ready.
+- getMember reports an overdue loan with its due date unchanged; it computes no fines for loans that are still out.
+- Failure results include a short "reason" string.
+- A placeHold on a book set aside for the same member fails as a duplicate hold.

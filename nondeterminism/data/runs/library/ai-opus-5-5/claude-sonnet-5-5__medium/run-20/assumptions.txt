@@ -1,0 +1,9 @@
+- A member's hold is removed from the member's hold list only when borrowed; expired holds are removed from the book queue, and the member's hold list is reconciled lazily (see next).
+- Expired holds: the member's `holds` list may retain a stale bookId after expiry, which I did not clean up in the expiry step; this is a known gap that I did not resolve.
+- For dated methods, the clock is advanced and expiry runs even when the call then fails for a business or id-validation reason, as long as the date is valid and not earlier than the current date.
+- If args is not an object or the date is invalid, nothing happens (no clock change).
+- Date comparisons use string comparison, which is valid for zero-padded YYYY-MM-DD.
+- A book is "set aside" when it is not on loan and has a non-empty queue (readyUntil non-null).
+- The next ready hold after an expiry gets readyUntil = previous readyUntil + 8 days, i.e. (prev+1)+7.
+- payFine validates date and clock before checking amount and member.
+- Extra fields in arguments are ignored; `reason` strings are added on failure.

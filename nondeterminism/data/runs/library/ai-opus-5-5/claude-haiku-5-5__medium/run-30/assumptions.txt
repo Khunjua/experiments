@@ -1,0 +1,14 @@
+- The current date is unset until the first valid dated call; that first valid date is accepted.
+- A non-object argument is treated as having missing fields, so the call returns `{ ok: false }`.
+- Calls with invalid identifiers, malformed dates, or an invalid payment amount change nothing, including the current date.
+- A dated call with a valid, non-earlier date advances the current date even if it then fails for a business reason, such as an unregistered member or book.
+- Payment amounts must be safe integers greater than 0; non-integer amounts are rejected.
+- Dates after 9999-12-31 are clamped to 9999-12-31 in all computed dates (due dates, pickup windows, and expiry chains).
+- Owed balance has no upper cap; fines accumulate without limit.
+- Hold expiry is processed for every book on every dated call, including books the call does not otherwise touch.
+- A returned book with a non-empty queue is set aside immediately with `readyUntil` = return date + 7.
+- Renewal on the day the loan was made counts as a renewal and sets the due date to that day + 21.
+- Loans in `getMember` are listed in borrow order; holds are listed in placement order.
+- `getMember` returns only `ok`, `loans`, `owed` and `holds`; no `reason` field is added to any return value.
+- Returned loan, hold and balance data are freshly built objects, so callers cannot modify library state through them.
+- `addBook` and `addMember` do not take a date and do not advance the clock.

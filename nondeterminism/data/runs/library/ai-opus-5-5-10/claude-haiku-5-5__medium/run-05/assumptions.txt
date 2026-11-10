@@ -1,0 +1,18 @@
+- Date validity is checked by regex plus a round-trip through UTC Date; year 0000 is accepted because the format rule allows it.
+- Argument checks (presence, types, ID non-emptiness, date format, integer `amount`) run before the clock, so a call that fails argument checks does not advance `lastDate` or run expiry.
+- A call with a valid, in-order date advances the clock and runs expiry even if it then fails a business rule, including a nonexistent member or book.
+- `getMember` and `payFine` apply the same date and clock rules as the other date-bearing methods.
+- Failure results include a `reason` string, which the spec allows.
+- Success results from `addBook` and `addMember` contain only `ok: true`.
+- Hold ordering uses a global sequence number assigned when a hold is placed; `getMember` sorts holds by that number.
+- Each book's hold queue stores entries with a member ID and sequence number; a member's holds are derived from the queues rather than stored separately.
+- `placeHold` rejects a member who already has the book on loan, which is not explicitly listed in §5.6 beyond the general rule that the member must not have it on loan.
+- `borrow` rejects a book set aside for the member when the member already has 5 loans or any overdue loan, because those checks apply regardless of the hold.
+- `returnBook` does not check the member's debt or overdue status; it only requires the loan to exist.
+- Fines are capped at 1000 cents per loan, but a member's total `owed` can exceed 1000 through several loans.
+- `payFine` with a non-integer amount fails at argument validation, before the clock is advanced.
+- Repeated `addBook` or `addMember` calls with the same ID fail and change nothing.
+- Non-object arguments (including `null`, `undefined`, arrays, and primitives) are treated as invalid arguments.
+- State is held in `Map` objects so that IDs such as `__proto__` are handled as ordinary strings.
+- `getMember` returns freshly built arrays and objects, so callers cannot modify library state through them.
+- `readyUntil` is reported only when a book is set aside and the member is at queue position 1; a position-1 member with the book on loan gets `null`.

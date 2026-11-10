@@ -1,0 +1,23 @@
+- Dates are converted to day numbers with a proleptic Gregorian civil-date algorithm (no JS Date), so year 0000 is valid and leap rules apply to all years.
+- Output dates are formatted with at least 4 digit years; dates past 9999-12-31 are not rejected and are formatted with more digits.
+- For date-bearing methods, the clock is advanced (and expiry run) only after the arguments, IDs, amount type and date format pass validation.
+- Member and book existence checks happen after the clock is advanced, because they are business rules in §3.6 step 4.
+- getMember applies the clock and expiry even when the member does not exist, and then fails.
+- payFine treats a non-integer amount (including NaN and Infinity) as an argument-validation failure before the clock is advanced.
+- Any exception thrown while reading arguments or running a method is caught and returned as { ok: false, reason: 'error' }.
+- Success results contain only the fields in the interface; failure results contain only ok and reason.
+- IDs are used as given: any non-empty string is accepted, with no trimming or length limit.
+- Book and member IDs are stored in Maps, so IDs such as "__proto__" are safe.
+- Loans are kept in creation order and renewals do not reorder them; returning a loan removes it and keeps the order of the others.
+- Holds get a global increasing sequence number when placed, and getMember sorts holds by it.
+- A book's state is derived from its fields: on loan when loanTo is set, set aside when readyUntil is set, and available when both are empty. A book is never available with a non-empty queue.
+- Borrowing a book that is set aside for the member removes that member's hold and leaves the remaining holds in place while the book is on loan.
+- Returning a book with a non-empty queue sets it aside for the first member with readyUntil = return date + 7; the pickup window is counted from the return date.
+- A member's owed amount can exceed 1000 cents through accumulated fines; the 1000-cent cap applies per loan only.
+- A member who is on the hold queue of a book they have on loan keeps the hold; holds on books on loan are never set aside, so readyUntil is null for them.
+- placeHold on a book that is set aside for a different member is allowed.
+- Holds are allowed for a member with an overdue loan or with debt, as the requirements state.
+- The loan limit check counts all current loans, including overdue ones.
+- The overdue check in borrow uses any loan whose due date is before the call date.
+- renew checks the debt limit with the owed amount at the time of the call, before any change.
+- Extra fields in argument objects are ignored.

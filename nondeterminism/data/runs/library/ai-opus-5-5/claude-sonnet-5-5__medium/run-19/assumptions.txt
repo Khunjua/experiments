@@ -1,0 +1,10 @@
+- A dated call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if it then fails on other arguments (unknown IDs, invalid IDs, bad amount).
+- A call with a missing or non-object argument, or an invalid date, does not touch the clock or any state.
+- Hold expiry applies only to set-aside books, meaning books not on loan with a non-empty queue.
+- The `readyUntil` of a newly promoted hold is previous `readyUntil` + 8 days, which equals (previous + 1) + 7.
+- A hold counts as ready only when the book is not on loan and the hold is first in the queue.
+- Borrowing a set-aside book for the member whose hold is ready is allowed even if the book is that member's only hold, subject to the other borrow rules.
+- Overdue means `dueDate < date`, compared as strings, which works because of the fixed format.
+- `payFine` validates `amount` as a safe integer greater than 0 and the member ID, but not whether other fields are present.
+- The `reason` strings are informational only.
+- `getMember` returns `{ ok: false }` on failure and has no other side effect besides the clock and expiry.

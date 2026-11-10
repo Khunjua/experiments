@@ -1,0 +1,13 @@
+- The clock advances and hold expiry runs only when the date is valid, the argument object is present, and all other fields have valid form. Calls that fail input validation change nothing, including the clock.
+- Calls that pass input validation but fail a business rule (for example, an unregistered member or book) still advance the clock and process expiries.
+- addBook and addMember take no date. They do not read or change the clock.
+- A borrow or renew fails if the resulting due date would be after 9999-12-31.
+- A readyUntil beyond 9999-12-31 is kept internally and formatted as-is. No failure is raised for it.
+- getMember returns `ok: true` alongside loans, owed and holds on success, as §9 shows.
+- payFine checks the amount's validity (safe integer > 0) as input validation, before the clock is advanced.
+- A member whose book is set aside for them cannot place another hold on it, because they already hold it.
+- An overdue loan for the borrow check means any current loan whose dueDate is strictly earlier than the borrow date.
+- Hold order in getMember is the global order in which holds were placed, oldest first.
+- Any unexpected internal exception (for example, a throwing getter on the argument object) is caught and returned as `{ ok: false }`.
+- Failure results include a `reason` string.
+- Dates are converted to whole UTC day numbers using Date with setUTCFullYear. This handles years 0001–0099 correctly.

@@ -1,0 +1,18 @@
+- Argument shape and format are validated before the clock is checked or advanced, so a malformed call (bad ID, bad date format, bad amount) changes nothing, including the clock.
+- A well-formed dated call that names an unknown member or book still advances the clock and runs catch-up, as section 4.1 requires, even though the call is then rejected.
+- A dated call whose date is earlier than the clock is rejected with DATE_OUT_OF_ORDER before the clock or catch-up is touched.
+- Year 0000 is accepted as a valid year because the format rule only requires 4 digits and the proleptic Gregorian rules apply to it.
+- Calendar arithmetic is done with integer day numbers (proleptic Gregorian, no Date object), so no time zone or DST effect is possible.
+- The supported range ends at 9999-12-31 so output dates always keep the 4-digit format. A borrow or renewal whose new due date would pass that day is rejected with OUT_OF_RANGE and changes nothing.
+- A set-aside window that would end after 9999-12-31 is clamped so readyUntil is 9999-12-31. This applies at return time and during expiry cascades.
+- Only the member on the loan may return or renew a book. Anyone else gets NOT_ON_LOAN.
+- A set-aside book can be borrowed only by the member whose hold is first in the line. Any other member gets NOT_AVAILABLE.
+- A member who is set aside on a book but tries to place another hold on the same book is rejected with ALREADY_HOLDING, since that hold already exists.
+- Rejection reason codes are taken from the suggested list in section 13. Where no suggested code fits, the code is the closest match (for example, a wrong-type amount gets INVALID_INPUT).
+- Overpayment in payFine is reported as BAD_AMOUNT.
+- Any unexpected exception inside a method is caught and returned as { ok: false, reason: 'INVALID_INPUT' }. Each method checks everything before it mutates, so a caught exception leaves state unchanged apart from the clock and catch-up.
+- Loan creation order and hold placement order share one global sequence counter. Ordering within loans and within holds stays correct because each list is sorted only against items of its own kind.
+- Expiry processing across different books is independent, so the order in which books are processed during catch-up does not affect results.
+- Fines are computed from the current due date at the time of return, so renewals reduce the fine accordingly.
+- Owed balances are not capped. The only limit is JavaScript's safe-integer range, and amounts that would exceed it are not handled specially.
+- getMember returns fresh arrays and objects built from the state on each call. It never returns references to internal records.

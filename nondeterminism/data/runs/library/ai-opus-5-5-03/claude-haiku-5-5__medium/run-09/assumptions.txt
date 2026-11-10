@@ -1,0 +1,18 @@
+- Any unexpected exception (for example, a throwing getter on the argument object) is caught in each method and returned as { ok: false }, so no method throws.
+- A dated call with an invalid date fails before the clock is checked or advanced; a valid date equal to the clock is accepted.
+- A dated call that passes the date checks advances the clock and runs hold processing even if the call later fails a business rule, as §4.4 requires.
+- The "book set aside for a different member" check only blocks borrowing when the queue head is a ready hold; a book with no loan and an empty queue is Available.
+- Borrowing by a member with a ready hold on the book removes only that hold; remaining holds keep their waiting status and their positions shift up.
+- The number of active loans is derived by counting books currently on loan to the member, so no separate counter can drift out of sync.
+- borrow and renew fail if the resulting due date would be after 9999-12-31, so returned due dates always stay in the valid format.
+- returnBook and hold processing do not check for readyUntil dates after 9999-12-31; such dates are not guarded and would not be formatted as valid 'YYYY-MM-DD' strings.
+- Fines have no cap on the member's total owed; each loan's fine is capped at 1000 cents, but owed accumulates across loans.
+- A returned book with a non-empty queue makes the head hold ready with readyUntil = return date + PICKUP_DAYS, regardless of any earlier clock state.
+- placeHold on a set-aside book (no loan, ready head) is allowed and appends a waiting hold; the ready hold at the head counts as position 1.
+- A member cannot place a hold on a book they currently have on loan, or on which they already have a waiting or ready hold.
+- getMember's loans are ordered by the time each loan was created (borrow call order); renewals do not change this order.
+- getMember's holds are ordered by the time each hold was placed; positions are read from each book's current queue.
+- readyUntil in getMember is null for waiting holds and for any hold not currently set aside for that member.
+- Member and book IDs are stored and compared as exact, case-sensitive strings in separate Maps, so a book and a member may share an ID.
+- payFine fails when amount exceeds owed, which includes any payment when owed is 0.
+- A library created by createLibrary has all its state held in closure variables, so libraries share no state.

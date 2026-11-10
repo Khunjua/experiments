@@ -1,0 +1,18 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any dated call that names an unknown member or book, or has a malformed or impossible date, is refused.
+- getMember for an unknown member or with an invalid date returns { ok: false, loans: [], owed: 0, holds: [] }. A successful getMember also includes ok: true.
+- Expiry of set-aside books is evaluated lazily at the start of every dated call, using that call's date. Because calls arrive in time order, this gives the same result as checking every day.
+- A set-aside expires when the current date is strictly after readyUntil, so borrowing on readyUntil itself is allowed.
+- When several set-asides expire one after another before the next call, each new readyUntil is the previous readyUntil + 3 days, repeated until someone's window covers the current date or the line is empty.
+- Days late = return date minus due date. Fine = 0 if days late <= 2, otherwise min(25 × days late, 500).
+- A returned book's fine is added to the amount owed even if that pushes the total to 1000 or more. The return itself is never blocked by money owed.
+- Money owed does not block renewals or placing holds; it only blocks borrowing.
+- A member already at 5 loans can still place holds, but cannot borrow the set-aside book until under the limit. The set-aside window keeps running meanwhile.
+- When a book is set aside for the member in position 1, that member's hold remains listed with position 1 and a readyUntil date. Members not in position 1, or whose book is still on loan, get readyUntil null.
+- A hold may be placed on a book set aside for someone else. A member who is already in that book's line (including the one it is set aside for) is refused as a duplicate.
+- Holds on a book only ever exist while it is on loan or set aside. Therefore a free book never has a hold line.
+- The renewal limit counts renewals of the current loan only. A new borrow starts again at 0 renewals.
+- payFine requires a positive integer amount no greater than the amount owed. A refused payFine returns the current owed value along with ok: false.
+- A refused returnBook includes fine: 0.
+- Refusals include a human-readable reason field.
+- Date arithmetic uses the proleptic Gregorian calendar via UTC day numbers.

@@ -1,0 +1,14 @@
+- If an argument other than the date is invalid (missing object, bad id, bad amount), the call fails before touching the clock or running expiry; the clock advances only when all inputs are well-formed.
+- A call naming an unregistered member or book counts as a business failure, so the clock still advances and expiry still runs.
+- A dated call with a valid date earlier than the current date fails without running expiry or changing the clock.
+- getMember advances the current date like any other dated call.
+- addBook and addMember take no date, do not affect the clock, and do not run expiry.
+- Dates that would go past year 9999 after adding days are formatted with however many year digits result; this case is not otherwise handled.
+- If any internal error happens (for example a throwing getter on the argument object), the method returns { ok: false } instead of throwing.
+- A failure result includes a short reason string.
+- On getMember failure the result is just { ok: false, reason }, with no loans, owed or holds fields.
+- A successful getMember result includes ok: true alongside loans, owed and holds.
+- Loans are ordered by a global sequence number taken at borrow time; holds are ordered by a global sequence number taken at placement time.
+- A member with a ready hold on a book still counts that hold toward the 5-hold limit until it is borrowed or expires.
+- The `amount` must be a JavaScript number that is a safe integer; numeric strings are invalid.
+- When an expired ready hold is followed by another hold, the new readyUntil is computed from the previous readyUntil (previous + 8), even if several windows passed with no calls.

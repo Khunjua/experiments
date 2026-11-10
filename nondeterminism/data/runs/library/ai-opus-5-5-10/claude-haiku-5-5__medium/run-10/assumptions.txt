@@ -1,0 +1,20 @@
+- Any non-empty string is a valid ID; no length limit, and IDs are compared with Map keys (exact match).
+- Argument-format checks (arguments object present, IDs are non-empty strings, date is a valid YYYY-MM-DD, amount is an integer ≥ 1) run before the clock is touched, so a malformed call changes nothing, including `lastDate`.
+- Existence and business-rule checks run after the clock advances and expiry runs, following the §3.6 order. A call for a non-existent member or book with a valid, non-earlier date still advances `lastDate` and runs expiry.
+- Dates are handled as whole day numbers with UTC arithmetic. Years 0000–9999 are accepted; year 0000 is treated as a leap year under the proleptic Gregorian rule. Output dates past 9999 are not specially handled.
+- Calendar validity uses the Gregorian leap-year rule for February 29.
+- `payFine` treats a non-integer or sub-1 amount as an argument-format failure, so it is rejected before the clock advances. An amount greater than `owed` is rejected after the clock advances.
+- `payFine` with `owed` of 0 fails, since any amount exceeds 0.
+- Each method is wrapped so any unexpected exception returns `{ ok: false, reason }`. All reads of caller input happen before any state mutation, so this fallback does not leave partial changes.
+- `reason` strings are free-form and not specified beyond being present on failure.
+- `owed` has no cap. Each loan's fine is capped at 1000 cents, but a member's total `owed` can exceed 1000 by accumulating fines from several loans. The debt limit is checked against the total.
+- A member with `owed` ≥ 1000 can still return books and place holds. Only borrow and renew are blocked.
+- The overdue check for borrowing considers all of the member's loans. The overdue check for renewing considers only the loan being renewed.
+- Holds are ordered across books by a global placement sequence number, so `getMember().holds` reflects the order in which the member placed them.
+- A hold's position is its index in the book's queue plus one. The queue entry for the set-aside member is always at index 0.
+- Expiry processing iterates books in insertion order. Because each book's processing is independent, this order does not affect results.
+- When a book is set aside after a return, the new `readyUntil` is the return date plus 7, as stated in §5.4.
+- After a hold expires and the next member is set aside, the new `readyUntil` is the previous `readyUntil` plus 1 plus 7, as stated in §4.2.
+- `getMember` returns `readyUntil` only for a member at position 1 whose book is in the set-aside state. Otherwise it returns `null`.
+- The `dueDate` stored on a loan is an internal day number that is converted to a `YYYY-MM-DD` string on output.
+- `fine` in `returnBook` is always an integer number of cents, and the returned value is independent of the member's existing `owed`.

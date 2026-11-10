@@ -1,0 +1,19 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any call that uses an unknown member or book, or a malformed or impossible date, is refused with ok: false.
+- When a call is refused, the result still includes its value field: dueDate null, fine 0, position null, or owed as the current amount (null if the member is unknown).
+- A set-aside book's hold expires once the call date is after readyUntil; readyUntil itself counts as a valid pickup day.
+- Expired set-asides are processed lazily at each dated call, chaining through as many 3-day windows as have passed. Each next member's window is the previous readyUntil + 3, as written in rule 17.
+- A member in position 1 of a set-aside book still has to pass the loan-limit and owed checks to borrow it; a refused borrow does not drop the hold.
+- Borrowing a set-aside book takes the hold away from the line and clears the set-aside. If others are still waiting, the book becomes a loan with holds still on it.
+- daysLate is the return date minus the due date. The fine is 0 when daysLate ≤ 2, otherwise min(25 × daysLate, 500).
+- A fine is added to the amount owed even when it goes over 1000; the threshold only blocks borrowing.
+- Owing money does not block returns, renewals, holds or payments.
+- "Anyone has a hold" for renewals means the book's hold line is not empty.
+- The renewal count belongs to the loan and resets when the book is borrowed again.
+- Members may place holds whatever their loan count or amount owed.
+- The member a book is set aside for cannot hold it again, because they are already in line.
+- placeHold, payFine and renew accept a date and process hold expiry before applying their own rule.
+- payFine only accepts a positive integer amount that is no more than the amount owed. Paying when nothing is owed is therefore refused.
+- getMember with an unknown member returns ok: false with empty loans and holds and owed 0. On success it also includes ok: true.
+- getMember's holds list includes every hold the member is in line for. readyUntil is set only at position 1 while the book is set aside.
+- Loans in getMember carry only bookId and dueDate; holds are listed in book insertion order.

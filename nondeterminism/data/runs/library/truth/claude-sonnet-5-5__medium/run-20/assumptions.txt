@@ -1,0 +1,11 @@
+- Unknown member or book IDs make any action return { ok: false }; duplicate addBook/addMember also return { ok: false } and change nothing.
+- Hold expiry is applied lazily at the start of each call, using that call's date. A hold expires when the call date is later than readyUntil. Chained expiries are resolved in a loop, each next readyUntil being the old readyUntil + 3 days.
+- A hold keeps its place in line while the book is set aside. The member at position 1 of a set-aside book has the readyUntil date; all others get null.
+- A member with a set-aside book can borrow it only if they pass the normal checks (fewer than 5 loans, owing under 1000). If they fail, the hold stays until it expires.
+- Returning a book is allowed even when the member owes money.
+- A 3-day-late return is charged for all 3 days (75 cents), as in rule 6. Fines are capped at 500.
+- A member whose hold is at position 1 on a set-aside book cannot place another hold on it (duplicate rule).
+- payFine requires an integer amount > 0 and <= owed. Paying when nothing is owed is refused.
+- Renewing needs a loan by that member and fewer than 2 prior renewals. It is refused if any hold exists on the book or the date is after the due date.
+- getMember for an unknown member returns { ok: false }.
+- Invalid or malformed dates make dated actions fail. payFine and getMember skip expiry processing if the date is invalid or missing.

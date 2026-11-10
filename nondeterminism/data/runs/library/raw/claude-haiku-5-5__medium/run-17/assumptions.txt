@@ -1,0 +1,30 @@
+- Loan period is 21 days from the borrow date; the due date is the borrow date plus 21 days.
+- A member may renew a loan at most 2 times.
+- A renewal sets the new due date to the renewal date plus 21 days (not the old due date plus 21).
+- A loan cannot be renewed after its due date has passed.
+- A loan cannot be renewed while any hold is waiting on the book.
+- Fines: the first 7 days after the due date are a grace period with no charge; after that, 25 cents per day for each day beyond the grace period.
+- A single loan's fine is capped at 500 cents.
+- Fines are calculated and added to the member's balance only when the book is returned; overdue loans carry no fine until returned.
+- A member may hold at most one copy-slot per book, meaning they cannot hold a book they already have on loan or are already waiting for.
+- A hold can only be placed on a book that is currently on loan or set aside for another member; placing a hold on an available book is rejected.
+- Holds are served first-in, first-out; position 1 is the next person in line.
+- When a book is returned and someone is waiting, it is set aside for the first person in line, who gets a pickup window of 7 days including the return day plus 6 more days (readyUntil = return date + 7).
+- readyUntil is the last day, inclusive, that the set-aside member can borrow the book.
+- If the pickup window lapses unused, that member is removed from the line, and the book is set aside for the next person with a new 7-day window starting from the day after the lapsed window ended.
+- If the window lapses and nobody else is waiting, the book simply becomes available with no hold.
+- A set-aside member keeps position 1 in the line until they borrow the book, their hold lapses, or the book is otherwise removed from holds.
+- Only the set-aside member may borrow a book that is set aside; other members are refused even if the book is physically on the shelf.
+- A member who has a hold that is set aside for them borrows the book and their hold is removed.
+- Members with unpaid fines of 1000 cents or more cannot borrow or place new holds; they can still return books, renew, and pay.
+- A member may have at most 5 loans at once.
+- A member cannot borrow a book they already have on loan.
+- Returning a book requires that the member currently has that loan; otherwise the return is refused.
+- Partial payments are allowed; a payment must be a positive integer number of cents and cannot exceed the amount owed. Overpayments are refused.
+- Adding a book or member with an ID that already exists is refused.
+- Unknown members or books in borrow, return, renew, hold, and payment calls are refused.
+- getMember for an unknown member returns an empty record: no loans, owed 0, no holds.
+- Loans in getMember are listed in the order they were borrowed; holds are listed in the order they were placed.
+- readyUntil in getMember is null for holds that are not set aside for that member.
+- Before each dated operation, all lapsed pickup windows are processed so that results reflect the given date.
+- Dates are handled as whole UTC calendar days internally, so no time zone or daylight-saving effects apply.

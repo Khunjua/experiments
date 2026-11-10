@@ -1,0 +1,16 @@
+- The latest-date marker starts unset; the first valid dated call that is accepted sets it.
+- A missing or non-object argument object is treated as an empty object, so the call fails without throwing.
+- A call with a valid, non-earlier date advances time and runs expiry even when its member or book does not exist or the business rule then fails, as §3.4 requires.
+- A call with an invalid or too-early date runs no expiry and changes nothing.
+- Identifiers must be non-empty strings; they are not trimmed and are compared exactly.
+- A set-aside holder borrowing the book removes that hold from their holds list and leaves the book's queue unchanged.
+- A set-aside hold counts toward MAX_HOLDS until it is picked up or expires.
+- Placing a hold on a book on loan to someone else is allowed; the position is the queue length, with no extra offset.
+- For a waiting hold, position is the 1-based queue index plus 1 when the book is set aside for someone else, as §5.8 specifies.
+- Holds, loans and expiry promotions keep insertion order, so renewal does not reorder loans and removals keep the remaining holds in placement order.
+- Expiry processing repeats over all books until no set-aside hold has readyUntil before the current date.
+- The fine is computed as max(0, days late − GRACE_DAYS), which is the same as max(0, days late) because GRACE_DAYS is 0.
+- payFine accepts only JavaScript integers for amount; non-numbers and non-integers are rejected.
+- A dueDate beyond year 9999 is formatted with more than four digits rather than being rejected, since no requirement covers it.
+- Failure results contain only `ok: false`, with no reason field.
+- getMember's loans and holds arrays are freshly built on each call, so callers cannot change library state through them.

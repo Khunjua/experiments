@@ -1,0 +1,10 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if it later fails for another reason (unknown ID, invalid ID, bad amount).
+- A call with a malformed or missing date, or a missing or non-object argument, fails without touching the clock or any state.
+- A call with a date earlier than the current date fails without running expiry.
+- If `amount` is invalid, the call still advances the clock and runs expiry before failing.
+- A member's `holds` list is kept in placement order. A hold is removed from it when it is fulfilled or expires.
+- A book is "set aside" when its `readyUntil` is non-null. The ready hold is always the first entry in the queue.
+- `payFine` treats the amount as valid only if it is a safe integer greater than 0.
+- Unknown extra fields are ignored. `reason` strings are added on failures only.
+- Loan overdue checks compare day numbers, so a due date equal to the borrow date is not overdue.
+- Dates produced by arithmetic beyond year 9999 are not specially handled.

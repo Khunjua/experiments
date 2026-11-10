@@ -1,0 +1,14 @@
+- Holds expire lazily: every method that takes a date first drops set-aside holds whose readyUntil is before that date, repeating down the line as needed.
+- A set-aside book's ready member is always first in the book's hold line, and position 1 means that member.
+- Each hold's new readyUntil is the old readyUntil + 3 days, as the requirements say, even if that date has also passed.
+- Borrow checks run in this order: unknown ids, book on loan, loan limit, fine owed, then set-aside restriction.
+- A member with a hold on a set-aside book can still borrow it despite the other checks only if those checks pass. Otherwise the hold stays.
+- A late return is charged 25 cents per late day when the book is 3 or more days late, capped at 500. Otherwise it is free.
+- Renewal is refused when the loan is overdue (date after dueDate), when it already has 2 renewals, or when any hold exists on the book.
+- Adding a duplicate book or member is refused.
+- Operations with an unknown member or book are refused.
+- A member cannot place a hold on a book that is on loan to them.
+- A member may place a hold on a set-aside book if they are not already in its line.
+- payFine requires an integer amount greater than 0 and no more than the amount owed.
+- getMember for an unknown member returns ok:false with empty loans and holds and owed 0.
+- Returning a book moves it to the first holder immediately, with no check that the holder is under the loan limit or owes less than 1000. Those checks apply only when they borrow.

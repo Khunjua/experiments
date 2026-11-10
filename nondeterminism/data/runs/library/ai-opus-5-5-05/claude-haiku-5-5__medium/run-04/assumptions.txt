@@ -1,0 +1,18 @@
+- Dates are converted to day numbers with the proleptic Gregorian civil-day algorithm (pure integer arithmetic), so no `Date` object or time zone is involved.
+- Year 0000 is rejected because the spec allows only years 0001–9999.
+- Dates beyond 9999-12-31 cannot be represented, so borrow and renew fail if their computed due date is out of range, and returnBook fails when it would have to set a pickup window out of range.
+- During hold expiry, a computed `readyUntil` beyond 9999-12-31 is clamped to 9999-12-31. This cannot change any expiry outcome because no valid clock date exceeds that day.
+- The library clock advances and hold expiry runs even when the rest of a dated call then fails, as §3.4 requires. A call with an invalid argument or date does not advance the clock.
+- Expiry runs over all books on every dated call, not only the book named in the call.
+- A book's set-aside state is derived from its data: it is set aside when it is not on loan and has a non-empty queue. `readyUntil` is kept null whenever the book is on loan or available.
+- A member's loans and holds are kept in insertion order (Maps), so a loan or hold that is removed and later re-created appears at the end, which matches creation order.
+- The reason strings are arbitrary, since the spec allows any wording.
+- Any unexpected exception (for example from a throwing getter or proxy on the argument) is caught and returned as `{ ok: false, reason }`, so no method throws.
+- Validation of ids, dates and amounts happens before the clock is advanced. Existence checks and business rules happen after it.
+- `payFine` checks amount validity before the date. Both are validated before any state change.
+- `owed` has no upper cap. Only the per-return fine is capped at 1000.
+- Renewing a loan on its exact due date is allowed, because "overdue" means strictly later than the due date.
+- In `getMember`, `readyUntil` is non-null only when the member is the queue head, the book is not on loan, and the book is set aside.
+- Duplicate `addBook` or `addMember` calls fail and change nothing.
+- Book and member IDs are stored in separate Maps, so an ID such as `__proto__` is safe.
+- `getMember` returns freshly built arrays and objects, so callers cannot mutate library state through them.

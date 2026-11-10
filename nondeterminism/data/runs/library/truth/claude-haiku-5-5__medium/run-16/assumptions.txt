@@ -1,0 +1,21 @@
+- Member and book ids must be non-empty strings; any other value is treated as unknown and refused.
+- addBook and addMember return { ok: false } for a duplicate id.
+- Methods that take a date return { ok: false } (or an empty getMember result) when the date is not a valid YYYY-MM-DD calendar date.
+- Refused returnBook calls return fine: 0.
+- Refused payFine calls return owed as the member's current debt when the member exists.
+- Late days are whole days between the return date and the due date; a return on or before the due date has 0 late days.
+- A fine of 3 or more late days charges every late day (lateDays × 25), capped at 500 per return.
+- Hold expiry is applied lazily at the start of every call that carries a date, across all books, including calls that are then refused.
+- When a set-aside hold expires, the dropped member leaves the line and the next member's readyUntil is the previous readyUntil + 3 days; if the line is empty, readyUntil becomes null.
+- A member set aside for keeps their place in the line (position 1) and is listed in getMember holds with readyUntil until they borrow or the hold expires.
+- Only the member at the front of the line can borrow a set-aside book; the debt limit (1000 cents) and the 5-loan limit also apply to that borrow.
+- When the set-aside member borrows, the remaining line members get readyUntil null because the book is now on loan; they are set aside again only when the book is returned.
+- A book on loan can be held by any member except the borrower and any member already in the line.
+- Members who owe money or already have 5 loans can still place holds; the debt and loan limits apply only to borrowing.
+- A renewal is refused when the book has any hold line, including a set-aside hold.
+- A renewal due on the same day as the current date is allowed; overdue means the date is strictly after the due date.
+- Only successful renewals count toward the limit of 2.
+- A payment must be a positive integer number of cents no greater than the amount owed; otherwise it is refused and nothing changes.
+- A returned fine is added to the member's owed amount even if the member's debt was already at or above 1000 cents.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- Holds in getMember are reported in line order, with position as the 1-based index in the line.

@@ -1,0 +1,15 @@
+- Hold expiry is applied lazily at the start of every method call, using that call's date. A set-aside hold lapses when the call date is later than readyUntil, and this repeats if several periods have passed.
+- A member whose hold lapses is removed from the line, and those behind them move up.
+- The next member's readyUntil is the old readyUntil + 3 days, not the date the lapse was noticed.
+- Unknown members or books make an action fail with ok:false. getMember for an unknown member returns empty loans and holds with owed 0.
+- Duplicate addBook or addMember is refused.
+- A member already in line for a book, including one it is set aside for, cannot place another hold on it.
+- The ready member counts as position 1 in holds.
+- Holds on a book do not stop its current borrower from returning it.
+- When the set-aside member borrows, the others stay in line, now moved up one place.
+- The 1000-cent borrowing check uses the amount owed at that moment, so a member owing exactly 1000 is refused.
+- The 5-loan limit counts current loans only.
+- The late-fine rule is 0 for fewer than 3 days late, otherwise min(500, 25 × days late).
+- A renewal is refused if any hold exists on the book, including a hold that is not yet set aside.
+- payFine requires an integer amount from 1 up to the amount owed.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.

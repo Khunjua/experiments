@@ -1,0 +1,21 @@
+- Null or undefined bookId/memberId is refused by addBook/addMember; duplicate ids are refused.
+- Calls with an unknown member or book return { ok: false } (with fine 0 for returnBook).
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] } instead of an error.
+- Dates are treated as UTC day numbers; input date strings are assumed valid and are not validated.
+- A late return is charged only when it is 3 or more days late; the charge is 25 cents for every late day (not only the days beyond 2), capped at 500.
+- A fine is added to the member's owed amount at return time; it is not paid at return.
+- A return that pushes owed to 1000 or more is accepted; the borrow block applies only to later borrows.
+- Borrowing is refused if the member already has that same book on loan, since the book is on loan.
+- The loan limit of 5 counts overdue loans as well.
+- A book set aside for a member can be borrowed only by that member, and only if the member passes the loan-count and owed-amount checks.
+- Hold expiry is applied lazily at the start of each call using that call's date, which is equivalent because dates never go backward.
+- When a set-aside hold expires, the next member's readyUntil is the previous readyUntil plus 3 days, and this cascades in a loop even if the new window has already passed.
+- A new hold is appended to the end of the line, and its position is its place in the line including the member currently set aside at position 1.
+- A hold may be placed on a book that is on loan, including an overdue loan, but only if the member does not have that book on loan.
+- Renewing is refused if the book has any hold, including a hold where the member is set aside for it.
+- Renewals do not check the member's owed amount; only the renewal count, holds and overdue status are checked.
+- Only successful renewals count toward the limit of 2.
+- A renewal on a date later than the due date is refused; renewing on the due date is allowed.
+- payFine accepts only integer cent amounts greater than 0 and not greater than the amount owed; otherwise it refuses.
+- getMember lists holds in the order of book creation, and loans in no particular order.
+- readyUntil is null in getMember for holds that are not set aside for that member.

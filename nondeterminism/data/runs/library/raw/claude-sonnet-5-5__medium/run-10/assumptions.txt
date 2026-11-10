@@ -1,0 +1,19 @@
+- Loan period is 21 days; due date is the borrow date plus 21 days. A return on the due date is not late.
+- Renewals: at most 2 per loan. Each renewal sets the new due date to the renewal date plus 21 days.
+- Renewal is refused if anyone is waiting for the book, or if the loan is already overdue.
+- Fine is 25 cents per full day late, charged at return and added to the member's owed balance.
+- To avoid being harsh, the fine is capped at 1000 cents per loan. There is no other grace period.
+- A member who owes 1000 cents or more cannot borrow. A member with any overdue loan cannot borrow.
+- There is no limit on how many books a member can have out.
+- A hold is allowed only when the book is on loan to someone else, or is set aside for another member. It is refused for books freely available on the shelf, for the member's own loan, for duplicate holds, and for unknown members or books.
+- Holds form a first-come queue. Position is the 1-based place in the queue.
+- When a held book is returned, the first member in line gets it set aside until return date plus 3 days (inclusive).
+- If the pickup window passes unused, the hold is dropped. The next member in line gets 3 more days starting the day after the previous window ended. If nobody is left, the book becomes freely available.
+- Expiry is processed lazily at the start of each dated call, using that call's date.
+- A book set aside can only be borrowed by the member at the front of the queue. Borrowing removes that member's hold.
+- readyUntil is non-null only for the member at position 1 when the book is physically back and set aside. Otherwise it is null.
+- payFine rejects non-integer, zero, negative, or over-owed amounts. Overpayment is not accepted and nothing changes.
+- Duplicate or missing ids in addBook and addMember return ok:false.
+- Invalid dates, such as bad format or nonexistent days, return ok:false.
+- getMember for an unknown member returns { ok:false }.
+- The loans and holds lists in getMember follow book insertion order.

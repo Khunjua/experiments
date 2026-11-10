@@ -1,0 +1,18 @@
+- Adding a book or member whose id already exists (or a missing id) is refused with { ok: false }.
+- Any call naming an unknown member or unknown book is refused with { ok: false }.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] } instead of throwing.
+- Holds that run out are processed lazily at the start of every dated call. Every missed readyUntil is handled in turn, so several members can be skipped in one call.
+- The day after readyUntil, the set-aside member's hold is dropped and the book goes to the next person in line. readyUntil itself is still a valid pickup day.
+- The fine is 25 cents for each day late (all late days, not only those after the 2-day grace), capped at 500. Returning 1–2 days late is free.
+- The 1000-cent borrowing block uses the amount owed before the borrow. Owing exactly 1000 blocks borrowing.
+- Owing money does not block renewals, holds or returns, because only borrowing is restricted.
+- A member can borrow a book that has holds only when the book is set aside for them. Everyone else, including members later in the line, is refused.
+- Renewal is refused if any hold exists on the book, including the case where it was placed while the book was on loan.
+- The renewal count belongs to each loan and starts at 0 on each new borrow.
+- A member may place a hold on a book that is already set aside for someone else, and joins the end of the line.
+- No limit was set on how many holds a member can have.
+- Payments must be positive integers. Non-integer or non-number amounts are refused.
+- Holds in getMember are listed in the order the books were added. Loans are listed in the order the books were added.
+- Failed calls return { ok: false, reason } with no other fields (no dueDate, fine, position or owed).
+- Input dates are assumed to be valid 'YYYY-MM-DD' strings and are not validated.
+- Date arithmetic uses UTC calendar days.

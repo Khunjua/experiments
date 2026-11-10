@@ -1,0 +1,19 @@
+- Unknown memberId or bookId makes borrow, returnBook, renew, placeHold and payFine return { ok: false }; getMember returns { loans: [], owed: 0, holds: [] } for an unknown member.
+- Duplicate addBook or addMember calls return { ok: false } and change nothing.
+- Failed calls return only ok:false, plus fine:0 (returnBook) or the current owed (payFine) as extra fields.
+- Fine is 0 when the book is returned 0 to 2 days late; from 3 days late it is late days × 25, capped at 500.
+- Fine formula counts days late as the calendar-day difference between the return date and the due date, using UTC day arithmetic on the date strings.
+- Set-aside expiry is applied lazily at the start of every method call, using that call's date, and cascades through several lapsed set-asides in one pass.
+- The set-aside member stays in the line at position 1 until they borrow the book or their hold expires.
+- When a set-aside hold expires, the member is removed from the line entirely; they may place a new hold later and will go to the back of the line.
+- A book that is free with an empty line has no set-aside member; a book that is free with a non-empty line always has one.
+- Renewal is refused while any hold exists on the book, including a set-aside hold.
+- Renewal is not blocked by the member's owed amount or loan count.
+- Placing a hold is not blocked by the member's owed amount or loan count.
+- Placing a hold on a book that is set aside (not on loan) is allowed, since it is not free on the shelf.
+- A member who is already in a book's line (including as set-aside member) cannot place a second hold on it.
+- Borrowing a set-aside book still requires the member to be under the 5-loan limit and below 1000 cents owed.
+- Returning a book is allowed even when the member owes 1000 cents or more.
+- Payment amounts that are not integers are refused, as are amounts of 0 or less and amounts greater than the amount owed.
+- getMember's holds list includes readyUntil only for the set-aside member's hold; other holds show null.
+- getMember's loans list is in insertion order, which is allowed by the requirement that order does not matter.

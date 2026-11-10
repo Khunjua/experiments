@@ -1,0 +1,20 @@
+- Days late = return date minus due date; if days late is 1 or 2 the fine is 0, otherwise 25 cents × days late, capped at 500.
+- Borrowing is refused when the member already has 5 loans or owes 1000 or more; renewing is not blocked by money owed.
+- Unknown members or books, invalid dates and invalid IDs return { ok: false } (with a reason).
+- Adding a book or member whose ID already exists is refused.
+- IDs must be non-empty strings or finite numbers.
+- Expired set-asides are processed lazily at the start of every dated call, for all books, before the action is evaluated.
+- A set-aside lasts through readyUntil inclusive and is dropped from the day after.
+- When a set-aside expires, the next member's readyUntil is the old readyUntil + 3, repeating as needed if several expire before the current date.
+- When a returned book has no holds it goes back to the shelf free for anyone.
+- If a set-aside member cannot borrow (loan limit or money owed), the borrow is refused and their set-aside stays until it expires.
+- A member may place a hold on a book that is currently set aside for someone else; position counts the set-aside member as position 1.
+- Holds and set-asides do not count toward the 5-loan limit.
+- There is no limit on the number of holds a member may place.
+- Hold positions are 1-based indexes in the line; when a set-aside member borrows the book, everyone behind moves up.
+- Renewal is refused while any hold exists on the book; the 2-renewal limit counts renewals of the current loan only.
+- Payment amounts must be positive integers no greater than the amount owed; non-integer amounts are refused.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }; for a known member it adds ok: true.
+- getMember lists holds in book-insertion order.
+- Date strings must be valid calendar dates in 'YYYY-MM-DD' format; arithmetic is done in UTC days.
+- addBook and addMember take no date and do not trigger set-aside processing.

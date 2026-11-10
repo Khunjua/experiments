@@ -1,0 +1,18 @@
+- Loan period is 21 days; the due date is the borrow date plus 21.
+- Maximum 2 renewals per loan; the new due date is the renewal date plus 21.
+- Renewal is refused if anyone has a hold on the book, if the loan is already overdue, or if the renewal limit is reached.
+- The fine is 25 cents per full day after the due date; returning on the due date is free.
+- To avoid being harsh, the fine is capped at 1000 cents per loan.
+- Fines are charged when the book is returned and added to the member's owed balance.
+- Borrowing is refused if the member owes 1000 cents or more.
+- A member may have at most 5 books on loan at once.
+- Duplicate book or member ids are rejected, and so are unknown members or books and malformed dates.
+- Holds are only allowed on a book that is on loan to someone else or set aside for another member. Holding an available book, holding a book you have on loan, or holding the same book twice is refused.
+- The hold queue is first-come, first-served, and position 1 is next.
+- When a held book is returned, it is set aside for the first holder, with readyUntil equal to the return date plus 7 days (inclusive).
+- If the first holder does not borrow by readyUntil, their hold lapses on the next call dated after it. The next holder is then set aside with readyUntil equal to the old readyUntil plus 8 days. If there are no more holders, the book becomes free.
+- A set-aside book can only be borrowed by the first holder, and borrowing removes their hold.
+- readyUntil is null for holds that are not first in line or whose book is still out.
+- payFine rejects non-integer amounts, zero or negative amounts, and amounts larger than what is owed (no overpayment, no credit).
+- getMember for an unknown member returns an empty record with owed 0.
+- Loans in getMember are listed in book-insertion order, and so are holds.

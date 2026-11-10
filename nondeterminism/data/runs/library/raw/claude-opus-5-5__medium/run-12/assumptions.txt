@@ -1,0 +1,23 @@
+- Each bookId is a single physical copy; adding a duplicate bookId or memberId returns ok: false.
+- IDs must be non-empty strings or finite numbers; unknown member or book returns ok: false.
+- A loan lasts 21 days; the due date is the borrow date + 21 days, and the book is not late if returned on the due date.
+- "A couple of times" means at most 2 renewals per loan.
+- Each renewal adds 21 days to the current due date, not to the renewal date.
+- Renewal is refused if anyone has a hold on the book, if the loan is already overdue, or if the member owes more than 500 cents.
+- To be gentle, late fines have a 2-day grace period: there is no fine for up to 2 days late, after which 25 cents is charged for each day beyond the grace period.
+- To be gentle, the fine for a single loan is capped at 1000 cents.
+- Fines are added to the member's balance when the book is returned; nothing accrues on the balance before the return.
+- A member cannot borrow if they owe more than 500 cents.
+- A member can have at most 5 loans at once.
+- A member can only place a hold on a book that is on loan or set aside for someone else; not on an available book, not on a book they currently hold on loan, and not twice on the same book.
+- There is no limit on the number of holds a member can have.
+- Holds are served first-come, first-served; position 1 is the next holder (or the one it is set aside for).
+- When a held book is returned, it is set aside for the first holder until return date + 7 days (readyUntil, inclusive).
+- If the first holder does not borrow the book by readyUntil, their hold is removed, and the book is set aside for the next holder for another 7 days counted from the previous readyUntil.
+- Hold expiry is processed lazily, whenever any call with a date is made.
+- While a book is set aside, only that member can borrow it; borrowing it uses up their hold. Other holders keep their positions, moved up by one.
+- Holders who are not first in line have readyUntil null.
+- payFine requires a positive integer amount no greater than what is owed; overpayment is refused.
+- An invalid date string returns ok: false.
+- getMember for an unknown member or with an invalid date returns { ok: false, loans: [], owed: 0, holds: [] }.
+- getMember lists loans in borrow order and holds in the order they were placed.

@@ -1,0 +1,14 @@
+- Adding a book or member with an id that already exists, or with a missing (null/undefined) id, is refused.
+- Any action involving an unknown member or unknown book is refused; getMember for an unknown member returns { ok: false } instead of the member object.
+- A call with a date that is missing or not a real 'YYYY-MM-DD' calendar date is refused.
+- Days late = return date minus due date in calendar days. The fine is 25 cents times all late days (only when 3 or more days late), capped at 500.
+- Hold expiry is processed lazily at the start of each dated call. A set-aside book is still reserved on its readyUntil day and expires starting the next day. Expiry can cascade through several members in one step if several 3-day windows have passed.
+- A member who owes 1000 or more, or who has 5 loans, may still renew, return, place holds and pay. Only borrowing is blocked.
+- Being in the hold line does not exempt a member from the loan limit or the owed limit. If they cannot borrow, their hold simply runs out.
+- When a member borrows the book set aside for them, any holds behind them stay in place while the book is on loan. On the next return, the book is set aside for the new position 1.
+- A member who already has the book set aside for them cannot place another hold on it, because that counts as holding it twice.
+- Renewing has no effect on the original 21-day rule other than adding 21 days to the current due date. The renewal count is tracked per loan and resets when the book is borrowed again.
+- payFine requires an integer amount. Non-integer or non-number amounts are refused.
+- getMember's holds list is in no guaranteed order, and readyUntil is non-null only when the member is in position 1 and the book is currently set aside.
+- getMember does not include an ok field when it succeeds, matching the interface shape. All other successful calls return ok: true.
+- Refusals include a reason string in addition to ok: false.

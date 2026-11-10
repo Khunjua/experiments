@@ -1,0 +1,16 @@
+- Calls with an unknown memberId or bookId return { ok: false }; a return for an unknown member or book also gives fine 0.
+- addBook and addMember return { ok: false } when the id already exists.
+- getMember for an unknown memberId returns empty loans and holds with owed 0.
+- Set-aside expiry is applied lazily at the start of every call, using that call's date; expired holds are dropped and the chain of readyUntil + 3 days is applied repeatedly if several expire.
+- Refused calls still apply pending expiry, since the date has passed either way.
+- Late days are the calendar-day difference between the return date and the due date; returning on the due date is 0 days late.
+- A fine is added to the member's owed amount with no cap on the total owed.
+- Renewal is not blocked by fines owed.
+- Renewal is refused whenever the book has any holds in the queue, including a hold that is currently set aside.
+- A member may only borrow a set-aside book if they are at position 1 in the queue at that moment.
+- Holds are ordered by the order they were placed; positions are 1-based indexes into that queue.
+- A book with a hold queue is always either on loan or set aside; a book with no loan and no queue is free.
+- readyUntil in getMember is non-null only for the member at position 1 of a set-aside book.
+- Payments must be integers greater than 0 and no more than the amount owed; otherwise they are refused.
+- Member and book ids are compared with strict equality and may be any value usable as a Map key.
+- The order of entries in getMember's loans and holds arrays is unspecified; the implementation uses set and map insertion order.

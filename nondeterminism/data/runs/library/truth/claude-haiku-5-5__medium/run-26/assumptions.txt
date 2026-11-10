@@ -1,0 +1,20 @@
+- Borrow, return, renew, hold and payment calls for an unknown member or book are refused; getMember for an unknown member returns an empty result with owed 0.
+- addBook and addMember refuse a duplicate id and change nothing.
+- Dates are treated as UTC calendar days; date arithmetic uses whole-day numbers.
+- Expired set-asides are settled at the start of every method call using that call's date; readyUntil is inclusive, so a set-aside is still valid on that day.
+- When a set-aside hold expires, the member's hold is removed entirely and they are not re-queued.
+- The member in position 1 stays in the line while set aside; borrowing removes them from the line and everyone behind moves up.
+- Borrowing is refused for a member who owes 1000 cents or more, including the member a book is set aside for.
+- Borrowing is refused when the member already has 5 books on loan.
+- Borrowing is refused for a book on loan, and for a book set aside for someone other than the borrower.
+- Late days are calendar days between the return date and the due date; a fine is charged only when 3 or more days late, at 25 cents for every late day, capped at 500 cents per return.
+- Returning a book the member does not hold is refused with fine 0.
+- Renewal is refused when any hold exists on the book, including a set-aside hold.
+- Renewal is allowed while the member has unpaid fines and does not depend on the member's loan count.
+- Placing a hold is allowed regardless of the member's fines or loan count.
+- A member cannot hold a book they already hold in line, including a book set aside for them.
+- Refused payFine and refused borrow calls may include an owed field in addition to ok: false.
+- Payments must be positive integers no greater than the amount owed; partial payments are allowed.
+- Holds in getMember are listed in the order the books were added.
+- Renewal also refuses when the loan is overdue (date after the due date), and allows renewal on the due date itself.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings in non-decreasing order, as the requirements guarantee.

@@ -1,0 +1,18 @@
+- Unknown bookId or memberId makes borrow, returnBook, renew, placeHold and payFine return { ok: false }; getMember for an unknown member returns an empty result with no loans, owed 0 and no holds.
+- addBook or addMember with an existing id returns { ok: false } and changes nothing.
+- Dates are parsed and added as UTC calendar days, so day differences are exact whole numbers.
+- Hold expirations are applied lazily at the start of every dated call, using that call's date; a hold is still valid on its readyUntil date and dropped on the day after.
+- If the next member's inherited readyUntil (old readyUntil + 3) is already before the current date, the expiry cascades to the following member in the same call.
+- The member set aside for keeps position 1 in the line until they borrow the book; their position is not reduced while the book is set aside.
+- A member with a hold on a book that is set aside for someone else, or on loan, cannot borrow it; a free book cannot have holds, so no other case arises.
+- Borrowing a set-aside book removes that member from the line and clears the set-aside; the remaining members move up one place and the book stays on loan until returned.
+- Returning a book with a non-empty line sets it aside for the first member starting from the return date, until return date + 3.
+- Late fine: 0 for 2 or fewer late days, otherwise 25 cents per late day for all late days, capped at 500 cents per return.
+- The fine from a return is added to the member's owed amount immediately.
+- Overdue loans do not block borrowing; only the 1000-cent owed threshold and the 5-loan limit do.
+- Members who owe 1000 cents or more can still place holds and renew, since the requirements only block borrowing.
+- Renewals are not blocked by the owed amount or the loan count.
+- A hold may be placed on a book that is set aside for someone else, as long as the book is not free on the shelf.
+- payFine accepts only integer amounts from 1 up to the amount owed; any other amount is refused and returns the current owed value.
+- Returning a book the member does not have on loan returns { ok: false, fine: 0 } and changes nothing, including no expiry effects beyond the lazy advance.
+- The reason field is omitted from all refusals.

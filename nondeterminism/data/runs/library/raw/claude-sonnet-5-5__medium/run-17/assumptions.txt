@@ -1,0 +1,19 @@
+- The loan period is 21 days, so the due date is the borrow date plus 21 days.
+- A loan can be renewed at most 2 times, and each renewal sets the new due date to the renewal date plus 21 days.
+- Renewal fails if anyone has a hold on the book, if the loan is already past due (renewing on the due date is allowed), or if the member owes fines.
+- The fine is 25 cents per full day late, with no grace period. Returning on the due date costs nothing.
+- To avoid being harsh, the fine is capped at 1000 cents per loan.
+- The fine is added to the member's owed balance when the book is returned.
+- Borrowing is refused if the member owes any money or has any overdue loan.
+- There is no limit on how many books a member can have out.
+- A hold can only be placed if the book is on loan, or if it is already reserved by a waiting line. Holds on an available book with no line are refused.
+- A member cannot hold a book they have on loan, and cannot hold the same book twice.
+- When a book with a waiting line is returned, it is set aside for the first person in line, who can pick it up through the last day of the return date plus 7 days. Only that member can borrow it during that time.
+- If the pickup window passes unused, the hold is dropped and the next person is offered the book. Their window is 7 days, starting the day after the previous window ended. This is evaluated lazily whenever a method is called with a later date.
+- Borrowing a set-aside book removes that member's hold, and the other holders move up the line.
+- `position` is the member's place in the line (1 = next). `readyUntil` is non-null only for position 1 while the book is physically set aside (not on loan).
+- `payFine` requires a positive integer amount no greater than the amount owed. Overpayment and zero or negative payments are refused with no change.
+- Unknown members or books, duplicate IDs, missing IDs and malformed or invalid dates return `{ ok: false }`.
+- `getMember` on an unknown member returns `{ ok: false }`.
+- Loans and holds in `getMember` are listed in book-insertion order.
+- Returning a book that the member does not currently have on loan fails.

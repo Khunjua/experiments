@@ -1,0 +1,13 @@
+- The clock advances and hold expiry runs only after every argument has passed type and format checks. A call with an invalid field changes nothing, not even the clock. Unknown member or book IDs are business failures, so the clock still advances for them.
+- Advancing the clock and running hold expiry on a call that fails a business rule does not count as "changing something". Expiry depends only on the date, so this has no visible effect.
+- Date arithmetic uses a pure integer day-number algorithm for the proleptic Gregorian calendar instead of Date.UTC. This avoids Date.UTC treating years 0–99 as 1900–1999. It has no time zone effects.
+- Computed dates later than 9999-12-31 (e.g. due dates) are formatted as is, with a 5-digit year. They are not rejected.
+- Hold expiry is processed for books in the order they were registered. Order does not affect results.
+- getMember returns `ok: true` together with loans, owed and holds, as section 9 shows.
+- Loans in getMember are ordered by borrow time. A re-borrowed book appears at its new borrow position.
+- A member cannot place a hold on a book that is set aside for them, because they already hold it. They can place a hold on a book set aside for someone else.
+- An argument object that is an array, or any non-null object, is accepted as the argument container. Fields are then validated individually.
+- `amount` must be of type number. Numeric strings and BigInt are invalid.
+- Any unexpected exception, such as a throwing getter on the argument, is caught and returned as `{ ok: false }`.
+- addBook and addMember are undated. They never touch the clock or run expiry.
+- The returned objects contain no `reason` field.

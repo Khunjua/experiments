@@ -1,0 +1,12 @@
+- Hold expiration runs whenever the argument is an object and its date is a valid date string, even if memberId, bookId or amount is malformed; §3.5 lists only unknown member, unknown book and invalid amount as still-processed failures, so malformed IDs are treated the same way.
+- Date validation accepts any four-digit year from 0000 to 9999 that passes the Gregorian round-trip check.
+- The "shelf with non-empty queue" defensive rejection in borrow is implemented as a check that a queued book has a readyUntil value; the state model makes this case unreachable.
+- A book that is set aside for the borrowing member can be borrowed; any remaining holds on it stay queued while it is on loan.
+- Holds never expire while a book is on loan; expiration applies only to books that are not on loan.
+- A member's active holds are tracked in placement order and removed when the hold leaves the queue, whether by borrowing, expiration, or other removal.
+- The shelf state is derived: no loan and an empty queue means on shelf; no loan and a non-empty queue means set aside for the queue head.
+- Loans are sorted by the numeric day value of dueDate and then by bookId using JavaScript string comparison; the output date strings sort the same way.
+- A member's owed amount is never negative, because payFine rejects overpayment.
+- Returned data (loans, holds) is freshly constructed on every call, so caller mutation cannot change library state.
+- Any unexpected exception (for example, from a getter on the argument object) is caught per method and reported as { ok: false }, with no state changed by that call beyond any already-completed expiration.
+- Arguments that are arrays are treated as objects; their missing fields cause failure in the normal way.

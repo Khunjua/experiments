@@ -1,0 +1,22 @@
+- Loan period is 21 days from the borrow date.
+- A renewal grants 21 days from the renewal date, but never shortens the current due date.
+- A loan can be renewed at most 2 times.
+- Renewal is refused if the loan is already overdue, or if anyone is holding or waiting for the book.
+- Late fee is 25 cents per day, counted from the due date, with a 3-day grace period (no fee if returned within 3 days after due).
+- Late fees are capped at 1000 cents (10 dollars) per loan return.
+- Fee is calculated and added to the member's balance on the return date.
+- A hold can only be placed on a book that is currently on loan to another member.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- There is no limit on the number of holds in a queue or on loans per member.
+- When a returned book has a waiting hold, it is set aside for the first person in line with a pickup window of 3 days, including the return date.
+- If the set-aside member does not pick up within the window, the hold passes to the next person in line with a new 3-day window starting the day after the previous window ended. If no one is waiting, the book becomes available.
+- Expired pickup windows are processed lazily at the start of each dated call, based on that call's date.
+- A set-aside book can only be borrowed by the member it is set aside for; other members are refused.
+- Members with unpaid fines are still allowed to borrow, renew, and place holds.
+- payFine rejects amounts that are not positive integers and rejects overpayments (amount greater than the amount owed).
+- returnBook only succeeds for the member who currently has that loan.
+- There is no way to cancel a hold; holds stay until they are fulfilled or expire.
+- addBook and addMember reject duplicate IDs and null or undefined IDs.
+- getMember for an unknown member returns an empty result (no loans, zero owed, no holds) instead of an error.
+- The order of loans and holds returned by getMember follows the order in which books were added via addBook.
+- Input dates are assumed to be valid 'YYYY-MM-DD' strings and to arrive in non-decreasing order, as the interface states.

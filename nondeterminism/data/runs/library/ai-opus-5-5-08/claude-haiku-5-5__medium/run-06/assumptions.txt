@@ -1,0 +1,22 @@
+- Expiration runs only after the argument is an object and the date is valid; invalid dates or non-object arguments skip it, while bad IDs or amounts still trigger it.
+- addBook and addMember take no date, so they run no time processing.
+- Internally, a loan is stored on the book with its member, due day number, and renewal count; the member keeps only a set of loaned book IDs.
+- A book is "on shelf" when it has no loan and an empty queue; "set aside" when it has no loan, a non-empty queue, and a non-null readyUntil.
+- Expiration of a hold removes the bookId from that member's holds list, and the next member's window starts at the previous readyUntil + 1 with readyUntil = previous readyUntil + 8.
+- A book on loan can have a non-empty queue; no set-aside state applies until it is returned.
+- When a set-aside member borrows, their hold is consumed and the remaining queue shifts up; the book stays on loan with readyUntil cleared.
+- Borrowing with a non-empty queue on a book that is not set aside is rejected defensively, as the spec requires.
+- Overdue check for borrow uses the stored due day compared with the call date (dueDay < date).
+- Return of an overdue book is allowed and charges the fine; the fine uses the loan's stored due day.
+- Owed has no cap; the 1000-cent cap applies only per return, so owed can exceed 1000 through several returns.
+- Renewal is rejected only when the call date is strictly after the due date; renewing on the due date is allowed.
+- Renewal is rejected if the queue is non-empty, even when the book is on loan to the renewing member.
+- placeHold rejects a book whose loan is null and whose queue is empty (on shelf); a book on loan with an empty queue can be held.
+- Position is the 1-based index in the book's queue, computed from the queue on every getMember call.
+- getMember sets readyUntil only when the member is at queue position 1 and the book is set aside (readyUntil non-null); otherwise it is null.
+- Loans are sorted by the formatted date string (fixed-width YYYY-MM-DD is chronological), then by bookId using JavaScript < and > comparisons.
+- The returned arrays and objects are freshly built on every call, so caller mutation cannot change state.
+- Dates are validated with a regex plus a round-trip check through UTC; years are formatted with at least four digits.
+- Date arithmetic beyond year 9999 is unspecified; formatting simply produces more digits.
+- All methods are wrapped in try/catch and return { ok: false } on any unexpected error; no reason field is added.
+- Fields other than those required by the interface are not returned.

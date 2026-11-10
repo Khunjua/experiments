@@ -1,0 +1,19 @@
+- Dates are compared as 'YYYY-MM-DD' strings, which order correctly because they are zero-padded; day differences are computed via UTC date arithmetic.
+- Calls referencing an unknown member or book return { ok: false } (with fine 0 or owed 0 where a shape field is expected).
+- A duplicate addBook or addMember is refused.
+- Set-aside expirations are applied lazily: every call first processes expirations up to its own date, cascading to the next member if the new readyUntil is also already past.
+- The member set aside for is kept at position 1 in the line until they borrow the book or their hold expires; the line is one list with that member at its head.
+- A hold that is dropped on expiry is removed from the line entirely; the member does not keep a position.
+- A returned book with a non-empty line is set aside for the first member with readyUntil = return date + 3.
+- A member who already has a hold on a book (including being set aside for it) cannot place another hold on it.
+- Placing a hold has no limit on the number of holds per member and is not blocked by the member's fines or loan count.
+- Renewal is refused whenever any hold exists on the book, including a set-aside hold.
+- Renewal is not blocked by fines owed or by the number of loans held by the member.
+- Borrowing is refused for owed >= 1000 and for a member with 5 loans; the loan count is the current number of open loans.
+- Fine per late return is 0 for 1–2 days late, 25 cents per day for 3 or more days late (all days counted), capped at 500 cents per return.
+- Returns are always accepted for a member's own loan regardless of fines owed.
+- Payments must be positive integers no greater than the amount currently owed; otherwise refused with the current owed value.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- The holds array returned by getMember is ordered by book insertion order into the library.
+- Refused calls may still apply the time-based expiry sweep; this is not observable through the interface because it only reflects the passage of time.
+- Identifiers of any type usable as Map keys are accepted for bookId and memberId.

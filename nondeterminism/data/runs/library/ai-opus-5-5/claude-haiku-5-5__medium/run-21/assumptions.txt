@@ -1,0 +1,23 @@
+- A call with a structurally invalid argument (missing object, bad id, bad date format, bad amount) has no effect at all, including no clock advance and no expiry processing.
+- A call with a valid, non-earlier date advances the clock and runs expiry even when it then fails for a business reason, as §3.3 requires.
+- Calls whose date is earlier than the current date return { ok: false } with no effect.
+- Amounts must be safe integers greater than 0; non-integer or non-number amounts are invalid.
+- Dates are represented internally as day numbers from 0001-01-01 to 9999-12-31; output is formatted as YYYY-MM-DD.
+- A borrow or renewal whose new due date would fall after 9999-12-31 fails with { ok: false } and changes nothing.
+- A pickup window or chained expiry window that would fall after 9999-12-31 is clamped to 9999-12-31.
+- A return that sets a book aside computes readyUntil as the return date + 7, clamped to 9999-12-31 if needed.
+- Overdue loans on other books do not block renewal of a loan that is not itself overdue; §6.3 lists only the loan's own overdue status.
+- Overdue loans on other books do block borrowing, as §6.1 states.
+- A member's hold on a book that is set aside for them counts as active and blocks placing a second hold on that book.
+- Holds are counted as active holds across all books for the 5-hold limit, including the ready hold.
+- A member who holds a book on loan cannot place a hold on that same book, as §7.3 states.
+- Returning a book by a member who is not its borrower fails and changes nothing.
+- When a book is returned with holds waiting, it is set aside for the first hold even if the returning member had an overdue fine.
+- getMember orders holds by the global sequence number assigned when each hold was placed, so holds keep their order across book queues.
+- getMember advances the clock and runs expiry, as §9 requires, before reading state.
+- Loans are listed in borrow order; renewals do not change a loan's position in that list.
+- When a book is borrowed by the first hold holder while other holds are waiting, the remaining holds keep their order and wait until the book is returned.
+- A payment of exactly the owed amount is allowed and brings owed to 0.
+- Renewal on the same day as borrowing is allowed and sets the due date to borrow date + 21, as §6.3 states.
+- Returning a book on time or within the grace period charges a fine of 0, and the book's state is updated the same way as for a late return.
+- A member's loans are not checked for overdue status when a return is processed; the return always succeeds if the member holds the loan.

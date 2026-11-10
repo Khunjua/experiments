@@ -1,0 +1,14 @@
+- Hold expiry is applied lazily at the start of every method that receives a date, including payFine and getMember.
+- A member who is set aside a book remains in position 1 of that book's hold line until they borrow it or the hold expires.
+- If a set-aside window has already lapsed for several members by the time of a call, the expiries chain, each adding 3 days to the previous readyUntil.
+- Unknown member or book IDs make an action return { ok: false }.
+- Duplicate addBook or addMember returns { ok: false } and changes nothing.
+- A member who owes 1000 cents or more cannot borrow, even a book set aside for them.
+- Returns are allowed regardless of how much the member owes; the fine is added to owed.
+- A fine is charged only when the return is 3 or more days late, at 25 cents per late day, capped at 500.
+- A renewal on the due date is allowed; a renewal after the due date is refused.
+- Any hold in line on the book, including one for a set-aside member, blocks renewal.
+- payFine requires an integer amount greater than 0 and not greater than what is owed.
+- getMember for an unknown member returns empty loans and holds with owed 0.
+- A hold on a book that is set aside for the member's own turn is refused as a duplicate, since they are already in line.
+- A member who holds a book already set aside for someone else can join the line behind them, so the line can be longer than one person.

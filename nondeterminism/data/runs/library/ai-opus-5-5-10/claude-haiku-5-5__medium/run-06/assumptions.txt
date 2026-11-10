@@ -1,0 +1,13 @@
+- Dates are validated for years 0000–9999 using proleptic Gregorian rules; a due or pickup date that moves past 9999-12-31 is still output with its full digits rather than rejected.
+- Malformed or missing arguments and invalid date formats are rejected before the clock is touched (step 1 of §3.6); calls that fail a business rule still advance `lastDate` and run time processing.
+- A non-integer `amount` in payFine is treated as an input-format failure (step 1), while `amount` < 1 and `amount` > owed are business-rule failures (step 4).
+- getMember for an unknown member still advances the clock and runs time processing before failing, consistent with the general validation order.
+- Null or non-object argument objects are treated as empty objects, so the call fails without changing state.
+- Any non-empty string is a valid ID, including strings with whitespace, since trimming is forbidden and no other format is specified.
+- The fine cap of 1000 applies to each loan separately; a member's `owed` may exceed 1000 by accumulating several capped fines.
+- Overdue loans count toward the 5-loan maximum, and an overdue loan blocks borrowing even when the new book is the one set aside for that member.
+- A returned book with a non-empty queue is set aside for the first member with `readyUntil` = return date + 7, and the return call's own time processing runs before that assignment.
+- Hold position is the hold's index in the book's queue plus one, and placing a hold on a book on loan to someone else is allowed.
+- Holds are ordered for getMember by a global placement sequence number, and loans are ordered by Map insertion, which matches creation order because renewals update in place.
+- Each public method is wrapped so that an unexpected exception returns `{ ok: false, reason: 'internal error' }`; this path is not expected for well-typed input.
+- Failure `reason` strings are free-form descriptive text and are not part of the contract.

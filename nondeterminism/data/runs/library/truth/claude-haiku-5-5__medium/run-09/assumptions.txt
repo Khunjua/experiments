@@ -1,0 +1,22 @@
+- Unknown bookId or memberId makes borrow, returnBook, renew, placeHold and payFine return { ok: false }; getMember for an unknown member returns empty loans, holds and owed 0.
+- addBook and addMember with an existing id return { ok: false } and change nothing.
+- Lapse of a set-aside is applied lazily, at the start of every method call, using that call's date.
+- A set-aside lapses when the call date is after readyUntil; the next member's readyUntil is the old readyUntil + 3 days, chained if several lapse in one gap.
+- A member whose set-aside lapses is removed from the line entirely; they are not moved to the back.
+- Returning a book with a non-empty hold line sets it aside for position 1 with readyUntil = return date + 3.
+- Returning a book with no holds leaves it free for anyone.
+- Fine for a return: late days = return date minus due date; 0 if late days is 2 or fewer; otherwise late days × 25, capped at 500.
+- Fines are added to owed at return time, even if the member has other overdue loans.
+- A member with an overdue loan may still borrow, return, place holds and pay fines; only the stated rules restrict borrowing.
+- Borrowing is refused when owed is 1000 or more, or when the member already has 5 loans; the set-aside remains in place when borrowing is refused.
+- Borrowing a set-aside book removes the member from the line, so later members move up one place.
+- Renewal is refused when any hold (including the set-aside member) exists; it is not refused for outstanding fines.
+- Renewal is refused only when the call date is after the due date; renewing on the due date is allowed.
+- placeHold is refused when the book is free on the shelf, when the member has it on loan, or when the member is already in the line.
+- placeHold on a book set aside for someone else is allowed and gives the next position in line.
+- payFine refuses non-integer amounts, amounts of 0 or less, and amounts above the balance owed.
+- getMember lists loans and holds in the order books were added with addBook.
+- getMember readyUntil is non-null only for the member whose hold is currently set aside.
+- Returning a book that is not on loan to that member is refused and charges nothing.
+- Date strings are assumed to be valid 'YYYY-MM-DD' values; no validation is performed.
+- Refusal results return only { ok: false } plus the default field value where the interface names one (fine: 0 for returnBook).

@@ -1,0 +1,19 @@
+- Argument objects that are arrays are rejected as invalid input.
+- Rejection `reason` values use the suggested codes from section 13, with BAD_AMOUNT also used for an overpayment.
+- For dated calls, the date is checked first. A malformed date rejects without moving the clock. A valid date not earlier than the clock moves the clock even if IDs or amount are then found invalid or the call is otherwise rejected.
+- The out-of-order check runs before ID validation, so a call with an out-of-order date is rejected with DATE_OUT_OF_ORDER regardless of other arguments.
+- Catch-up expirations run for every dated call that passes the date check, including calls later rejected for business reasons. A call rejected for an out-of-order date runs no catch-up.
+- A set-aside hold with readyUntil R expires at the start of R+1 only if the current call date is at least R+1, so a call on day R still sees the book set aside.
+- Each expiration cascades. The next hold's window starts on the day the book became free (R+1) and runs 7 days, so its readyUntil is R+8.
+- Loans and holds share one counter for ordering. getMember lists loans and holds by creation order across all books.
+- readyUntil is shown only for the first hold in a line when the book is currently set aside, and only for the member holding that hold.
+- Position 1 is reported for a set-aside hold, and positions are reported for every waiting hold.
+- Empty string IDs are invalid. Other strings, including whitespace-only strings, are accepted as IDs and compared exactly.
+- A date with a year of 0000 is accepted as a valid proleptic Gregorian date.
+- Amount validation (type and range) runs before the member existence check in payFine, following the rule order in section 12.
+- A dated call with a valid, not-earlier date that returns an error still leaves all state unchanged apart from the clock and catch-up.
+- Overdue returns are charged on the day of return, using the difference in calendar days between the due date and the return date, capped at 500 cents.
+- A book that is set aside but whose pickup has lapsed is handled by catch-up before any call, so no call sees an expired set-aside.
+- Holds can be placed on a book that is set aside for another member, provided the rules in section 9.1 pass.
+- A try/catch wrapper returns INVALID_INPUT if an unexpected exception occurs, for example from a throwing property getter on the argument object.
+- addBook and addMember do not depend on or change the clock.

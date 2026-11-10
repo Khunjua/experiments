@@ -1,0 +1,27 @@
+- Loan period is 21 days; due date is borrow date plus 21 days.
+- Borrowing is not blocked by unpaid fines or by how many books a member already has.
+- A book with a pending hold can be borrowed only by the member it is set aside for; otherwise borrowing is refused.
+- Renewal adds 21 days to the current due date, allowed at most 2 times per loan, counted from 0 at borrow.
+- Renewal is refused if the loan is overdue (date after due date); renewing on the due date itself is allowed.
+- Renewal is refused whenever anyone is waiting for the book, including a member the book is set aside for.
+- Fine grace: no fine for returns up to 3 days after the due date; after that, 25 cents for each additional day.
+- Fine per loan is capped at 1000 cents.
+- A fine is added to the member's owed amount at the time of return.
+- Holds are allowed only on books that are on loan or already set aside; holds on free books are refused (borrow instead).
+- A member cannot hold a book they currently have on loan, nor hold the same book twice.
+- The waiting line is first-in, first-out; the member the book is set aside for counts as position 1.
+- When a book is returned and someone is waiting, it is set aside for the first in line with a pickup window of 7 days inclusive, starting on the return date.
+- Picking up a set-aside book (borrowing it within the window) removes that member's hold and starts a normal 21-day loan.
+- If a pickup window expires unclaimed (readyUntil is before the current date), that member loses their place; the next in line gets a 7-day window starting the day after the expired window ended, repeating as needed; if the line is empty the book becomes available.
+- Expiry is applied lazily at the start of every call, using that call's date.
+- readyUntil is null for members waiting in line and for holds on books not set aside for them.
+- getMember lists loans and holds in the order books were added to the library, and holds for one book in queue order.
+- getMember for an unknown member returns an empty result (no loans, owed 0, no holds) rather than { ok: false }.
+- payFine accepts only positive integer amounts not exceeding the amount owed; overpayment is refused, partial payments are allowed.
+- addBook and addMember refuse duplicate ids and ids that are undefined or null; any other value is accepted as an id.
+- returnBook succeeds only for the member who holds the active loan of that book.
+- renew, returnBook, and placeHold refuse unknown members or books.
+- Dates are assumed valid and non-decreasing; no date validation is performed.
+- Date arithmetic uses UTC day counts so that no time zone or daylight-saving effects occur.
+- A member has no limit on the number of books they may borrow or hold.
+- Renewing does not change the original borrow date and has no effect on fines already accrued.

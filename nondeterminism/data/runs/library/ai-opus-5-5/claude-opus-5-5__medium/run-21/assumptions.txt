@@ -1,0 +1,13 @@
+- A dated call whose date is valid and not earlier than the current date advances the clock and runs hold expiry even if other arguments are invalid. Expiry depends only on the date, so the visible outcome is the same either way.
+- addBook and addMember are undated. They neither read nor change the clock.
+- Date arithmetic uses an exact integer proleptic-Gregorian day-count algorithm instead of Date.UTC. It is equivalent to UTC day counting, avoids Date.UTC's mapping of years 0–99 to 1900–1999, and is unaffected by time zones and DST.
+- Computed dates (due dates, readyUntil) past 9999-12-31 are still produced and formatted with the year as-is (5 digits). The call does not fail.
+- An argument that is not an object (null, undefined, a primitive) is treated as having all fields missing, so the call returns { ok: false }.
+- Any unexpected exception, such as a throwing getter on the argument object, is caught and returns { ok: false }. Field values are read before any state changes.
+- Failure results include a "reason" string.
+- Successful addBook and addMember return exactly { ok: true }.
+- getMember on success also includes ok: true, as shown in §9.
+- Borrowing a book set aside for the member also succeeds when it is the member's own ready hold, subject to all other borrow rules. The hold stays if borrowing is blocked.
+- A member whose book is set aside for them cannot place another hold on it, because they already hold it.
+- The overdue check for borrowing considers all of the member's current loans, using strict dueDate < date.
+- Hold positions are computed fresh from the book's current queue each time getMember is called.

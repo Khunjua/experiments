@@ -1,0 +1,16 @@
+- Hold expiration runs whenever the argument is an object with a valid date, even if memberId, bookId, or amount is malformed; only a bad date or non-object argument skips it.
+- Any exception from reading an argument (for example a throwing getter) is caught and returns { ok: false } with no state change.
+- Dates are handled as day numbers from 1970-01-01 UTC; arithmetic that would pass 9999-12-31 is not specially handled and may produce an invalid date string.
+- Year 0000 is accepted as a valid year using the proleptic Gregorian calendar.
+- Backwards dates are not rejected; they are processed with the same arithmetic.
+- A hold may be placed on a book that is on loan, including a loan to another member, and the hold is appended to the queue.
+- A member cannot place a hold on a book they currently have on loan (rule 3 of placeHold).
+- A member can borrow a book that is set aside for them even if their loan limit or other rules would otherwise apply, as long as the normal borrow rules pass; the hold is removed on borrow.
+- Active holds for the 5-hold limit include set-aside holds.
+- Holds are listed in getMember in global placement order, tracked by a shared sequence counter.
+- readyUntil is null for any hold that is not set aside for that member (position 1 on a set-aside book).
+- A book on loan with a non-empty queue keeps its queue; when returned, it is set aside for the first queued member with start = return date and readyUntil = return date + 7.
+- Renewal fails when the book's hold queue is non-empty, even if that hold has not been set aside yet.
+- Loans in getMember are sorted by numeric due day, which matches sorting the YYYY-MM-DD strings, then by bookId using JavaScript < and > comparison.
+- getMember returns freshly built arrays and objects, so caller mutation cannot change library state.
+- The optional reason field is omitted from all failure results.

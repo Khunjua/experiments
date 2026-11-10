@@ -1,0 +1,10 @@
+- If a call has a valid date that is not earlier than the current date, the clock advances and hold expiry runs even when other arguments are invalid or the call fails. Expiry results depend only on dates, so this produces the same state as running expiry at the next call.
+- A non-object or null argument fails without touching the clock. If reading a field throws (for example, a throwing getter), the call returns { ok: false }.
+- addBook and addMember are undated. They do not touch the clock or run expiry.
+- The clock is checked and advanced before the identifiers are validated. When an earlier date and an invalid ID both occur, the result is { ok: false } either way.
+- Due dates, readyUntil dates and expiry chains that go past 9999-12-31 are still computed. They are formatted with a year of more than 4 digits instead of failing the call.
+- A renewal's new due date is max(old due date, date + 21). Because calls arrive in date order, this always equals date + 21.
+- A ready hold that expires is removed silently. It is not recorded in the member's history and imposes no penalty.
+- On failure, borrow, returnBook, renew, placeHold and payFine return only { ok: false }, with no dueDate, fine, position or owed fields.
+- The amount in payFine must be of type number. Numeric strings and BigInt are invalid.
+- In getMember, a hold's position is always 1 or more, because removed holds are also removed from the member's hold list.

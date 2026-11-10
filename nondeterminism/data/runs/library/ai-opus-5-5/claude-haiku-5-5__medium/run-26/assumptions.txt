@@ -1,0 +1,22 @@
+- Date arithmetic is done on UTC day numbers; a date string is parsed by checking the regex, the year range 0001 to 9999, and a round-trip through a UTC Date (using setUTCFullYear so years 0001 to 0099 are not shifted).
+- A call with an invalid or missing date, or an invalid argument object, does not advance the current date.
+- A dated call with a valid date that is not earlier than the current date advances the current date, even if the call then fails for a business reason (as §3.3 says).
+- Hold expiry is applied for every dated call, including getMember and payFine, before any rule is checked.
+- A ready hold expires when its readyUntil is strictly earlier than the call date; a hold with readyUntil equal to the call date is still pickable.
+- Expiry chains that would push a next readyUntil past 9999-12-31 clear that book's remaining queue, leaving the book available.
+- Any computed due date or readyUntil that would fall after 9999-12-31 makes borrow, renew, placeHold or returnBook fail with no change.
+- Identifiers must be strings of length at least 1; any other type fails.
+- Argument objects that are null, non-objects, or missing are treated as invalid input and return { ok: false }.
+- A book's state is kept as one active loan (or none) plus a queue; the queue head is the set-aside hold whenever the book is not on loan and the queue is non-empty.
+- Waiting holds (not set aside) carry no readyUntil; readyUntil is only assigned to the queue head when the book is not on loan.
+- Member holds are ordered across books by a global placement sequence number, so getMember lists them oldest first.
+- A member's active holds count includes both waiting and ready holds.
+- The overdue check for borrow looks at all of the member's current loans, using dueDate < date.
+- Borrowing a book that is set aside for this member succeeds only if all other borrow rules pass; if a rule blocks it, the hold stays and no state changes.
+- Fine on return is computed from day numbers, with daysLate = max(0, date − dueDate), and is capped at 500 cents per return.
+- A returned book with waiting holds gets readyUntil = return date + 7 for the new head hold, regardless of whether the return was late.
+- Money owed has no upper bound beyond the cumulative fines; owed is not capped.
+- payFine rejects non-integer amounts, zero, and negative amounts, and does not change the clock on those invalid inputs.
+- getMember on an unregistered member still advances the current date (if the date is valid and not earlier) and processes expiry before failing.
+- Renewal requires the date to be on or before the due date (not overdue), and the new due date is date + 21, which is never earlier than the old due date given that rule.
+- The failure result is always exactly { ok: false }; no reason field is added.

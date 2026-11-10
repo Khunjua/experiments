@@ -1,0 +1,12 @@
+- A missing or non-object argument is treated as an empty object, so it fails ID or date validation.
+- Hold expiry (advance) runs whenever the date is valid, even if an ID is invalid or the member or book is unknown, following the literal order in §5.1.
+- Hold expiry runs before the ID checks, so the same validity rules apply as in §5.1 step 1.
+- Reason strings are my own wording; callers ignore them.
+- Hold placement order is tracked with a library-wide sequence counter, and getMember sorts holds by it.
+- readyUntil is reported only for the first queue entry when the book is reserved; all other holds report null.
+- A book stays in loaned status after a pickup even when other members are still waiting in its queue.
+- The overdue check in borrow uses a strict comparison, so a loan due on the current date is not overdue.
+- Year 0000 is accepted as a valid year (proleptic Gregorian calendar).
+- Dates computed beyond year 9999 are formatted with more than four digits; such dates are not accepted as input.
+- Returned loans, holds and dates are always newly constructed objects or strings, so callers cannot mutate library state.
+- In getMember, loans are listed in creation order, which is the order they were pushed into the member's loan array.

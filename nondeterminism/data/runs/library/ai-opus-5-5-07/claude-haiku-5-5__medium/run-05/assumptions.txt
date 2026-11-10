@@ -1,0 +1,16 @@
+- Year 0000 is accepted as a valid date, since the Gregorian calendar is treated as proleptic and the regex allows it.
+- Dates produced past year 9999 (from long loans or holds) are formatted with more than four digits; no clamping is applied.
+- Expiry processing runs over all set-aside books on every dated call, not only the books involved in the call.
+- Any unexpected exception is caught and returned as { ok: false }; all validation happens before any state change, so a caught exception leaves state unchanged.
+- A return before the due date (or within the grace period) yields a fine of 0; a negative late count is never charged.
+- readyUntil is null for books that are available or on loan.
+- A book set aside for a member keeps the rest of its hold line; when the reserved member is removed by expiry, the next member becomes reserved with the extended readyUntil.
+- Loans are listed in the order they were borrowed; holds are listed in the order they were placed; a hold removed by borrowing or expiry is dropped from the member's list.
+- A loan due on the call date is not overdue (overdue means dueDate < date).
+- Pickup is allowed on the readyUntil day itself; the hold expires only when the date is after readyUntil.
+- Returning a book when the hold line is non-empty sets it aside for position 1 with readyUntil = return date + PICKUP_DAYS.
+- payFine with an amount equal to owed is allowed and brings owed to 0.
+- When the date is valid, expiry runs even if memberId, bookId or amount is invalid, and even if getMember is called for an unknown member.
+- Extra fields in argument objects are ignored, and non-object arguments are treated as empty objects, which causes the call to fail.
+- Renewal's new due date is date + LOAN_DAYS, which is never earlier than the old due date because calls arrive in time order.
+- Methods that fail return a fresh { ok: false } object with no reason field.

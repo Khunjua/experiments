@@ -1,0 +1,28 @@
+- Loan period is 21 days from the borrow date; due date is borrow date + 21.
+- A renewal sets the new due date to renewal date + 21 days.
+- A member can renew at most 2 times per loan.
+- Renewal is refused if the book is overdue (renewal date is after the due date).
+- Renewal is refused if any hold (including a ready one) is waiting for the book.
+- Late fine grace period is 3 days: no fine if returned on or before due date + 3.
+- Fine is 25 cents for each day beyond the grace period, capped at 1000 cents per loan.
+- Fines are charged only at return time and added to the member's owed balance.
+- A returned book with waiting holds is reserved for the first person in line, who has 7 days to pick it up (readyUntil = return date + 6).
+- If a reserved hold expires unclaimed, it is dropped and the next person in line gets a 7-day window starting the day after the expired readyUntil; if nobody is waiting, the book becomes available.
+- Expirations are processed lazily at the start of every method call, using the call's date.
+- Only the member holding the ready reservation can borrow a reserved book, and only up to and including readyUntil; others are refused.
+- Placing a hold is allowed only when the book is on loan or reserved; a hold on an available book is refused.
+- A member cannot place a hold on a book they currently have on loan, or one they are already waiting for.
+- A member cannot borrow a book they already have on loan.
+- A book can be borrowed only if it is not on loan.
+- A hold's position is its place in the queue, where a ready reservation is position 1.
+- Holds placed on a reserved book are appended to the queue; a new hold's returned position is the queue length after insertion.
+- There is no limit on the number of books a member can borrow.
+- Members with unpaid fines are not blocked from borrowing, renewing, or placing holds.
+- payFine accepts only positive integer amounts not exceeding the amount owed; partial payments are allowed.
+- Duplicate addBook or addMember calls return { ok: false }.
+- Unknown book or member IDs return { ok: false } from every method.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }; the extra ok field is included.
+- getMember lists loans and holds in the order books were added.
+- Returning a book that is not on loan to that member returns { ok: false, fine: 0 } and changes nothing.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings in non-decreasing order, as the interface guarantees.
+- Any non-null, non-undefined value is accepted as a bookId or memberId.

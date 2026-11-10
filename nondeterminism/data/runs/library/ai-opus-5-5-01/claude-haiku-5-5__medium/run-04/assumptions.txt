@@ -1,0 +1,17 @@
+- An argument counts as an object only if it is non-null, not an array, and not a function.
+- An invalid_input failure changes nothing, including the remembered latest date.
+- A call's date is recorded as the latest date only if it passes input validation and the time-order check.
+- The expiry rule runs only for calls that pass the time-order check. Out-of-order calls change nothing.
+- Dates are converted to UTC day numbers; years are set with setUTCFullYear so years 0000–0099 are not shifted to 1900+.
+- Date strings must be exactly YYYY-MM-DD with ASCII digits; non-string dates are invalid_input.
+- A member's loans are kept in creation order; returning a loan removes it and keeps the order of the rest.
+- Holds in getMember are ordered by a global placement sequence number, not by book insertion order.
+- readyUntil is null for every queued member except the one at position 1 of a set-aside book.
+- A book's borrower is cleared when it is returned, whether it becomes available or set aside.
+- Fines are computed only on return, capped at 500 cents per loan; overdue loans accrue nothing until returned.
+- payFine checks amount validity before date order, and date order before the member lookup.
+- Each method is wrapped in try/catch so that hostile input (such as throwing getters) returns invalid_input without throwing.
+- Expiry is applied for calls that fail business rules, but not for calls that fail input validation or the time-order check.
+- A call with an unknown member or unknown book but a valid, in-order date still records that date and applies expiry.
+- getMember's holds entries include only books whose queue contains the member; the loans list is a fresh copy.
+- Books and members are stored in Maps so that ids such as "__proto__" or "constructor" are handled as ordinary strings.

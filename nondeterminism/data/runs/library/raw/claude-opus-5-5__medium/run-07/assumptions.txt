@@ -1,0 +1,24 @@
+- Each bookId is a single physical copy.
+- IDs must be non-empty strings or finite numbers; adding a duplicate bookId or memberId returns { ok: false }.
+- The loan period is 21 days, so dueDate = borrow date + 21 days.
+- Returning a book on its due date is on time. Each day after the due date costs 25 cents.
+- "Not harsh" means the fine for a single loan is capped at 1000 cents ($10). There is no extra grace period.
+- Fines are added to the member's owed balance when the book is returned, not while it is still out.
+- A loan can be renewed at most 2 times ("a couple").
+- A renewal sets the due date to the renewal date + 21 days. The due date never moves earlier.
+- A renewal is refused if anyone is waiting for the book, including a member it is set aside for.
+- An overdue loan cannot be renewed; the member has to return it.
+- A member can have at most 5 books on loan at once.
+- A member who owes 1000 cents or more cannot borrow or renew.
+- A hold can be placed only on a book that is out or already set aside for someone else. A hold on a book sitting on the shelf is refused.
+- A member cannot hold a book they currently have, or a book they already hold.
+- Holds are served first come, first served. Position 1 is the next member, or the member the book is set aside for.
+- When a book with holds is returned, it is set aside for the first member. They can pick it up through return date + 7 days (readyUntil).
+- If the first member does not pick it up by readyUntil, their hold is dropped. The book is then set aside for the next member until the old readyUntil + 7 days, and so on.
+- While a book is set aside, only that member can borrow it. Borrowing it fulfils and removes their hold.
+- Members cannot cancel holds; the interface has no method for it.
+- payFine requires a positive integer amount no larger than what is owed. Overpayment is refused.
+- Invalid dates, or unknown members or books, return { ok: false }.
+- getMember for an unknown member or invalid date returns { ok: false, loans: [], owed: 0, holds: [] }.
+- getMember lists loans in borrow order and holds in the order the books were added to the library.
+- Hold expiry is worked out from the date of each call, since calls arrive in time order.

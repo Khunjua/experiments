@@ -1,0 +1,8 @@
+- A call whose argument is not an object, or whose date is invalid, does not touch the clock. A call with a valid, non-earlier date advances the clock and runs hold expiry even if its other fields are invalid or a business rule fails.
+- Dates are compared as strings once validated, since the fixed-width format sorts the same as calendar order. Date arithmetic uses UTC day numbers.
+- Adding days past year 9999 is not guarded. The result is formatted without error.
+- `payFine` checks the amount type and sign after the member lookup. All failures return the same `{ ok: false }` plus a reason, so the order does not matter.
+- A member's holds list keeps placement order. A hold is removed when it is fulfilled by borrowing or when it expires.
+- `readyUntil` in `getMember` is non-null only when the member's hold is at position 1 and the book is not on loan.
+- A member who borrows a book set aside for them has that hold fulfilled only after all borrow checks pass.
+- Fine amounts and the owed balance are plain numbers. The result of `payFine` on a failed call includes no `owed` field.

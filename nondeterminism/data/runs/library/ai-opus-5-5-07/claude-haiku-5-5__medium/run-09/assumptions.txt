@@ -1,0 +1,19 @@
+- Year 0000 is accepted as a valid year (proleptic Gregorian), so leap-year rules apply to it.
+- Dates that go past year 9999 are formatted with more than four year digits, without any special handling.
+- Failure results contain only `ok: false`, with no `reason` field.
+- Expiry processing runs for a dated call whenever its date is a valid date string, even if the other inputs are invalid. If the date is invalid, no expiry runs.
+- For getMember, expiry runs before the memberId is checked, under the same date rule.
+- Any exception thrown while processing a call (for example from a malicious getter on the argument object) is caught and returned as `{ ok: false }`, with no state change.
+- IDs are valid if they are non-empty strings. Whitespace-only strings count as valid IDs.
+- Extra properties on argument objects are ignored.
+- A set-aside book has `readyUntil` set; a book on loan has none.
+- When a book is borrowed by the member it is set aside for, that member's hold is removed and the other holds shift up. Any other member's hold is never removed by a borrow.
+- A book set aside for member A cannot be borrowed by member B, and this is checked even when A's hold is still pending.
+- Renewal date is `date + LOAN_DAYS`, counted from the renewal date and not from the old due date. The spec guarantees this is never earlier than the old due date.
+- Returning a book before its due date charges no fine. Its late-day count is treated as 0.
+- Returning a book when the hold line is non-empty sets it aside for the new position 1 with `readyUntil = return date + PICKUP_DAYS`.
+- A member cannot place a hold on a book they currently have on loan. This follows from the placeHold rules, and no separate check is added.
+- The `loans` array in getMember includes overdue loans and lists them in the order they started.
+- The `holds` array in getMember lists holds in the order they were placed. A member's `position` is computed from the current hold line.
+- Expiry processing repeats within one call when several set-aside periods have elapsed, so a single call can expire multiple holders in a row.
+- Each library object keeps its own private state, and nothing is shared between libraries.

@@ -1,0 +1,14 @@
+- Adding a book or member whose id already exists is refused with ok: false.
+- Any method with an unknown member or book returns ok: false; getMember for an unknown member returns empty loans and holds and owed 0.
+- Hold expiry is applied lazily at the start of every call, using that call's date. A set-aside book expires when the call date is later than readyUntil.
+- If several set-aside windows have already lapsed by the call date, they cascade, each next window being the previous readyUntil + 3 days.
+- The member the book is set aside for stays in position 1 of the hold line, and their readyUntil is reported in getMember.
+- Other members' holds on a set-aside book are reported with readyUntil null.
+- A member who is set aside a book counts as already holding it, so they cannot place a second hold on it.
+- Renewal is refused whenever any hold exists on the book.
+- The fine is added to owed at return time, and owed is not reduced by anything other than payFine.
+- Fines are charged on a return even if the member owes 1000 or more.
+- payFine requires an integer amount greater than 0 and at most owed. Paying when owed is 0 is refused.
+- The 5-loan limit and the 1000-cent owed limit are checked at borrow time only.
+- A book set aside for a member who hits one of those limits stays set aside until it expires.
+- Date strings are assumed valid and are not validated.

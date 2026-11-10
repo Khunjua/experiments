@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused with ok false and changes nothing.
+- Operations on unknown members or books return ok false.
+- getMember for an unknown member returns empty loans and holds and owed 0.
+- Set-aside expiry is applied lazily at the start of every call, using that call's date, including calls that end up refused.
+- A set-aside book stays "set aside" through readyUntil inclusive, and the hold drops on the first day after it.
+- If several set-aside periods have lapsed between calls, they cascade, each next period being the old readyUntil + 3 days.
+- The member a book is set aside for stays at position 1 in the hold line until they borrow it or it expires.
+- A member may place a hold on a book set aside for another member, and joins the end of the line.
+- The member that the book is set aside for cannot place a second hold on it, because they are already in the line.
+- A member with the book on loan cannot hold it, even if it is also set aside.
+- Holds are not refused for members who owe money.
+- A renewal is refused if any hold exists on the book, including a hold by the borrower's own queue entry.
+- The fine is 25 × late days, applied only when late days ≥ 3, and capped at 500.
+- payFine requires an integer amount, and a payment of 0 or less is refused.
+- Borrow limit and fine checks use the state at the time of the call, so owing exactly 1000 blocks borrowing.
+- A borrower who owes 1000 or more cannot borrow even the book set aside for them.
+- A book with a set-aside reservation cannot be borrowed by anyone else, even if the line is otherwise unused.

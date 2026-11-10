@@ -1,0 +1,19 @@
+- Arguments that are not non-null objects are treated as invalid and fail with no effect.
+- Invalid identifiers, invalid dates, and invalid amounts fail with no effect and do not advance the clock.
+- A valid date earlier than the current date fails with no effect and does not advance the clock.
+- A valid, non-earlier date advances the clock and runs hold expiry even when the call then fails for a business reason, including when the member or book is unregistered.
+- Hold expiry runs across every book in the library on each accepted dated call, not only the books involved in that call.
+- Dates computed past 9999-12-31 (for example through due dates or readyUntil) are still calculated and formatted with more than four digits. The 9999 limit applies only to input dates.
+- Date arithmetic uses an internal proleptic Gregorian day count, not the JavaScript Date object, so no time zone or DST effects occur.
+- Identifiers are stored in Map keys, so values such as "__proto__" are ordinary IDs.
+- `position` for a waiting hold is its index in the queue plus 1, counting the ready hold at position 1 when the book is set aside.
+- `readyUntil` is null for any hold that is waiting, or for any hold on a book that is on loan.
+- A member's active-hold limit and duplicate-hold check use the member's own list of bookIds with holds, which is updated on placement, pickup, and expiry.
+- Picking up a ready hold removes it from the member's hold list, and the remaining holds keep their order.
+- Loans are listed in borrow order, and renewals do not change that order.
+- Renewal on the due date itself is allowed, since only dates after the due date count as overdue.
+- The overdue check during borrowing compares each current loan's due date against the call's date.
+- Fines are added to `owed` with no cap on the total balance, only the per-return cap.
+- Fresh objects and arrays are returned from getMember, and no internal state is exposed.
+- addBook and addMember take no date, so they do not affect the clock or run expiry.
+- No try/catch wrapper is used, because all validation happens before any state changes.

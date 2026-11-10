@@ -1,0 +1,8 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if other arguments (ids, amount) are invalid or the member/book is unknown.
+- If the argument object is missing or the date is invalid, nothing changes, including the clock.
+- Hold expiry is checked by string comparison of dates, which is safe because the format is fixed-width.
+- A book is "set aside" when it is not on loan and its queue is non-empty. `readyUntil` is stored per book and is only reported for the first hold in the queue.
+- `getMember` reports `readyUntil` as null for holds on books that are on loan or not first in line.
+- `addBook` and `addMember` do not use or advance the clock because they take no date.
+- Failed calls include a short `reason` string, which callers ignore.
+- Days late are computed by rounding the UTC millisecond difference to whole days.

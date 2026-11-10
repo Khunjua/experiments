@@ -1,0 +1,16 @@
+- Arguments that are arrays, null, or non-objects are treated as invalid and return a failure.
+- A valid id is any string with length greater than 0. No trimming or character restrictions are applied.
+- Dates use the proleptic Gregorian calendar, so year 0000 is accepted and leap years follow the 400-year rule.
+- Dates past year 9999 (produced by adding days) are formatted with more than four digits. No upper limit is enforced.
+- For dated calls, the clock advances and expirations are processed even when the member or book does not exist, because §3.5 orders these steps before the business checks.
+- Any unexpected exception is caught and returned as a failure. All argument reads happen before any state change, so the state is unchanged in that case.
+- `amount` must be a safe integer greater than 0 and is checked before the date and clock. A zero or negative amount fails.
+- `owed` has no upper cap. Fines add to it without limit.
+- Loans are stored on the book record. A member's loan list is derived by scanning books, ordered by borrow date and then by a global loan sequence number.
+- Holds are stored in each book's queue. A member's hold list is derived by scanning queues, ordered by a global placement counter.
+- When a ready hold is consumed by `borrow`, the remaining holds keep `readyUntil` null. Only the head of a queue can hold a non-null value.
+- When a hold is placed, the member's own ready hold on the same book counts as an existing hold, so the placement fails.
+- `renew` is allowed when the date equals the current due date. It fails only when the date is later than the due date.
+- Expiration processing runs repeatedly over all books until no book changes, so chained expirations resolve within one gap.
+- Failure `reason` strings are arbitrary, since the contract does not define them.
+- Fine computation and the 500-cent cap are applied exactly as specified. Fines are added to `owed` at return time only.

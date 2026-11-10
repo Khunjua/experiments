@@ -1,0 +1,13 @@
+- A dated call advances the clock and processes hold expiry only if its argument object, identifiers and date are all well-formed. Malformed input (bad types, missing fields, bad date) changes nothing, including the clock.
+- An invalid payment `amount` with otherwise well-formed arguments counts as invalid input for result purposes. The clock and expiry still advance, because they are processed before the amount is checked.
+- Business failures (unregistered member or book, rule violations) still advance the clock and process expiry, as §3.3 states.
+- addBook and addMember are undated. They do not touch the clock or expiry.
+- borrow and renew fail if the resulting due date would be after 9999-12-31.
+- readyUntil values are capped at 9999-12-31. If a capped window cannot advance, expiry stops chaining to avoid an infinite loop.
+- When a set-aside book is borrowed by its ready member, the remaining holds wait behind the new loan. They do not become ready until the book is returned.
+- borrow checks for overdue loans using the strict rule dueDate < date, so a loan due today is not overdue.
+- A hold's "readyUntil" is non-null only when its book is set aside (not on loan) and the hold is first in the queue.
+- placeHold fails if the member already has any hold on the book, including the ready one. Placing a hold on a book set aside for someone else is allowed.
+- Dates are converted to day numbers with UTC Date objects using setUTCFullYear, so years 0001–0099 are handled correctly.
+- Failure results include an informational "reason" string.
+- Each borrowed copy keeps a single loan record. The member's loans list preserves borrow order, oldest first.

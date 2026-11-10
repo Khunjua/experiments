@@ -1,0 +1,17 @@
+- A bad or non-integer `amount` type is treated as a step-1 argument failure, so it does not advance the clock; `amount` < 1 and `amount` > owed are business-rule failures that do advance the clock.
+- A call with an unknown member or book still advances the clock and runs time processing, because the existence check is a business rule that comes after step 3.
+- The date format check happens in step 1 with the other argument checks, so an invalid date never advances the clock.
+- A call with an earlier-than-lastDate date fails without advancing the clock or running time processing.
+- Years 0000–9999 are accepted, with leap-year rules applied to year 0000 (divisible by 400, so leap).
+- Output dates are formatted with `setUTCFullYear`-based day arithmetic, so no year 0–99 mapping occurs.
+- IDs are any non-empty string; whitespace is not trimmed and counts as content.
+- `placeHold` returns position as the queue length after appending, which is the 1-based place of the new hold.
+- The "hold queue is not empty" check in `renew` counts all queue entries, including a set-aside book's head.
+- The overdue check in `borrow` applies to any loan of the member, including loans on other books, as the requirements state.
+- Hold ordering across members uses a global placement counter, so holds with equal timestamps are still ordered deterministically.
+- Internal state stores the book's holder for on-loan books and derives the set-aside member from the queue head.
+- `readyUntil` for a book set aside by return is `date` + 7, and expiry only applies when the call date is strictly after `readyUntil`.
+- A member at queue position 1 whose book is on loan gets `readyUntil: null` in `getMember`.
+- Fines are charged only on return; the passage of time never changes `owed`.
+- Reason strings are fixed short phrases chosen by the implementation.
+- A per-method try/catch wrapper converts any unexpected exception into `{ ok: false, reason }`; all validation and computation happen before any state mutation, so the wrapper cannot leave partial changes.

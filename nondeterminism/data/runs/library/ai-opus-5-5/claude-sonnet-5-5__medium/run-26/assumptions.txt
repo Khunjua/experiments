@@ -1,0 +1,13 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or a business rule rejects it.
+- A call with a missing or non-object argument, or with an invalid date, does not touch the clock or expiry.
+- If `date` is valid but earlier than the current date, the call fails with no effect, and no expiry runs.
+- Date comparison uses string comparison on validated `YYYY-MM-DD` strings. This is correct because they are zero-padded.
+- `payFine` with a non-number, non-integer, unsafe or non-positive `amount` fails, but the clock still advances and expiry still runs.
+- `addBook` and `addMember` take no date and do not affect the clock.
+- A set-aside book blocked from borrowing for the member keeps its hold until pickup or expiry, as the requirements say.
+- When a book is borrowed from set-aside status, the remaining holds stay in the queue as waiting holds. Their positions move up by one.
+- A returned book with a non-empty queue is set aside for the first hold, and `readyUntil` is the return date plus 7 days.
+- `getMember` lists a hold's `readyUntil` only when the book is set aside and the member is at position 1. Otherwise it is `null`.
+- Expired holds are removed from the member's active holds, so they free up hold-limit slots.
+- A member who borrows a book on which they hold a waiting (not ready) position is not blocked from borrowing it, provided the book is available. A book with waiting holds is never available, so this case cannot occur.
+- A `reason` string is included on failures and is informational only.

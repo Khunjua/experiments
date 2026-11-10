@@ -1,0 +1,13 @@
+- A dated call with a valid, not-earlier date advances the clock and runs hold expiry even if its other arguments are invalid. It also does so when the member or book is unknown. Expiry results depend only on dates, so this has no observable effect beyond the clock safeguard.
+- A call with a malformed or earlier-than-current date does not advance the clock and does not run expiry.
+- A missing argument object, or one that is not an object (including null), makes the call fail. Arrays are treated as objects whose fields are missing, so they also fail.
+- addBook and addMember are undated, so they do not touch the clock or run expiry.
+- Computed dates that would fall after 9999-12-31 are still returned, formatted with as many year digits as needed. The call does not fail.
+- Dates are converted with UTC Date arithmetic using setUTCFullYear, so years 0001–0099 are handled correctly.
+- When a book becomes set aside on return, readyUntil = return date + 7.
+- A hold that expires or is fulfilled is removed from both the book's queue and the member's active hold list. It no longer counts toward the 5-hold limit.
+- Borrowing a book set aside for the member removes that hold and clears the book's set-aside state.
+- The overdue check for borrowing considers every current loan of the member, including books not related to the request.
+- For a new hold, `position` is the queue length after adding it. This counts the ready hold, if any, as position 1.
+- The `reason` field is never included in failure results.
+- payFine checks are done after the clock and expiry step. Expiry does not affect money.

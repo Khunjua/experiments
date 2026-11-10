@@ -1,0 +1,15 @@
+- A dated call with an invalid date is rejected without running expiry and without changing the latest date seen.
+- Expiry and latest-date updating run for any dated call with a valid, non-earlier date, even when the member or book ID is invalid or missing.
+- A missing or non-object argument is treated as an empty object, so the call fails with { ok: false } instead of throwing.
+- Failure results contain only { ok: false }, with no reason field.
+- Year 0000 is rejected even though the regex matches it; the spec's year range 0001–9999 is enforced.
+- Dates produced by date arithmetic past 9999-12-31 are formatted with a five-digit year; the library does not clamp or reject them.
+- Expiry chaining uses readyUntil = previous readyUntil + 1 + 7, literally as specified, so each new pickup window is 8 days after the previous readyUntil.
+- Expiry iterates over books in map insertion order; the spec says the result is order-independent, so this is safe.
+- A member's holds are stored as book IDs in placement order, and hold position and readyUntil are derived from book state at getMember time.
+- A set-aside hold is removed from the member's holds when the book is borrowed by that member, and when it expires.
+- GRACE_DAYS is applied as a subtraction from days late; it is 0, so it has no effect.
+- A fine is computed only when the book is returned after its due date; returning on the due date gives a fine of 0.
+- Amount for payFine must be a JavaScript number that passes Number.isInteger, so numeric strings, floats and NaN are rejected.
+- Successful getMember results omit the ok field, as the interface specifies; returned arrays and objects are freshly built on each call.
+- Books and members are stored in separate Maps, so the same ID can be used for both.

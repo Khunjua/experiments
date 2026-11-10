@@ -1,0 +1,13 @@
+- Argument fields other than the date (memberId, bookId, amount) are validated before the clock is advanced; a call with an invalid non-date field does not move the clock.
+- Date arithmetic uses integer proleptic-Gregorian day counts instead of Date.UTC, to avoid the two-digit-year quirk of Date.UTC for years 0001-0099.
+- Date results are capped at 9999-12-31 so every returned date is a valid 'YYYY-MM-DD' string.
+- Owed balances are not capped; they are integers accumulated within the safe-integer range.
+- An argument that is an array or other non-plain object is accepted as an object, then fails because it has no valid fields.
+- Any unexpected exception (for example from a hostile getter or proxy) is caught in each method and returned as { ok: false }.
+- Only the head of a queue can be ready. When a ready head is consumed by borrowing, the next hold stays waiting and its ready flag is cleared.
+- placeHold is allowed on a book that is on loan to a different member, and on a book that is set aside for a different member, since neither is Available.
+- In hold processing, when a set-aside window expires and the next hold becomes ready, its window is computed from the previous readyUntil even if that date is already past, and the loop continues until no expired ready hold remains.
+- A return by a member who does not hold the loan (book on loan to someone else, or not on loan) fails without changing state.
+- Renewal checks run in the order given in the requirements; a failed renewal leaves the clock advanced but changes nothing else.
+- getMember's loans list keeps the order in which books were borrowed; a returned book is removed from that list and a re-borrow appends it.
+- getMember's holds list is built by sorting all of the member's holds by a global placement sequence number, so the order is the order in which holds were placed.

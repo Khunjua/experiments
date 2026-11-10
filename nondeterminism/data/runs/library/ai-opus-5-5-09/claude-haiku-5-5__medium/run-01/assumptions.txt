@@ -1,0 +1,15 @@
+- Failure results use the reason strings written in the code; reason text is not part of the contract.
+- Any non-object argument (null, arrays, primitives) is treated as invalid and fails.
+- Any non-empty string is a valid id; whitespace and case are kept as-is.
+- Dates from year 0000 to 9999 are accepted if they are real proleptic Gregorian dates.
+- Argument validation (ids, date, amount) runs before the clock is touched, so a call with invalid arguments does not advance the clock or process expirations.
+- A dated call with valid arguments advances the clock and processes expirations even if its business check then fails, as §3.5 specifies.
+- getMember for an unknown member still advances the clock and processes expirations, because existence is checked after step 3.
+- Holds are stored as objects shared by the book queue and the member's hold list, and are removed from both together.
+- Loans are ordered by borrow date, with a global creation counter as the tie-breaker. Holds are ordered by a global placement counter.
+- `position` is computed from the queue at read time, so it is never stored and always reflects current shifts.
+- Renewing is allowed on the due date itself (`date` equal to `dueDate`), since only a date later than `dueDate` is rejected.
+- Returning a book that is not on loan to the given member fails and changes nothing, including the clock-driven expirations already applied.
+- A hold placed on a book that is `onLoan` to someone else is allowed even if the book's due date has already passed.
+- Expiration processing scans all books on every dated call, which is simple and correct for the sizes implied by the spec.
+- The `try/catch` guard around each method is a safety net; all state changes happen after validation and cannot throw, so a caught exception leaves state unchanged.

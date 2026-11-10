@@ -1,0 +1,21 @@
+- A loan lasts 21 days counted from the borrow date.
+- A renewal adds 21 days to the current due date, even when renewed early.
+- A member may renew a loan at most 2 times.
+- A loan cannot be renewed when it is overdue or when any member is waiting for the book.
+- A returned book is set aside for the first person in line with a 3-day pickup window that includes the return date.
+- If the set-aside member does not pick up within the window, they lose their place, no fine applies, and the next person in line gets a new 3-day window starting from the lapse date.
+- Only the member a book is set aside for can borrow it while the window is open; everyone else is refused.
+- A hold can be placed only on a book that is on loan or already set aside, not on a book sitting on the shelf.
+- A member cannot hold a book they currently have on loan or a book they already hold.
+- A member can hold a book at most once and there is no limit on how many holds a member may have.
+- Fines have a 3-day grace period after the due date. After that, the fine is 25 cents for each day beyond the grace period, so a return on day 4 late costs 25 cents.
+- Fines are capped at 1000 cents per loan.
+- Fines are added to the member's balance when the book is returned.
+- A member with an unpaid balance can still borrow, renew, and place holds.
+- A fine payment must be a positive integer and cannot exceed the amount owed; overpayments are refused rather than credited.
+- Returning a book on or before its due date is free.
+- Returning a book that the member does not currently have on loan returns { ok: false } with no fine.
+- Adding a duplicate book or member returns { ok: false }.
+- Expired set-aside windows are checked lazily, using the date of each call, before that call is processed.
+- getMember for an unknown member returns an empty result (no loans, owed 0, no holds) instead of { ok: false }.
+- Dates are valid 'YYYY-MM-DD' strings, and day arithmetic is done in UTC so it is free of time-zone effects.

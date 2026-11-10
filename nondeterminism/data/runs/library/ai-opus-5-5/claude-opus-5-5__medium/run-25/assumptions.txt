@@ -1,0 +1,14 @@
+- A call with a structurally invalid argument (missing argument object, wrong-type or empty ID, malformed date, non-object argument) changes nothing at all: it does not advance the clock and does not process hold expiry.
+- A call whose arguments are well-formed but which fails for a business reason (unknown member or book, rule violation, invalid payment amount) still advances the clock and processes hold expiry, as §3.3 describes.
+- For payFine, an invalid `amount` is checked after the clock update, so it counts as a business-level failure. This is not observable, because expiry is deterministic in time.
+- addBook and addMember are undated. They neither read nor change the clock and do not process expiry.
+- A date earlier than the current date is rejected before expiry processing, and nothing changes.
+- The renewal due date is max(old due date, date + 21). Under the stated rules this always equals date + 21.
+- Computed due dates and readyUntil dates past year 9999 are not rejected. They are formatted with the full year, which may have more than 4 digits.
+- Hold expiry only applies to set-aside books, meaning books not on loan that have a readyUntil. Waiting holds on a book that is on loan never expire.
+- "Order placed" for holds in getMember uses a global placement counter across all books.
+- getMember returns `ok: true` alongside loans, owed and holds, as shown in §9.
+- Failure results include a `reason` string.
+- Fine computation assumes a loan's due date is always on or before the return date difference used. Negative lateness is treated as 0.
+- placeHold fails if the book is set aside for the same member, because that is an existing hold.
+- Unknown extra fields are ignored. Argument values are read directly from own or inherited properties of the argument object.

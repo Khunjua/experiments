@@ -1,0 +1,12 @@
+- For a dated call, if the argument object exists and the date is valid and not earlier than the current date, the clock advances and hold expiry runs before the other fields are validated. This happens even if other fields are invalid. Expiry depends only on the date, so running it early gives the same result as running it later.
+- If the argument object is missing or not an object, or the date is invalid or earlier than the current date, nothing changes at all, including the clock.
+- addBook and addMember take no date. They do not touch the clock or run hold expiry.
+- borrow and renew fail if the resulting due date would be after 9999-12-31.
+- A readyUntil date past 9999-12-31 is still allowed. Internally it is stored as a day number. If shown, it is formatted with a year longer than 4 digits.
+- getMember returns ok: true alongside loans, owed and holds, matching the requirements' success shape.
+- Failure results include a short reason string.
+- Expired holds and fulfilled holds are removed from the member's active holds immediately. This frees a slot toward the 5-hold limit.
+- Placing a hold on a book that is set aside for another member is allowed. The hold is added to the end of the queue.
+- An extra hold on a set-aside book does not change the current ready hold's readyUntil.
+- Returning a book on the same day it is due, or before, charges no fine.
+- Day differences are computed from UTC day numbers built with Date.setUTCFullYear. This also handles years 0001–0099 correctly.

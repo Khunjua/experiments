@@ -1,0 +1,11 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry even if its other arguments are invalid or it fails for a business reason.
+- A call whose date is invalid, or earlier than the current date, does not touch the clock or expiry.
+- `addBook` and `addMember` take no date, so they do not affect the clock or expiry.
+- Dates are handled as UTC day numbers, using `setUTCFullYear` so years 0001–0099 are handled correctly. Results past year 9999 are not specially handled.
+- Hold order in `getMember` follows a global placement counter, so it is oldest first across all books.
+- A member's active holds are counted by scanning every book's queue, including a ready hold.
+- Renewal checks `date > dueDate` as overdue, so renewing on the due date itself is allowed.
+- Borrowing treats a loan as overdue only when its dueDate is strictly earlier than the borrow date.
+- A `payFine` amount must be a safe integer greater than 0, and any other value fails.
+- A missing or non-object argument fails and does not change the clock.
+- Fail results include a short `reason` string, which callers ignore.

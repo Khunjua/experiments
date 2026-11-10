@@ -1,0 +1,19 @@
+- Adding a book or member whose id already exists is refused with ok:false and changes nothing; a null or undefined id is refused too.
+- An unknown memberId or bookId makes any action return ok:false; a missing date, or one that is not a real calendar date in 'YYYY-MM-DD' form, also returns ok:false and changes nothing.
+- getMember for an unknown member or with an invalid date returns { ok:false, reason, loans:[], owed:0, holds:[] } instead of throwing; for a known member it returns exactly { loans, owed, holds }.
+- Refused calls return only { ok:false, reason }, with no fine, dueDate, position or owed field.
+- Time passes lazily: at the start of every call that has a date (including getMember and calls that end up refused), pick-up windows whose readyUntil is strictly before the call date are expired. Picking up on readyUntil itself still works; the day after it does not.
+- If several pick-up windows have already passed when a call arrives, they expire one after another. Each next member's window is the previous readyUntil + 3 days (not call date + 3), and when nobody is left in line the book becomes free on the shelf.
+- The member a book is set aside for keeps their hold at position 1 until they borrow it or it expires, so a new hold on that book gets position 2 or later. Their getMember hold shows position 1 with readyUntil set; all other holds show readyUntil null.
+- A returned book is set aside for the member in position 1 even if that member could not borrow right now (5 loans or owes 1000+); nobody is skipped, and if they cannot borrow in time they lose the hold at expiry.
+- Borrowing a set-aside copy still has to pass the normal checks (5-loan limit, owing under 1000); if a check fails, nothing changes and the window keeps running.
+- Only fines already charged at return count as owed; an overdue loan that has not been returned does not count toward the 1000-cent borrowing block.
+- Owing money or being at the loan limit does not block returning, renewing, paying or placing holds, and there is no limit on how many holds a member can have.
+- The fine uses whole calendar days between the loan's current due date (after any renewals) and the return date: 0 for up to 2 days late, otherwise 25 x days late, capped at 500. It is added to owed at the moment of return and reported as fine (0 when none).
+- A loan is overdue when the call date is after its due date, so a loan 1-2 days late (free to return) still cannot be renewed.
+- The renewal count belongs to the loan and restarts at 0 on each new borrow; any hold in the line, even a single one, blocks renewal.
+- A member cannot borrow a book they already have on loan (it counts as on loan), but may borrow again a book they returned if it is free on the shelf.
+- payFine requires an integer amount with 0 < amount <= owed (paying exactly what is owed is allowed); non-integer or non-number amounts are refused and owed stays unchanged.
+- getMember lists loans in the order borrowed and holds in the order placed, as fresh objects and arrays, with dates as 'YYYY-MM-DD' strings.
+- Calls dated earlier than a previous call are not specially handled, since the contract says they do not occur.
+- Date arithmetic uses whole UTC calendar days, so month ends and leap years are handled correctly.

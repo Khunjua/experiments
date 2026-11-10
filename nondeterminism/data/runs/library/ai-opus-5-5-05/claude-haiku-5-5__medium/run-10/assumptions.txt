@@ -1,0 +1,15 @@
+- The clock is compared as day numbers; a call dated exactly on the current date is allowed.
+- A dated call that fails input validation does not advance the clock; one that passes validation advances it even if the member or book is unknown, as §3.4 orders it.
+- Dates after 9999-12-31 cannot be represented, so borrow and renew fail if their computed due date would exceed it.
+- Hold readyUntil dates (from returns and expiry windows) are capped at 9999-12-31 instead of failing.
+- Hold expiry is processed for all set-aside books on every dated call, not only the book involved in the call.
+- When a set-aside book is borrowed by its head hold, that hold is removed, readyUntil is cleared, and the remaining queue stays in place.
+- A member who is in a set-aside book's queue but not at the head cannot borrow it; the call fails as set aside for another member.
+- A member may hold books they have not borrowed and may borrow books while holding other books; no rule prohibits this.
+- Renewal is allowed on the due date itself (date equal to dueDate) and rejected only when date is later than dueDate.
+- Holds are listed in the order they were placed, using the insertion order of the member's hold set.
+- Loans are listed in creation order, using the insertion order of the member's loan map; renewals do not change order.
+- Arguments that are arrays or other objects lacking the required fields fail as invalid input; extra fields are ignored.
+- Any unexpected internal exception is converted into a failure result with no further state change, so methods never throw.
+- Failure reasons are short descriptive strings; their wording is not specified.
+- IDs are stored in Maps and Sets so that IDs such as "__proto__" behave as ordinary strings.

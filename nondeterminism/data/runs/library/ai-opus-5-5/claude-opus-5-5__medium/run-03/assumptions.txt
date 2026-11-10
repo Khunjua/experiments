@@ -1,0 +1,12 @@
+- A valid date advances the clock and triggers hold expiry even if other arguments in the same call are invalid or the call fails for another reason (expiry is date-driven, so this has no observable side effect beyond what any later call would cause).
+- If the date is invalid or earlier than the current date, the clock is not changed and no expiry is processed.
+- addBook and addMember are undated; they neither read nor change the clock and do not trigger expiry.
+- Date arithmetic uses a pure integer proleptic-Gregorian day count (equivalent to UTC day math) instead of the Date object, to avoid Date.UTC's mapping of years 0–99 to 1900–1999.
+- Computed dates that exceed 9999-12-31 (e.g. a due date) are still returned, formatted with the year as-is (zero-padded to at least 4 digits), and the operation is not rejected.
+- An argument that is not a non-null object (including arrays being treated as objects with missing fields) yields { ok: false }; fields are read with normal property access, including inherited properties.
+- Payment amount must be of type number (not BigInt or numeric string); -0 and non-integers are rejected.
+- getMember returns ok: true along with loans, owed and holds on success.
+- Hold order in getMember is the order the member placed them; a fulfilled or expired hold is removed from that list and the remaining holds keep their relative order.
+- Failure results include an informational reason string.
+- Expiry processes books in their registration order; the order has no observable effect.
+- Renewing on the same day multiple times is allowed up to the renewal limit, each counting as a renewal even if the due date does not change.

@@ -1,0 +1,11 @@
+- A call with malformed input (non-object args, invalid IDs, invalid date or invalid payment amount) does not advance the clock or run hold expiry. A call with well-formed input that fails a business rule, including "not registered", does advance the clock and run expiry.
+- Expiry results depend only on stored readyUntil values and not on the date expiry runs. Running expiry early or late therefore gives the same state.
+- Date arithmetic uses pure proleptic Gregorian day-number math rather than Date.UTC. This avoids Date.UTC's mapping of years 0–99 to 1900–1999. The results are the same as UTC day counting.
+- A computed date such as a due date or readyUntil may go past 9999-12-31. It is still formatted the same way (year padded to 4 digits) and is not rejected.
+- addBook and addMember take no date. They do not touch the clock or run expiry.
+- The payment amount must be of type number. Numeric strings and BigInt are invalid.
+- A member may place a hold on a book that is set aside for someone else, since that book counts as "out". A member may not place a hold on a book that is set aside for themselves, since they already hold it.
+- When a set-aside book is borrowed by its ready member, the remaining holds wait with readyUntil null until the next return.
+- The new due date on renewal is date + 21. The max() with the old due date is only a safeguard; per the rules, date + 21 is never earlier.
+- Failure results include an informal reason string.
+- Hold positions in getMember are computed live from the book's queue at the time of the call.

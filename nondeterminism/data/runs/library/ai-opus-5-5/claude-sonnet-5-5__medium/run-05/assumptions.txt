@@ -1,0 +1,9 @@
+- A call advances the current date whenever its argument object is present and its date is valid and not earlier than the current date, even if other arguments (such as ids) are invalid or a business rule fails. Hold expiry also runs in that case.
+- A call with a missing argument object or an invalid date does not change the clock or run expiry.
+- `payFine` with an invalid amount still advances the clock and runs expiry, since the date is valid.
+- Date comparisons use string comparison on valid `YYYY-MM-DD` strings, which matches chronological order.
+- When a member's set-aside hold is for them and they borrow, it is removed from the queue and their hold list.
+- Expired holds are removed from the member's active holds, so they no longer count toward the 5-hold limit.
+- Years below 100 are handled by setting the full year explicitly, so they are not mapped to 19xx.
+- `getMember` runs expiry and may advance the clock, as with other dated calls.
+- A member who is first in a book's queue has `readyUntil` set only while the book is in the set-aside state. A member first in the queue of an on-loan book gets `null`.

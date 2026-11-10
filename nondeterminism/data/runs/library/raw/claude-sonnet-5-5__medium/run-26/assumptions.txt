@@ -1,0 +1,26 @@
+- The loan period is 21 days, so the due date is the borrow date plus 21 days.
+- A member may renew a loan at most 2 times.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- A renewal is refused if the loan is already overdue.
+- A renewal is refused if anyone is in the hold queue for the book.
+- The fine is 25 cents per full day after the due date. Returning on the due date is free.
+- To avoid being harsh, the fine is capped at 1000 cents per loan. There is no grace period.
+- A fine is added to the member's owed amount when the book is returned.
+- Borrowing is refused if the member owes 1000 cents or more.
+- Borrowing is refused if the member has any overdue loan.
+- Borrowing is refused if the member already has 5 loans.
+- Borrowing is refused if the book is already on loan.
+- A hold can only be placed on a book that is on loan or set aside for someone.
+- A hold is refused if the book is on a shelf and free.
+- A hold is refused if the member already has the book on loan.
+- A hold is refused if the member already holds that book.
+- Hold position is the place in the queue, starting at 1. The member a book is set aside for is position 1.
+- When a held book is returned, it is set aside for the first person in the queue. readyUntil is the return date plus 3 days, inclusive.
+- A set-aside book can be borrowed only by the member it is set aside for. Borrowing removes that member's hold.
+- When a set-aside period expires unclaimed, the hold is dropped and the next person is set aside. Their window is 3 days starting the day after the previous one ended.
+- Expiry is processed lazily at the date of each call.
+- readyUntil is null for holds that are not first in line, and for holds on a book that is still out on loan.
+- payFine is refused if the amount is not a positive integer or exceeds the amount owed. Overpayment is not allowed.
+- Unknown members, unknown books, duplicate ids and invalid dates return { ok: false } and change nothing.
+- getMember for an unknown member returns ok:false with empty loans and holds and owed 0.
+- Loans are listed in borrow order, and holds are listed in book-creation order.

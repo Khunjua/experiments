@@ -1,0 +1,13 @@
+- Malformed calls (non-object argument, invalid ID, invalid date format, invalid amount type) are checked before anything else. They change nothing and do not move the clock.
+- A well-formed dated call whose date is earlier than the clock is rejected with DATE_OUT_OF_ORDER and changes nothing.
+- A well-formed dated call with a valid, non-earlier date moves the clock and runs expiration catch-up even when a later business rule rejects it. Member or book lookup failures count as business rejections here.
+- A payment with a non-positive or non-safe-integer amount is rejected with BAD_AMOUNT, and it is checked after the date format but before the clock is moved.
+- Expiration catch-up is applied to all books in insertion order. This does not affect results, because books are independent.
+- Only the head of a book's line can be set aside, and only that hold reports a non-null readyUntil.
+- Borrowing a set-aside book removes only the borrowing member's hold. The remaining holds keep their order.
+- Renewal on the exact due date is allowed. Renewal after the due date is rejected with OVERDUE.
+- Whitespace-only IDs are treated as non-empty, because the spec says no trimming.
+- Year 0000 is accepted as a valid year. Due dates that would pass year 9999 are not specially handled.
+- Holds and loans are reported in the order they were created, using a single global sequence number.
+- Each method is wrapped in a try/catch that returns { ok: false, reason: 'INVALID_INPUT' } if an unexpected exception occurs, such as a throwing getter.
+- Reason strings use the codes listed in section 13 of the requirements. The code NOT_AVAILABLE is used when a book is on loan or is set aside for someone else.

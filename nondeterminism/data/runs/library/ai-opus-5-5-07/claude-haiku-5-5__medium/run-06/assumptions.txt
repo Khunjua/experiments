@@ -1,0 +1,18 @@
+- Dates are validated as proleptic Gregorian calendar dates, so year 0000 is accepted (it is a leap year).
+- Dates are converted to integer day numbers since 1970-01-01 using a civil-calendar algorithm, so no JavaScript Date objects are used.
+- Failure results contain only `ok: false`; no `reason` field is added.
+- Expiry processing runs whenever the date is valid, even if memberId, bookId, or amount is invalid or unknown; it does not run when the date itself is invalid.
+- getMember runs expiry before validating memberId, consistent with the general rule for a valid date.
+- Expiry only changes state when a hold's readyUntil is strictly before the call date, so a call on readyUntil itself still lets the reserved member borrow.
+- A member's `loans` list keeps the order in which loans started, and a re-borrow of a returned book appends it to the end.
+- A member's `holds` list keeps the order in which holds were placed, and a hold removed by expiry or by borrowing is deleted from that list.
+- Renewal count is per loan: it resets to 0 on every new borrow and on every return.
+- A book that is set aside is treated as not on loan, and a non-empty hold line on a book that is neither on loan nor set aside cannot occur.
+- A book returned with a non-empty hold line is set aside for position 1 with readyUntil = return date + PICKUP_DAYS.
+- Returning an overdue book is allowed even when the member's owed is at or above BLOCK_THRESHOLD, and the fine is charged regardless of that balance.
+- payFine accepts a payment equal to owed (bringing it to 0) and rejects any payment greater than owed.
+- Non-object arguments are treated as having no fields, so the call fails with `{ ok: false }`.
+- Any unexpected exception during a method is caught and returned as `{ ok: false }`; state is only mutated after all checks pass, so this does not leave partial changes.
+- IDs are accepted as any non-empty string, including whitespace-only strings, with exact and case-sensitive comparison.
+- The `readyUntil` field in getMember is null when the book is on loan or when the member is not at position 1.
+- getMember returns fresh arrays and objects built from the state on each call, so callers cannot change library state through them.

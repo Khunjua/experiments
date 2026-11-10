@@ -1,0 +1,43 @@
+{
+ "project": "library",
+ "spec": "raw",
+ "model": "claude-sonnet-5-5",
+ "effort": "medium",
+ "run": 10,
+ "cli": "2.1.310 (Claude Code)",
+ "room": true,
+ "started": "2026-10-29T16:38:21.640Z",
+ "finished": "2026-10-29T16:38:50.232Z",
+ "ok": true,
+ "exit": 0,
+ "signal": null,
+ "costUSD": 0.046062,
+ "durationMs": 27481,
+ "wallMs": 28339,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 1192,
+  "cache_read_input_tokens": 0,
+  "output_tokens": 4129,
+  "output_tokens_details": {
+   "thinking_tokens": 1261
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1192,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "hasCode": true,
+ "loadError": null,
+ "matched": 27,
+ "total": 31
+}

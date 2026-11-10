@@ -1,0 +1,9 @@
+- If the date is valid and not earlier than the current date, the clock advances and expiry runs even when other arguments (ids, amount) are invalid or the call fails for a business reason.
+- If the date itself is invalid, or the args object is missing or not an object, nothing happens, including the clock.
+- addBook and addMember are not dated, so they do not touch the clock or expiry.
+- Dates are stored internally as day numbers, with years handled via setUTCFullYear so years 0001–0099 work. Dates beyond year 9999 produced by arithmetic are formatted with the plain year number.
+- A hold's `position` in getMember is the member's index in the book's queue plus 1. `readyUntil` is non-null only when the book is set aside and the member is at position 1.
+- A member with a ready hold who is blocked from borrowing keeps the hold until it expires.
+- `amount` must be a number that is a safe integer greater than 0. Non-numbers fail.
+- The overdue check on borrow looks at all of the member's loans, with a due date strictly earlier than the call date.
+- Failure results include a `reason` string, which callers ignore.

@@ -1,0 +1,25 @@
+- Loan period is 21 days from the borrow date; due date is borrow date plus 21 days.
+- A renewal sets the new due date to the renewal date plus 21 days, not the old due date plus 21.
+- A member may renew a loan at most 2 times.
+- Renewal is refused if anyone has a hold on the book (including a set-aside hold) or if the loan is already overdue; renewing on the due date itself is allowed.
+- Late fine is 25 cents per day counted from the due date, with the first 3 days late free (fine = (days late - 3) x 25 cents, once days late exceeds 3).
+- Fines are capped at 1000 cents per loan.
+- Fines are assessed and added to the member's balance only when the book is returned; overdue fines do not accrue in getMember's owed before return.
+- A member whose balance is 1000 cents or more cannot borrow or place holds, but can still return and renew.
+- A member may have at most 5 books on loan at once.
+- A member may have at most 5 active holds at once.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- A hold may be placed only when the book is not available, meaning it is on loan or already has a hold queue or set-aside book.
+- A set-aside pickup window is 7 days, inclusive of the last day (readyUntil = set-aside date + 7).
+- The set-aside date is the date of the first call after the previous holder's window lapsed (or the return date), not the exact lapse day.
+- A lapsed set-aside hold is removed automatically at the start of any call dated after its readyUntil, and the next holder is set aside on that call's date.
+- Only the first member in the hold queue can borrow a set-aside book; any other member is refused until it is returned and set aside for them.
+- A successful borrow by the set-aside member removes their hold.
+- Time-based hold expiry is applied at the start of every call, so a rejected call may still apply expiry; this is not visible through the API because the result depends only on the date.
+- payFine rejects amounts that are not positive integers and rejects overpayment (amount greater than owed), leaving the balance unchanged.
+- addBook and addMember reject ids that are not non-empty strings and reject duplicate ids.
+- Dates must match YYYY-MM-DD and be real calendar dates (years below 100 are rejected); invalid dates cause {ok:false}.
+- getMember for an unknown member, or with an invalid date, returns { loans: [], owed: 0, holds: [] }.
+- getMember lists loans and holds sorted by bookId ascending.
+- Only the member who currently has a book on loan can return or renew it; anyone else gets {ok:false}.
+- Failure responses are the bare object { ok: false } with no reason field.

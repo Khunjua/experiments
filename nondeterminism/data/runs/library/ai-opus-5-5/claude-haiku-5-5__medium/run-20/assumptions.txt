@@ -1,0 +1,15 @@
+- A dated call with a valid, non-earlier date advances the clock and runs hold expiry even when it then fails for a business reason or because the member or book is unregistered.
+- A dated call with malformed arguments or a malformed date changes nothing, including the clock.
+- Identifiers are stored in Maps, so any non-empty string is a valid ID, including whitespace-only strings and names such as "__proto__".
+- Date arithmetic uses day numbers from 1970-01-01 UTC. Results beyond 9999-12-31 are formatted with a 5-digit year rather than rejected, since the spec does not cover this.
+- A loan whose due date equals the call date is not overdue; it becomes overdue only when the date is later than the due date.
+- The overdue check in borrow covers all of the member's loans, including loans that are overdue but not yet returned.
+- Loan count and the 1000-cent borrowing block count all of the member's current loans and owed balance, including fines charged above the cap through accumulation.
+- A book's `readyUntil` is kept only while the book is set aside. It is cleared when the book is lent out or has no holds left.
+- When a book is returned with holds waiting, the first hold becomes ready with `readyUntil = return date + 7`, even if the return happens on the same day the hold was placed.
+- A member's `holds` list holds only active holds. An entry is removed when the hold is fulfilled by borrowing or when it expires.
+- Active holds for the 5-hold limit include both waiting and ready holds.
+- A member may place a hold on a book that is set aside for someone else, provided the member is not already holding that book and is not borrowing it.
+- Renewing a loan requires that the member has the book on loan. Renewal is not blocked by other members' holds beyond the rule that the queue must be empty.
+- `getMember` returns `readyUntil` only when the book is not on loan and this member is at the front of the queue.
+- Payments are accepted from any member at any date within the clock rules, including when the member owes 0 (which always fails, as the spec requires).

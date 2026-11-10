@@ -1,0 +1,21 @@
+- An argument is treated as an object when its type is "object" and it is not null. Arrays are accepted and their fields are read like any other object's.
+- Expiration runs for a dated call whenever the argument is an object and the date is valid, even if memberId, bookId or amount is invalid. This follows the §3.5 exclusion list.
+- Dates are stored internally as integer day numbers from the UTC epoch. Years 0000–9999 are accepted, and leap years follow Gregorian rules via a UTC round-trip check.
+- Expiration uses a strict comparison: a hold whose readyUntil equals the current date is still active.
+- When a hold expires and the queue is still non-empty, the next readyUntil is the previous readyUntil plus 8 days (start day plus 7).
+- The active-hold limit of 5 counts every hold in any queue, including a hold that is set aside.
+- A member's list of holds is kept in placement order. Removing a hold, by borrowing or by expiry, removes it from that list.
+- The "on shelf with non-empty queue" defensive check in borrow fails when the book has a queue but no set-aside readyUntil. This state should be unreachable.
+- placeHold rejects a book that is on loan to the same member, and also rejects a book the member already has on loan, even though those two checks overlap.
+- Renewal requires the hold queue to be empty, and a loan can be renewed only by the member it is on loan to.
+- Returning a book before its due date produces a fine of 0, and it is not treated as an error.
+- Return dates earlier than the due date are handled with max(0, …) and produce a fine of 0.
+- A set-aside readyUntil is calculated from the return date (or the expiry start), not from the due date.
+- In getMember, readyUntil is non-null only when the member is at position 1 and the book is not on loan. A book on loan with the member at position 1 reports null.
+- getMember sorts loans by stored day numbers, which gives the same order as the YYYY-MM-DD strings. Ties are broken with JavaScript's `<` and `>` string comparison on bookId.
+- Failure results contain only `ok: false`; no reason string is included.
+- Each public method is wrapped in a try/catch that returns `{ ok: false }`. This is a safety net for unexpected input such as throwing getters or proxies. All state mutations happen after every check, so a throw cannot leave partial state.
+- payFine checks the member and the amount after expiration, but the order of those checks has no effect on the result, since every failure returns `{ ok: false }` with no state change.
+- A payment is rejected when the amount is greater than the owed balance, and any payment is rejected when owed is 0.
+- The fine cap of 1000 cents applies to each return. The total owed has no upper limit.
+- A return only succeeds when the book's loan is held by the member named in the call.

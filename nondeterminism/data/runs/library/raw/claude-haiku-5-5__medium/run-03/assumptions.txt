@@ -1,0 +1,22 @@
+- Loan period is 21 days from the borrow date; borrowing is unlimited per member.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- A member may renew at most 2 times per loan.
+- Renewal is refused if the loan is already overdue (renewal date after due date).
+- Renewal is refused if any hold is waiting on the book.
+- Late fees are free for the first 3 days past due; after that, 25 cents per day for each day late beyond those 3 days.
+- Late fees are capped at 1000 cents per loan.
+- A late fee is charged at return time and added to the member's owed balance; overdue loans accrue nothing until returned.
+- Holds can only be placed on books that are currently on loan.
+- A member cannot place a hold on a book they currently have on loan.
+- A member cannot place a duplicate hold on the same book.
+- Hold position is the member's place in the line counting from 1; a set-aside member is position 1.
+- When a book is returned and has waiting holds, the first member in line is set aside for a pickup window of 7 days starting on the return date.
+- If the set-aside member does not pick up by the end of the window, they are removed and the next member is set aside for 7 days starting the day after the previous window ended.
+- A set-aside book cannot be borrowed by anyone other than the set-aside member; when that member borrows it, their hold is consumed.
+- Books with no waiting holds return to the shelf on return.
+- Members with overdue loans or unpaid fines are not blocked from borrowing.
+- Payments must be positive integer cents not exceeding the amount owed; partial payments are allowed; overpayment is rejected.
+- Adding a duplicate book or member, or passing a null or undefined id, returns { ok: false }.
+- Unknown members return an empty getMember result; unknown books or wrong-member actions return { ok: false }.
+- Returning or renewing a book the member does not have on loan returns { ok: false }.
+- Holds and pickup-window expiry are applied lazily based on the date of each call, which is correct because calls arrive in time order.

@@ -1,0 +1,17 @@
+- Arguments that are not objects, or whose IDs, date or amount are malformed, fail without touching the clock or any state.
+- A well-formed dated call that is not earlier than the current date advances the clock and processes hold expiry even when it then fails for a business reason, including an unregistered member or book.
+- Hold expiry is processed for all books on every accepted dated call, including calls that fail.
+- Dates produced by arithmetic beyond 9999-12-31 are formatted with more than four year digits; the spec does not restrict this.
+- Owed balance has no cap; it can exceed 1000 cents through several fines.
+- Overdue means dueDate strictly earlier than the call date; a loan due on the call date is not overdue, and renewal is allowed on the due date.
+- A renewal's overdue check uses the due date before renewal, and the new due date is always date + 21.
+- Renewal is refused whenever the hold queue is non-empty, including when the queue holds only waiting holds.
+- When a set-aside book is borrowed by its ready member, the remaining holds keep their order and get no new readyUntil; the book is on loan, so readyUntil is cleared.
+- On return with a non-empty queue, the readyUntil is date + 7 using the return date, not the due date.
+- getMember lists holds ordered by a global placement sequence number, and readyUntil is non-null only for a book that is not on loan and has this member at queue position 1.
+- Loans are listed in borrow order; a renewal does not change a loan's position in that list.
+- Identifiers are compared exactly as strings; they are not trimmed, and the empty string is invalid.
+- Extra fields in arguments are ignored, and addBook/addMember accept arguments with extra fields.
+- A payment amount must be a safe integer greater than 0; a non-integer or non-number amount fails.
+- A payment with amount greater than owed fails, and every payment fails when owed is 0.
+- Holds are capped at 5 active per member, counting both waiting and ready holds; the same member may not hold a book twice.

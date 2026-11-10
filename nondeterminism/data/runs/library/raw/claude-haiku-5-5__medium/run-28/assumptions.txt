@@ -1,0 +1,22 @@
+- Loan period is 21 days from the borrow date; due date = borrow date + 21 days.
+- Renewal sets the new due date to renewal date + 21 days (not based on the old due date).
+- Renewal is allowed at most 2 times per loan.
+- Renewal is refused if the loan is already overdue, if any hold is waiting on the book, or if the member does not hold the loan.
+- Late fee: a 3-day grace period after the due date; from day 4 onward, 25 cents per day late, computed as whole calendar days at return.
+- Late fee is capped at 1000 cents per loan.
+- Fines are added to the member's balance at return; no fine is charged if the return is within grace.
+- Outstanding balances do not block borrowing, renewing, or placing holds.
+- Payments must be positive integers no greater than the amount owed; partial payments are allowed.
+- Holds can only be placed on a book that is currently on loan, by a member other than the borrower.
+- A member can have at most one hold per book; there is no limit on the number of holds a member can have.
+- No limit on the number of books a member can borrow.
+- On return, the first waiting member is set aside with a 7-day pickup window (return date through return date + 6), inclusive.
+- In getMember, the set-aside hold is reported with position 1; waiting holds are numbered after it.
+- A pickup window that expires without pickup is dropped; the next waiting member gets a new 7-day window starting the day after expiry. If nobody is waiting, the book goes back to the shelf.
+- While a book is set aside, only the set-aside member can borrow it; all other borrow attempts are refused.
+- Expired pickup windows are processed lazily at the start of each method call, using that call's date.
+- placeHold returns a position that counts a set-aside member ahead of waiting members.
+- Unknown or duplicate IDs (book or member) return { ok: false }; a duplicate add does not change anything.
+- Borrowing is not blocked by overdue loans.
+- For an unknown member, getMember returns { ok: false, loans: [], owed: 0, holds: [] }; for a known member the success result has no ok field, matching the interface.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings arriving in non-decreasing order, as the interface guarantees.

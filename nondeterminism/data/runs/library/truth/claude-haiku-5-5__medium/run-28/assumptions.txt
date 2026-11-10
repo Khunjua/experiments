@@ -1,0 +1,23 @@
+- Unknown member or book IDs are refused with { ok: false } in every method that takes them.
+- Duplicate addBook or addMember calls for an existing ID are refused.
+- Borrow, return, renew, hold and payment checks are applied in the order the requirements list them; any failed check changes nothing.
+- Borrowing requires the member to be registered and the book to exist; a member who owes 1000 or more cannot borrow, but can still renew, place holds, and pay.
+- The 5-loan limit counts only current loans; set-aside books and holds do not count toward it.
+- A book set aside for a member can be borrowed only by that member; a book set aside for someone else is refused to everyone else.
+- The member at queue position 1 stays in the line while the book is set aside for them, and their position is shown as 1 until they borrow or their hold is dropped.
+- Hold expiry is applied lazily at the start of every call that carries a date, cascading through the line while the date is after readyUntil; readyUntil itself is still valid.
+- When a hold expires, the member is removed from the line and the next member's readyUntil is the previous readyUntil plus 3 days.
+- A returned book with an empty hold line becomes free for anyone.
+- Returning on the due date or 1 or 2 days late costs 0; from 3 days late, the fine is days late times 25 cents, capped at 500.
+- Only the member who currently has the loan may return or renew it; returns by anyone else are refused and charge nothing.
+- Fines are added to the member's balance even if this pushes them to 1000 or more; they can still return books.
+- Renewal is refused whenever the date is after the due date; renewal on the due date is allowed.
+- Renewal is refused whenever the line for the book is non-empty, including when a book is set aside for a member.
+- A member cannot place a hold on a book they currently have on loan, nor a second hold on a book already in their line.
+- A hold is allowed on a book on loan, or on a book set aside for someone else; a hold on a free book on the shelf is refused.
+- Holds have no count limit and no date-based expiry other than the set-aside mechanism.
+- Payments must be integer cents greater than 0 and no more than the amount owed; partial payments are allowed.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] } with no ok field, since the interface lists no failure shape for it.
+- getMember's readyUntil is non-null only for the hold that is currently set aside for that member.
+- The date strings are assumed to be valid YYYY-MM-DD values; day arithmetic uses UTC so no time zones or daylight-saving shifts apply.
+- Internal dates are stored as day numbers, and the output converts them back to 'YYYY-MM-DD' strings.

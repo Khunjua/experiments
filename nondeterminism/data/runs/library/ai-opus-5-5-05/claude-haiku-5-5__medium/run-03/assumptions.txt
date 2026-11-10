@@ -1,0 +1,14 @@
+- Dates beyond 9999-12-31 (due dates, pickup windows) are clamped to 9999-12-31 so output always stays in the YYYY-MM-DD format.
+- Input shape and format validation (object, IDs, date format, amount) runs before the clock is advanced; the clock is advanced before existence and business-rule checks, as §3.4 orders them.
+- Arguments that are arrays or other objects without the expected fields are treated as non-null objects and fail on the missing fields.
+- Any unexpected exception (for example from a throwing getter on the input) is converted into a failure result with a generic reason, so methods never throw.
+- A date equal to the current clock date is accepted; only strictly earlier dates are rejected.
+- Expiry processing runs over all books on every dated call; this has no observable effect beyond what the spec requires.
+- When a set-aside hold expires and the next member becomes head, their readyUntil is previous readyUntil + 8 days, clamped to 9999-12-31 as above.
+- When a book is returned and has waiting members, the head's readyUntil is return date + 7 days.
+- Borrowing a book set aside for the caller removes that hold entirely; the remaining holds move up by array shift.
+- A member's loans are listed in borrow order, and holds in placement order, as §9 requires; these are stored as per-member lists of book IDs.
+- Renewing on the exact due date is allowed (it is not overdue) and succeeds whenever the new due date exceeds the current one.
+- Failure reason strings are arbitrary, since the spec allows any wording.
+- A book is "set aside" exactly when it has no loan and a non-empty queue; the head of that queue is the set-aside member.
+- payFine rejects amounts greater than owed, and it also rejects any amount when owed is 0 (since amounts are always greater than 0).

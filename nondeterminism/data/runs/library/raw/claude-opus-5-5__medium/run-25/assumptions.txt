@@ -1,0 +1,28 @@
+- Loan period is 21 days; dueDate = borrow date + 21 days.
+- A member can renew a loan at most 2 times.
+- Each renewal adds 21 days to the current due date, not to the renewal date.
+- Renewal is refused if anyone has a hold on the book.
+- Renewal is refused if the loan is already overdue.
+- Returning on the due date is not late. Fine = 25 cents per day after the due date.
+- To be "not harsh", the fine is capped at 1000 cents ($10) per loan. There is no grace period.
+- Fines are added to the member's owed balance.
+- A member cannot borrow while owing 1000 cents or more.
+- A member cannot borrow while they have any overdue loan.
+- There is no limit on the number of books a member can borrow at once.
+- There is no limit on the number of holds per member.
+- A hold can only be placed on a book that is on loan or set aside for someone. A hold on a book sitting on the shelf is refused.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- Members with unpaid fines can still place holds.
+- Holds are served first come, first served.
+- When a held book is returned, it is set aside for the first member in line. They can pick it up through return date + 7 days (readyUntil).
+- If a set-aside book is not picked up by readyUntil, that hold is dropped. The book is then set aside for the next member, starting the day after expiry, with a fresh 7-day window.
+- While a book is set aside, only the member it is set aside for may borrow it. Borrowing it removes their hold.
+- The member the book is set aside for has position 1. Positions are 1-based in line order.
+- Hold expiry is evaluated lazily, using the date of each dated call.
+- payFine requires a positive integer amount that does not exceed what is owed. Overpayment is refused.
+- Duplicate or invalid bookId/memberId in addBook/addMember returns { ok: false }.
+- Unknown members or books, or invalid date strings, return { ok: false }.
+- getMember for an unknown member returns { ok: false }.
+- Successful results include ok: true, including getMember.
+- getMember lists loans in borrow order and holds in the order books were added to the library.
+- Date arithmetic uses UTC calendar days.

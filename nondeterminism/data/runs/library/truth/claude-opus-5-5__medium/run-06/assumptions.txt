@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused; ids may be any value except undefined/null.
+- Any call referencing an unknown member or book is refused with { ok: false }.
+- Invalid or malformed dates cause the call to be refused.
+- getMember for an unknown member (or invalid date) returns { ok: false } with empty loans, owed 0 and empty holds; on success it also includes ok: true.
+- Lateness is counted in whole calendar days: return date minus due date.
+- When the fine applies (3+ days late), every late day is charged, including the first two, capped at 500 cents.
+- Fines are added to owed at return time; owed books do not accrue fines until returned.
+- Owing 1000+ cents blocks borrowing only, not renewals, holds or returns.
+- The 5-loan limit is checked against books currently on loan to the member; a refused borrow of a set-aside book leaves the hold and set-aside intact.
+- Renewal checks: must be the borrower's loan, not overdue (renewal date <= current due date), fewer than 2 prior renewals, and no holds on the book (including a hold whose book is set aside—not possible while on loan).
+- Hold expiry is evaluated lazily at every dated call: a set-aside expires when the call date is after readyUntil, and the next member's readyUntil is the previous readyUntil + 3, repeating as needed.
+- The member a book is set aside for remains in position 1 of the hold line until they borrow it or their pickup window expires.
+- A member may place a hold on a book set aside for someone else, and may hold any number of books; there is no limit on holds.
+- Placing a hold is refused if the member already holds that book (including when it is set aside for them).
+- Payments must be positive integers of cents no greater than the amount owed; non-integer amounts are refused.
+- addBook and addMember have no date and do not trigger hold expiry processing.
+- Holds are returned in getMember for every book where the member is in the line; order of holds in the list is unspecified.

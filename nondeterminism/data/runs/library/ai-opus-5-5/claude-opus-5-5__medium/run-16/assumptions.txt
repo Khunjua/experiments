@@ -1,0 +1,14 @@
+- If a dated call has a valid date that is not earlier than the current date, the clock advances and hold expiry runs even when other arguments are invalid or unregistered. Expiry depends only on the date, so this is safe.
+- If the date is invalid or earlier than the current date, the call has no effect at all: no clock change and no expiry processing.
+- addBook and addMember are undated, so they neither touch the clock nor run expiry.
+- getMember includes `ok: true` on success, as shown in §9.
+- Successful borrow, returnBook, renew, placeHold and payFine return only the fields listed in the interface, plus `ok`. Failures return only `{ ok: false }`, with no reason field.
+- A payment `amount` must be of type number. Numeric strings and other types are invalid.
+- A set-aside book can be borrowed only by the member whose hold is ready (position 1). Members with waiting holds behind them cannot borrow it.
+- Hold positions and `readyUntil` values are recomputed from current queue state each time they are reported.
+- The renewal due date is max(old due date, date + 21) as a safeguard. Given the overdue check, this always equals date + 21.
+- getMember lists holds in global placement order, using a library-wide sequence counter.
+- getMember lists loans in borrow order. A book returned and borrowed again is listed as a new, newest loan.
+- Date arithmetic uses pure integer proleptic-Gregorian day counts instead of `Date.UTC`. This is equivalent to UTC and avoids `Date.UTC` mapping years 0001–0099 to 1900–1999.
+- If date arithmetic produces a date past 9999-12-31, it is still formatted with a 5-digit year and is not rejected.
+- Placing a hold is rejected if the book is on loan to the same member. This covers both the book's loan record and the member's loan list.

@@ -1,0 +1,15 @@
+- Argument-level validation (object shape, IDs, date format, amount) runs before the clock is advanced, so a call with an invalid field does not move the clock; business-rule failures (unknown member or book, etc.) still advance the clock.
+- Date arithmetic that would pass 9999-12-31 is clamped to 9999-12-31 so every returned date stays a 4-digit year.
+- Year 0000 is rejected; leap years follow the Gregorian rule (divisible by 4, except centuries not divisible by 400).
+- A hold is expired only when readyUntil is strictly earlier than the call date; readyUntil equal to the call date is still valid.
+- Hold processing runs over every book on each dated call, including books with no holds, as §5 requires.
+- Loans are listed by borrow order and holds by placement order, using one global sequence counter for each.
+- readyUntil is non-null only on the queue head, and only when the book is not on loan.
+- A member with owed ≥ 500 can still place holds and renew loans, since the spec blocks only borrowing.
+- A member with a waiting or ready hold on a book cannot place a second hold on it; a ready hold for a member does not block them from borrowing it.
+- Returning a book with a non-empty queue sets the head hold ready from the return date, even when the return is early or on time.
+- A fine is never negative; early or on-time returns produce a fine of 0.
+- renew is refused only by the rules in §7.5; it does not check the member's loan count or owed balance.
+- payFine does not restrict the payment date beyond clock ordering, and it does not depend on any loan.
+- getMember returns readyUntil as stored on the queue head, which is null for waiting holds.
+- Any unexpected exception inside a method is caught and returned as `{ ok: false }`, so no method throws.

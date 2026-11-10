@@ -1,0 +1,17 @@
+- Date arithmetic uses a proleptic Gregorian day number (Hinnant days_from_civil/civil_from_days), so years 0001–9999 work without the `Date` object's 0–99 year quirk.
+- Any computed date after 9999-12-31 is not representable. borrow and renew fail with no change in that case.
+- A return's set-aside window end (return date + 7) is capped at 9999-12-31 if it would overflow. Expiry windows (previous + 8) are capped the same way.
+- Date, ID and amount validation runs before the clock is touched, so a call that fails validation never advances the clock.
+- An unknown member or book in a dated call still advances the clock and runs expiry, because existence is treated as a business rule checked after §3.4 steps 1–3.
+- A date earlier than the current clock fails, and the clock is not changed. The first dated call sets the clock to its date, whatever that date is.
+- Expiry is processed across all books on every dated call, including getMember and payFine calls.
+- The 5-loan limit counts all current loans, including overdue ones.
+- A member who is set aside for a book is removed from the queue when they borrow it, and the remaining holders move up one position.
+- `renew` and `returnBook` require the member to be the recorded borrower of the book, and the member's loan record must exist. Both checks must pass.
+- `placeHold` rejects a member who already has the book on loan, or who is already in the queue for it.
+- `getMember` lists holds in the order they were placed, using the insertion order of a Set. Loans are listed in creation order, using the insertion order of a Map.
+- `readyUntil` in `getMember` is non-null only when the book is not on loan and the member is at the head of the queue.
+- `owed` has no upper bound beyond JavaScript safe-integer arithmetic. Fines are not capped by any running total.
+- Inputs that are not plain objects (including arrays) fail validation. Any unexpected exception inside a method is caught and returned as `{ ok: false, reason }`.
+- Reason strings are short, descriptive English text. The spec allows any wording.
+- Book and member namespaces are kept in separate Maps, so a book and a member can share an ID.

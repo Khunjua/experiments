@@ -1,0 +1,13 @@
+- Hold expiry is applied lazily at the start of every call that carries a valid date, including getMember and payFine. It chains through several members if more than one pickup window has already passed.
+- A pickup window expires when the call date is strictly after readyUntil, so readyUntil itself is still valid.
+- The member set aside for a book stays in position 1 of that book's hold list until they borrow it or their window expires.
+- A member with a hold at position 1 on a set-aside book cannot place a second hold on it, and cannot be refused on the grounds of being on loan.
+- Fines are charged whole when the book is returned: 0 for under 3 days late, otherwise 25 × days late, capped at 500. They are added to owed immediately.
+- The 5-book limit and the 1000-cent owed check apply at borrow time, and owing exactly 1000 blocks borrowing.
+- A member can borrow a set-aside book only if it is set aside for them. The limit and owed checks still apply, and if they fail the book stays set aside.
+- Renewal checks: the member must have the loan, renewals so far must be under 2, no holds may exist on the book (including a set-aside hold, though a book on loan has none set aside), and the date must be on or before the due date.
+- A duplicate addBook or addMember is refused. Null or undefined ids are refused.
+- Calls with an unknown member or book are refused. Calls with a malformed or missing date are refused for date-dependent actions.
+- payFine requires an integer amount greater than 0 and no larger than owed. Paying exactly the owed amount is allowed.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }.
+- A refused action changes nothing, apart from the lazy hold expiry, which only reflects the passing of time.

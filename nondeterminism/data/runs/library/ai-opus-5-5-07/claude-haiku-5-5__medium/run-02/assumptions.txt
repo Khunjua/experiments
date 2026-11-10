@@ -1,0 +1,15 @@
+- Date arithmetic uses a proleptic Gregorian epoch-day algorithm instead of Date, so years 0000 to 0099 are handled correctly.
+- Output years are zero-padded to four digits, matching the YYYY-MM-DD input format.
+- Expiry processing runs for any method whose date string is valid, before the IDs and other inputs are checked, as §5.3 says.
+- getMember with an invalid date returns { ok: false } and does not run expiry, because no valid date exists to expire against.
+- IDs are any non-empty string, including whitespace-only strings; no trimming is applied.
+- Expiry processing is applied to every set-aside book in the library, not just the book named in the call.
+- Member-side hold records are removed whenever a hold is removed by expiry or by a borrow.
+- A loan whose dueDate equals the call date is not overdue; only dueDate strictly before the date blocks borrowing.
+- Returning an overdue book charges the fine even if the member's balance already meets or exceeds BLOCK_THRESHOLD; the block only affects borrow and renew.
+- A returned book with a hold line is set aside for position 1 with readyUntil = return date + PICKUP_DAYS, and the returning member is not re-added to the line.
+- A renewal is allowed only on or before the due date; the new due date is the renewal date + LOAN_DAYS.
+- A failed call returns only { ok: false } with no reason field, which the interface permits.
+- Every method is wrapped in a try/catch that returns { ok: false } as a safety net against throwing getters or proxies; no state is changed before validation completes.
+- payFine accepts a payment equal to the full balance; only amounts greater than owed are rejected.
+- The hold position in placeHold is the new line length, so a hold placed while the book is set aside for another member is at position 2 or later.

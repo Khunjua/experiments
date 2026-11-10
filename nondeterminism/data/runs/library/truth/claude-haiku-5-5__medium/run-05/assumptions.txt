@@ -1,0 +1,17 @@
+- addBook and addMember refuse a null/undefined ID or an ID that already exists.
+- Borrow, return, renew, placeHold and payFine refuse unknown member or book IDs; getMember for an unknown member returns empty loans and holds with owed 0.
+- Borrowing a book set aside for the member still requires that they have fewer than 5 loans and owe less than 1000 cents.
+- Borrowing is not blocked by the member having overdue loans.
+- Renewal is not blocked by the member's loan count or amount owed.
+- Placing a hold is not blocked by the member's loan count or amount owed.
+- A member with an outstanding debt of 1000 cents or more can still return books, and the fine is added to what they owe.
+- Set-aside expiry is applied lazily at the start of every call using that call's date; the next member's readyUntil is the previous readyUntil + 3, so cascaded expiries are computed from the chain, not from the call date.
+- A book in the hold queue always has an active set-aside or an active loan, so a hold can be placed on a book that is set aside but not on loan.
+- A member who is set aside a book cannot be blocked from borrowing it by holds from others; only the set-aside member can borrow it.
+- Refused actions return only { ok: false }, with no dueDate, fine, position or owed field.
+- Fines are computed from whole calendar days between the due date and the return date; a return on the due date or 1–2 days late costs 0.
+- Fines are capped at 500 cents per returned book, and the cap applies to the fine calculated for that return only.
+- A payFine call with a non-integer amount is refused.
+- Input dates are assumed to be valid 'YYYY-MM-DD' strings, and amounts and IDs are assumed to be of the expected types.
+- A member may hold any number of books in the hold queue; there is no limit on holds.
+- Renewal is refused if the loan has any holds, including a set-aside hold.

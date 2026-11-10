@@ -1,0 +1,26 @@
+- The first code block has an uninitialised `seq` and is superseded by the second, corrected block, which is the one to use.
+- The loan period is 21 days from the borrow date.
+- A member can renew at most 2 times per loan.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- Renewal fails if anyone is waiting on the book, if the loan is already overdue (date after due date), or if the renewal limit is reached.
+- The fine is 25 cents per full day late. Returning on the due date costs nothing.
+- To avoid being harsh, the fine is capped at 1000 cents per loan. There is no grace period.
+- Fines are added to the member's owed balance when the book is returned.
+- A member who owes money cannot borrow.
+- There is no limit on the number of simultaneous loans.
+- Ids can be any non-null value. Duplicate book or member ids are rejected.
+- Unknown members or books, and malformed dates, return ok:false.
+- A hold can only be placed on a book that is on loan or already has a queue, so a book sitting free on the shelf cannot be held.
+- A member cannot hold a book they currently have on loan, and cannot hold the same book twice.
+- Hold queues are first come, first served. Position is 1-based.
+- When a book is returned and someone is waiting, it is set aside for the first in line. `readyUntil` is the return date plus 7 days, inclusive.
+- While a book is set aside, only that member can borrow it.
+- If the pickup window passes (date greater than `readyUntil`), the hold is dropped. The next in line then gets a 7-day window starting the day after the previous one ended.
+- Holds expire lazily whenever a method is called with a later date.
+- Borrowing a book set aside for you removes your hold.
+- Hold position for a member whose book is set aside is 1.
+- `returnBook` fails if the member does not have that book on loan.
+- `payFine` requires a positive integer amount that does not exceed the amount owed. Overpayment and zero are rejected.
+- `getMember` for an unknown member returns `{ ok: false }`.
+- `getMember` lists loans in borrow order, including overdue ones. Holds are listed in book-insertion order.
+- `null` is the value of `readyUntil` for a hold that is not set aside yet.

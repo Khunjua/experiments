@@ -1,0 +1,9 @@
+- A call with a valid date that is not earlier than the current date advances the clock and runs hold expiry, even if it then fails because of an invalid id, a missing entity or a business rule.
+- A call with an invalid or missing date, or a missing argument object, does not touch the clock or expiry.
+- For getMember and payFine, the clock and expiry are processed before the member is checked, so an unknown member still advances the clock.
+- `addBook` and `addMember` take no date, so they do not touch the clock.
+- Date arithmetic uses UTC day numbers. Years 0001–9999 are validated with `setUTCFullYear` so that years below 100 are handled correctly.
+- A computed due date or pickup date beyond year 9999 is formatted with more digits and is not treated as an error.
+- Overdue for borrowing means any current loan with dueDate < the borrow date, compared as day numbers.
+- A hold for a book that is set aside for a member whose borrow is blocked stays in place until it expires.
+- A returned `reason` string is informational only.

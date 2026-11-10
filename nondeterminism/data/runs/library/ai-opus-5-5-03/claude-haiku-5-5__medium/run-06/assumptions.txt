@@ -1,0 +1,15 @@
+- Computed dates (due dates, pickup windows, chained hold windows) are clamped to 9999-12-31 instead of failing, so every returned date stays a valid 'YYYY-MM-DD' string.
+- For dated methods, the argument object is checked first, then the date is validated and the clock/time-order rule is applied, and only then are memberId, bookId and amount validated. A call with a valid date but invalid IDs still advances the clock.
+- A non-object argument fails without touching the clock.
+- Unknown members or books in a dated call still advance the clock, as §4.4 requires for any dated method.
+- Every method body is wrapped in try/catch and returns `{ ok: false }` on any unexpected exception, so no method throws for any input.
+- Returned objects are freshly built on each call and contain only the listed fields; no `reason` field is added.
+- `addBook` and `addMember` reject duplicate IDs; IDs are not trimmed or normalized.
+- The `position` returned by `placeHold` is the queue length after the append, which equals the hold's 1-based index.
+- A member who already has a waiting or ready hold on a book is rejected by `placeHold`, even when that book is set aside for someone else.
+- `placeHold` on a book that is set aside for another member is allowed and appends a waiting hold.
+- `renew` treats any hold in the queue, waiting or ready, as "someone is waiting" and rejects the renewal.
+- `borrow` on a set-aside book consumes the member's ready hold and leaves the remaining holds as waiting, with the first remaining hold not made ready.
+- Fine computation uses integer day differences between day numbers counted from 1970-01-01 UTC, so no time zone or leap-second effects apply.
+- Hold processing iterates books in insertion order. This is not observable, because each book's processing is independent.
+- `payFine` validates the date and clock before checking amount and member existence, consistent with the dated-method rule.

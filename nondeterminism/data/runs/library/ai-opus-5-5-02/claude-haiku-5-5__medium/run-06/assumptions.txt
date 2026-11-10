@@ -1,0 +1,16 @@
+- Dates are stored internally as day counts and formatted back to YYYY-MM-DD; a date computed beyond 9999-12-31 is formatted with more than four year digits rather than rejected.
+- A call with a valid, non-earlier date advances time and runs expiry even if its member or book is unknown or the call otherwise fails.
+- A missing or non-object argument is treated as an empty object, so the call fails without throwing.
+- Date validation requires a string matching the regex and a round-trip check against the calendar, so impossible dates like 2026-02-30 are rejected.
+- Failure results contain only `ok: false`; no reason string is added.
+- Success results from getMember contain `loans`, `owed` and `holds` with no `ok` field, as the interface specifies.
+- A set-aside hold stays in the member's holds list and is only removed on pickup (borrow) or expiry; it still counts toward MAX_HOLDS.
+- A waiting member's hold is in both the book's queue and the member's holds list, so the hold count covers waiting and set-aside holds.
+- Member and book namespaces are separate Maps, so a member and a book can share an ID.
+- Loans are listed per member in creation order by storing book IDs in the order borrowed; renewal does not change that order.
+- Holds are listed per member in placement order by storing book IDs in the order placed.
+- A returned book's loan metadata (due date, renewal count) is cleared; the book's renewal count resets when it is borrowed again.
+- GRACE_DAYS (0) is subtracted in the late-day calculation, so it has no effect at its current value.
+- Fines are not capped against the member's total balance, only per loan (MAX_FINE_PER_LOAN).
+- A member who is set aside for a book and already has MAX_LOANS active loans cannot collect it, following the borrow rule order in §5.3.
+- An expiry chain on a single book is resolved in one pass, so expiry results are independent of the order books are processed.

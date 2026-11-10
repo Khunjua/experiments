@@ -1,0 +1,14 @@
+- Dates are limited to 9999-12-31. Any computed date beyond that (loan due dates, renewal due dates, readyUntil values) is clamped to 9999-12-31.
+- A call with a malformed or missing argument, or a date that is invalid or earlier than the current date, does not advance the clock and does not process expiry.
+- A call with a valid, non-earlier date advances the clock and processes expiry even if it then fails a business rule or refers to an unknown member or book, as the requirements state.
+- Identifiers are any non-empty string with no length limit.
+- Arguments that are any non-null object are accepted, including arrays; only the named fields are read.
+- A payment amount must be a safe integer greater than 0; non-integers and strings are rejected.
+- A return fine is added to `owed` without a cap on the total balance, so `owed` can exceed 1000 through fines.
+- When a set-aside book is borrowed by the member it was set aside for, its `readyUntil` is cleared, since the book is now on loan.
+- When a book is returned with holds waiting, `readyUntil` is set to the return date + 7, and the next hold is treated as ready.
+- In `getMember`, `readyUntil` is null for waiting holds and for holds on books that are on loan.
+- In `getMember`, the `holds` and `loans` arrays are built fresh from internal lists kept in placement and borrow order.
+- `addBook` and `addMember` do not touch the clock and are not affected by expiry.
+- A renewal is allowed on the due date itself, since it is overdue only when `date > dueDate`.
+- Expired holds are removed from the member's active holds list during the expiry pass.

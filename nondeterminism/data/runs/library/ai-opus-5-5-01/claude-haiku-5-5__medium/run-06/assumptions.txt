@@ -1,0 +1,18 @@
+- An argument that is an array counts as "not an object" and fails with invalid_input.
+- Extra fields in arguments are ignored, and only the documented fields are read.
+- Date validation is a regex match for YYYY-MM-DD followed by a round-trip check on the calendar date. Years 0000 to 9999 are accepted.
+- Dates are converted to whole day numbers and formatted back to YYYY-MM-DD for output.
+- The latest-date marker and the pickup expiry are applied by any call whose date is valid and not out of order, even if a later check fails.
+- A call with an out-of-order date causes no expiry, since no set-aside pickup can have expired before the latest date.
+- When a call has both an invalid id and an out-of-order date, the reason is invalid_input, following the §3.6 check order.
+- In payFine, the amount check is grouped with input validation, which runs before the date-order check and the member lookup.
+- getMember success results include `ok: true` to match the failure shape.
+- Hold entries in getMember are ordered by a global placement counter, so holds across different books are sorted by when each was placed.
+- When a set-aside book is borrowed by its member, the remaining queue stays on the book and keeps its relative order, with the book now on loan.
+- A returned book with a non-empty queue is set aside for the front member even if the queue was only partly processed by expiry earlier in the same call.
+- Expiry is applied to all set-aside books on every dated call with a valid, in-order date.
+- The loan object is shared between the member's loan list and the book record, and it is removed from the member's list on return.
+- Total owed has no ceiling. Only the per-loan fine is capped at 500 cents, and owed can exceed 500 through several loans.
+- Renewal does not check that the member is still the borrower beyond the active-loan check, which is equivalent under the one-copy rule.
+- Any unexpected exception inside a method is caught and reported as invalid_input, with no further state change.
+- The amount in payFine must be a safe integer, so values beyond the safe integer range are rejected as invalid_input.

@@ -1,0 +1,53 @@
+{
+ "project": "library",
+ "spec": "truth",
+ "model": "claude-sonnet-5-5",
+ "effort": "medium",
+ "run": 7,
+ "cli": "2.1.310 (Claude Code)",
+ "started": "2026-10-26T20:55:58.696Z",
+ "finished": "2026-10-26T20:56:23.426Z",
+ "ok": true,
+ "exit": 0,
+ "signal": null,
+ "costUSD": 0.0364108,
+ "durationMs": 23775,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 738,
+  "cache_read_input_tokens": 1648,
+  "output_tokens": 3329,
+  "output_tokens_details": {
+   "thinking_tokens": 977
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 738,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 3329,
+    "cache_read_input_tokens": 1648,
+    "cache_creation_input_tokens": 738,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 738
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "hasCode": true,
+ "loadError": null,
+ "matched": 31,
+ "total": 31
+}

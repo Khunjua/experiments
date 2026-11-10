@@ -1,0 +1,18 @@
+- A call with malformed arguments (non-object, bad ID, bad amount, malformed or impossible date) changes nothing, including the current date and hold expiries.
+- A dated call with a valid date that names an unregistered member or book still sets the current date and processes hold expiries before failing.
+- getMember with a valid date for an unregistered member still sets the current date and processes hold expiries before failing.
+- The current date is unset until the first valid dated call; the first such call sets it with no earlier-date check.
+- Dates after 9999-12-31 cannot be represented. A borrow, renew, or return whose resulting due or pickup date would exceed 9999-12-31 fails and changes nothing.
+- When hold expiry would move a readyUntil past 9999-12-31, readyUntil is clamped to 9999-12-31.
+- Holds are counted against the 5-hold limit across all books, including a ready hold.
+- A hold's position for a book on loan is its index in the queue plus 1, and the book's ready hold (if any) is always at position 1.
+- The ready hold's readyUntil is returned only when the book is set aside (not on loan) and the hold is at index 0; otherwise readyUntil is null.
+- A renewal on the due date is allowed (overdue means strictly after dueDate).
+- Borrowing a set-aside book removes the member's hold; if other holds remain, the book stays in the queue while on loan and the next hold is handled on return.
+- The queue of a book that is on loan keeps its order, and on return the first remaining hold becomes ready with readyUntil = return date + 7.
+- Loans in getMember are listed by borrow order; renewals do not change that order.
+- Holds in getMember are listed by placement order using an internal sequence number.
+- The overdue check at borrow time uses loans whose dueDate is strictly earlier than the borrow date.
+- Owed balance has no upper cap; fines can push it above 1000, which then blocks borrowing.
+- addBook and addMember take no date and do not set or advance the current date.
+- Returning a book never checks the member's owed balance or any other rule beyond the stated requirements.

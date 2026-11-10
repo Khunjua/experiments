@@ -1,0 +1,25 @@
+- Unknown memberId or bookId in any method is refused with { ok: false }.
+- addBook and addMember refuse a duplicate id with { ok: false }.
+- Refusal results contain only ok: false; returnBook also includes fine: 0 on refusal.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- Dates are valid 'YYYY-MM-DD' strings; day arithmetic is done in UTC so there are no daylight-saving effects.
+- Late days are whole calendar days between the due date and the return date; returning on the due date is 0 late days.
+- The fine is 0 for 1 or 2 late days; from 3 late days it is 25 cents per late day, capped at 500 cents per book.
+- Holds do not count toward the 5-book loan limit; only books on loan count.
+- A member owing exactly 1000 cents is refused for borrowing (the threshold is "1000 or more").
+- A member with unpaid fines may still place holds and renew, as long as the other rules allow it.
+- A hold is allowed on a book that is on loan or set aside; a book set aside for someone counts as having a hold for renewal purposes.
+- Renewal is refused whenever the book has any hold line, including a book set aside for a member.
+- Overdue detection for renewal: renewal is refused only when the date is strictly after the due date.
+- A set-aside reservation is expired only when the call date is strictly after readyUntil; readyUntil itself is still valid.
+- Expired reservations are processed lazily at the start of each call using that call's date. Chained expirations (each next reservation also expired) are processed in a loop.
+- When a reservation expires, the member is removed from the line entirely, and everyone behind them moves up one position.
+- When a returned book has a line, readyUntil is set from the actual return date (not the due date), even if the return was late.
+- Borrowing a set-aside book removes the borrower from the line, and the others move up one position.
+- Position in the line is 1-based and is recalculated from the current queue index on each getMember call.
+- readyUntil in getMember is reported only for position 1 when the book is set aside; otherwise it is null.
+- getMember lists holds in the order of book insertion into the library; the order is unspecified by the requirements.
+- payFine accepts only integer cents greater than 0 and no more than the amount owed; non-integer amounts are refused.
+- payFine refuses when the member owes nothing, because any positive amount would exceed the owed total.
+- A returned book's fine is added to the member's owed amount even if the member has other fines outstanding.
+- Calling returnBook for a book the member has on loan always succeeds, even if the member is currently blocked from borrowing.

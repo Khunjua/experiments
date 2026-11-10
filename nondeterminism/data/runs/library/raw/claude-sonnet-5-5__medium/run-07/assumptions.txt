@@ -1,0 +1,21 @@
+- Loan period is 21 days; a due date is borrow date + 21 days.
+- A loan can be renewed at most 2 times. Each renewal sets the new due date to the renewal date + 21 days.
+- Renewal is refused if anyone has a hold on the book, if the loan is already overdue (date after due date), or if the member does not have the book.
+- The fine is 25 cents per full day after the due date. Returning on the due date is free. No grace period beyond that.
+- To avoid being harsh, the fine for a single loan is capped at 1000 cents.
+- Fines are charged at return time and added to the member's owed balance.
+- A member who owes anything (owed > 0) cannot borrow. Holds, renewals and returns are still allowed.
+- Borrowing a book that is already on loan fails, as does borrowing with an unknown member or book, or an invalid date.
+- Holds are only allowed on a book that is currently on loan to someone else. Holding an available book, holding a book you already have, and duplicate holds are all rejected.
+- Hold position is the 1-based place in the book's queue. The member at position 1 is the one the book is set aside for once it is returned.
+- When a held book is returned, it is set aside for the first holder, with readyUntil = return date + 3 days (inclusive last pickup day).
+- While a book is set aside, only the first holder can borrow it. Borrowing removes that hold.
+- If the first holder does not borrow by readyUntil, their hold lapses the next day. The book is then set aside for the next holder, with readyUntil = the day after the lapse + 3 days, and so on. If nobody is left, the book becomes freely available. This expiry is applied lazily on every call, using that call's date.
+- readyUntil is null for all holds except the first holder's hold on a book that is set aside.
+- payFine requires a positive integer amount that does not exceed what is owed. Zero, negative, non-integer or over-payment is rejected with no change.
+- Duplicate addBook or addMember, or a missing id, returns ok: false.
+- Invalid or malformed dates and unknown members or books return ok: false.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] }. For a known member it also includes ok: true, which is extra and ignorable.
+- getMember lists loans in borrow order and holds in the order the books were added.
+- There is no limit on the number of simultaneous loans.
+- Returning a book not borrowed by that member fails.

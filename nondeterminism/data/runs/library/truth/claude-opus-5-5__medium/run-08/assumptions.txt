@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any call with an unknown member or book, or an invalid date string, is refused with { ok: false }; getMember for an unknown member returns { ok: false }.
+- Successful getMember results also include ok: true alongside loans, owed and holds.
+- Dates are counted as whole UTC calendar days; invalid calendar dates (e.g. 2026-02-30) are invalid.
+- A late fine is the number of days late × 25 cents (all late days count once 3+ days late), capped at 500 per book; returning 1–2 days late costs 0.
+- Borrowing is refused if the book is already on loan, even to the same member.
+- The 1000-cent owed limit and the 5-loan limit also apply when picking up a book set aside for the member; if refused, the book stays set aside until readyUntil.
+- Set-aside expiry is evaluated lazily on every call using that call's date: a book is available to its holder through readyUntil inclusive and passes to the next member the day after.
+- When a set-aside passes to the next member, their readyUntil is the previous readyUntil + 3 days, chained repeatedly if several deadlines have already passed.
+- Holds placed while a book is set aside join the end of the line; the member it is set aside for is position 1.
+- A member may place holds regardless of what they owe or how many books they have on loan, and there is no limit on number of holds.
+- A member's hold cannot be cancelled (no method for it); holds end only by borrowing or expiry.
+- Renewal is refused if any hold exists on the book; renewals counter is per loan and resets on a new borrow.
+- A hold readyUntil is reported only for the position-1 member while the book is set aside (not on loan); otherwise null.
+- Payment amounts must be positive integers no greater than owed; non-integer or non-number amounts are refused.
+- Fines accrue only on return; getMember's owed does not include fines on books still out.
+- Out-of-order dates are not checked, since the interface guarantees time order.

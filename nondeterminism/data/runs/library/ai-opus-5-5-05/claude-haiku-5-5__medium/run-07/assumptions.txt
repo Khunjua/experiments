@@ -1,0 +1,12 @@
+- Dated calls validate their inputs (IDs, date format, amount) before the clock step, so an invalid call does not advance the library clock.
+- A dated call that passes input validation advances the clock and runs hold expiry even when it then fails a business rule (for example, unknown member), as §3.4 requires.
+- Dates produced by arithmetic beyond 9999-12-31 are not rejected; they are formatted with more than four year digits.
+- Any non-null object (including arrays) is accepted as the argument container, and extra fields are ignored.
+- Any unexpected internal exception (for example, a throwing getter on the argument) is converted to `{ ok: false, reason }`, so methods never throw.
+- Expiry processing for different set-aside books is independent, so the order in which books are checked does not matter.
+- `getMember` lists loans in creation order; a renewal does not change a loan's place in that order, and a loan created again after a return goes to the end.
+- `getMember` lists holds in placement order; a hold that is removed by borrowing or expiry is no longer listed, and a member has at most one hold per book.
+- `owed` has no upper cap; fines accumulate across returns.
+- `payFine` reports an unknown member before checking whether the amount is an overpayment.
+- A member who is set aside for a book can borrow it on or before `readyUntil`; expiry always runs first, so the date check is effectively always met.
+- A book's hold queue is kept as a list of member IDs; the member's own hold map records that a hold exists, so the same member cannot queue twice for one book.

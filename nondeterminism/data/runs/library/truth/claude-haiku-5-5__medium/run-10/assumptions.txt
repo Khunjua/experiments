@@ -1,0 +1,25 @@
+- Members and books must be added with addMember/addBook; operations naming an unknown member or book return { ok: false }.
+- addBook/addMember of an existing id return { ok: false } and change nothing.
+- Any value is accepted as an id; no type validation is performed beyond existence.
+- Date strings are assumed well-formed 'YYYY-MM-DD'; no validation is performed.
+- A hold line may contain the member set aside for; the set-aside member is always the head of the line (position 1).
+- Set-aside expiry is applied lazily at the start of every dated call, cascading through the line while readyUntil is before the call date.
+- A hold expires only when the call date is after readyUntil (readyUntil itself is still valid).
+- When a set-aside member's hold expires, the next member's readyUntil is the expired readyUntil + 3, even if that date is already past, in which case it also expires in the same sweep.
+- Returning a book with a line and no set-aside member sets the head of the line as set aside until return date + 3.
+- Borrowing a book set aside for you removes you from the line and moves everyone behind you up one place.
+- A member can place a hold on a book that is on loan to someone else even if nobody is in line yet.
+- A member can place a hold while owing money or having 5 loans; only the stated restrictions apply.
+- A member already in the line for a book cannot place a second hold on it, even if that book is set aside for someone else.
+- Holds are refused for a book that is free on the shelf, i.e. not on loan and not set aside.
+- Renewals are allowed for a member who owes money; no debt restriction on renewal is stated.
+- A renewal is refused if the loan is overdue (call date after due date); renewing on the due date is allowed.
+- Renewal is refused whenever any hold exists on the book, including the set-aside hold.
+- Returns are accepted from a member who owes money.
+- Fine is 0 for 0-2 days late; for 3 or more days late it is days late × 25, capped at 500 per returned book.
+- Returning a book not on loan to that member returns { ok: false } with no fine recorded.
+- payFine accepts only integer amounts greater than 0 and not greater than the amount owed.
+- getMember for an unknown member returns an empty result: no loans, owed 0, no holds.
+- getMember's success result has no ok field; it returns only loans, owed and holds.
+- Holds in getMember are listed in no particular order; readyUntil is shown only when the book is set aside for that member.
+- Refusals return { ok: false } without extra fields (no dueDate, fine or position is supplied).

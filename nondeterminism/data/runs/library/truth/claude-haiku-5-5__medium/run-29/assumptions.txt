@@ -1,0 +1,19 @@
+- Unknown memberId or bookId in any method returns { ok: false } (for borrow, returnBook, renew, placeHold, payFine), with fine 0 for returnBook.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] } instead of ok: false, since its return shape has no ok field.
+- addBook and addMember refuse duplicate IDs with { ok: false }.
+- Expired reservations are processed lazily at the start of every call, using that call's date; a reservation has lapsed when the call date is after readyUntil.
+- When several reservations lapse in a row, each next readyUntil is the previous readyUntil + 3, and lapsing continues until a reservation is still valid or the line is empty.
+- The member set aside for a book stays at position 1 in the line until they borrow it, so positions of others count from that member.
+- A member whose reservation lapses is removed from the line and may place a new hold later, which puts them at the end of the line.
+- Placing a hold is allowed on a book that is on loan or set aside for another member, and refused only when the book is free on the shelf.
+- Hold placement is not restricted by the member's outstanding fines or number of loans.
+- Late days are the calendar-day difference between the return date and the due date; the fine is computed on the return date.
+- A return with 3 or more late days charges 25 cents for every late day (including the first two), capped at 500 cents per book.
+- Returning a book sets it aside for the first member in line until return date + 3, even if the return itself was late.
+- Renewal is not refused because of outstanding fines; the renewal limit counts only renewals, not the original loan.
+- Renewal is refused only when the date is after the due date; renewing on the due date is allowed.
+- The 1000-cent borrowing block uses the amount owed at call time, including any fine added by a return earlier in the same timeline.
+- payFine accepts only safe integer amounts greater than 0 and no more than the amount owed; non-integer or non-number amounts are refused.
+- Fines and loan limits are checked before any state changes, so refused calls change nothing.
+- getMember returns loans and holds in insertion order; the requirements do not specify an order.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings; malformed dates are not handled.

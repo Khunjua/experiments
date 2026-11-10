@@ -1,0 +1,8 @@
+- If the date is valid and not earlier than the current date, the clock advances and expiry runs even when other arguments are invalid. If the date itself is invalid or the args object is missing, nothing changes.
+- If date + 21 would go beyond year 9999, borrow and renew fail and change nothing.
+- `addBook` and `addMember` take no date and do not touch the clock.
+- `payFine` with a non-safe-integer or non-positive amount fails, but the clock still advances for a valid date.
+- A set-aside book is one with no loan, a non-empty queue and a non-null readyUntil. Hold expiry applies only to such books.
+- A member who has a loan on a book cannot hold it, but a member with a ready hold can borrow even if the book's other rules block others.
+- `readyUntil` is reported only for position 1 of a book that is not on loan.
+- Failure results carry a `reason` string.

@@ -1,0 +1,17 @@
+- Adding a book or member whose id already exists is refused with { ok: false }.
+- Ids must be strings or numbers; anything else is refused.
+- Invalid or malformed dates are refused with { ok: false }.
+- Unknown member or book in any action is refused with { ok: false }.
+- getMember for an unknown member (or invalid date) returns { ok: false, loans: [], owed: 0, holds: [] }; for a known member it also includes ok: true.
+- Hold expiry (rule 17) is evaluated lazily at every dated call; a hold is dropped when the call date is strictly after readyUntil, and the chain repeats in +3-day steps for as many members as have expired by that date.
+- A book set aside for someone counts as "not free"; members other than the one it is set aside for (including those later in line) cannot borrow it.
+- When a book is set aside for a member, that member stays at position 1 in the line until they borrow it or the set-aside expires.
+- Rule 11 applies to any hold on the book, regardless of who placed it.
+- Late fine is computed on whole days between due date and return date; 1–2 days late is free, 3+ days charges 25 cents for every late day, capped at 500 per book.
+- Owing money does not prevent placing holds, renewing, or returning; only borrowing is blocked at 1000 cents or more.
+- Holds have no per-member limit, and members with 5 loans may still place holds.
+- Payment amounts must be positive integers; non-integer amounts are refused.
+- A member's renewal count resets with each new loan (a fresh borrow starts at 0 renewals).
+- The order of holds in getMember is the order books were added to the library.
+- dueDate and readyUntil are returned as 'YYYY-MM-DD' strings.
+- The reason field is included on refusals for diagnostics only.

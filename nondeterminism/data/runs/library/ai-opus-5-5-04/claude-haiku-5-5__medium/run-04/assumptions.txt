@@ -1,0 +1,16 @@
+- Year 0000 is accepted as a valid year (proleptic Gregorian); years are otherwise checked for real calendar days.
+- Missing or non-object argument objects are treated as invalid input and return a failure result.
+- Extra fields in argument objects are ignored.
+- Any non-empty string is a valid ID, including strings with whitespace; no trimming or normalization is applied.
+- Hold expiry (advance) runs after the shape check and only when date is valid, before member/book existence and business-rule checks, including for calls that later fail.
+- For payFine, the amount check runs after advance; a non-integer or sub-1 amount and an unknown member both return failure.
+- Failure reason strings are chosen by the implementation; callers are told to ignore them.
+- Any unexpected exception inside a method is caught and returned as { ok: false, reason: 'error' }; state is only mutated after all checks pass, so this does not leave partial changes.
+- Hold ordering across books in getMember is by a global hold sequence number assigned when the hold is placed.
+- A set-aside hold is reported in getMember with position 1 and readyUntil only when its book is in the reserved status; waiting entries report readyUntil null.
+- Loan order in getMember is creation order, preserved across renewals and returns.
+- A book's holdQueue first entry is treated as set aside only while the book status is reserved; waiting entries carry null readyFrom and readyUntil.
+- On return to a book with a waiting queue, the first entry is set aside starting on the return date, with readyUntil = return date + 6 days, following section 6.4 literally.
+- Duplicate hold placement by the same member on the same book is rejected via the queue check, which also covers a member set aside for the book.
+- Renewal date and due date comparisons use lexicographic string comparison of valid YYYY-MM-DD dates, which is equivalent to chronological comparison.
+- The hold-count limit (MAX_HOLDS) counts every queue entry for the member across all books, including set-aside entries.

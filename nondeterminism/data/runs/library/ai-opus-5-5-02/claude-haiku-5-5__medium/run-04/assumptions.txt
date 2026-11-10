@@ -1,0 +1,12 @@
+- A call with a valid date advances the latest date and runs expiry even if its IDs are invalid or unknown, because the spec defines a dated call by its date alone.
+- Before any dated call, there is no latest date, so the first valid date is accepted.
+- Any non-object argument, missing field or wrong type is a failure with `{ ok: false }`, and no time processing happens unless the date is valid.
+- Any non-empty string is a valid ID, including strings with spaces.
+- Dates whose year would pass 9999 (for example, from `date + 21`) are formatted with a 5-digit year and are not rejected.
+- `payFine` accepts only JavaScript integer numbers, so numeric strings and non-integers are rejected.
+- `placeHold` on a book on loan to another member is allowed, and the returned position counts the book's current holder as the first place only when the book is set aside, as the spec states.
+- `borrow` by a member whose hold is set aside removes that hold from the member's holds, and the book's queue is left unchanged.
+- Hold-expiry processing is applied book by book, with each book's expiry chain run to completion. The result is the same as any other order.
+- An expired holder is removed from holds without any change to `owed`.
+- The `reason` field is omitted, since the spec allows but does not require it.
+- Loans and holds keep creation and placement order in arrays, so renewals and returns preserve the order of the remaining entries.

@@ -1,0 +1,24 @@
+- Each bookId is a single physical copy.
+- Due date is the borrow date plus 21 days.
+- "A couple of times" means at most 2 renewals per loan.
+- Each renewal adds 21 days to the current due date (not to the renewal date).
+- An overdue loan cannot be renewed; returning it is the only option.
+- Renewal is refused if anyone has a hold on the book, including a hold that is set aside.
+- "Not harsh" means a 1-day grace period: returning 1 day late is free. From 2 days late on, the fine is 25 cents for every day late, counted from the due date.
+- "Not harsh" also means the fine for one loan is capped at 1000 cents ($10).
+- A fine is charged only when the book is returned. Fines that are still building up on books not yet returned are not included in owed.
+- Owing money or having overdue books does not stop a member from borrowing, renewing or placing holds.
+- There is no limit on how many books a member can borrow at once.
+- A hold can only be placed when the book is not available: either it is on loan, or it is set aside for someone else / has a waiting line.
+- A member cannot place a hold on a book they currently have, or hold the same book twice.
+- Holds cannot be cancelled, because the interface has no method for it.
+- When a book is returned and someone is waiting, it is set aside for the first person in line. readyUntil is the return date plus 7 days.
+- If a set-aside book is not picked up by the end of its readyUntil day, that hold is removed. The book is then set aside for the next person, from the following day, for another 7 days. This is checked each time a dated call is made.
+- A set-aside book can only be borrowed by the member it is set aside for. Borrowing it removes their hold.
+- A hold's position counts the set-aside hold as position 1.
+- Paying requires a positive whole number of cents that is no more than what is owed. Overpayments are refused.
+- Adding a bookId or memberId that already exists, or that is not a non-empty string or a finite number, returns ok: false.
+- Unknown members or books, or dates that are not valid 'YYYY-MM-DD' calendar dates, return ok: false.
+- getMember returns { ok: false } for an unknown member. Successful results also include ok: true.
+- Loans and holds in getMember are listed in the order the books were added.
+- addBook and addMember have no date, so they do not trigger the check for expired holds.

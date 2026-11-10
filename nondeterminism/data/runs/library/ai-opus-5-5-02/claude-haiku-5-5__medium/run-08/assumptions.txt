@@ -1,0 +1,17 @@
+- Date arithmetic is allowed to go past 9999-12-31; such dates are formatted with more than four digits.
+- Dated calls with a valid, non-earlier date run expiry processing and update the latest date even when the member or book is missing, or the IDs are invalid, because the time rule is applied before business rules.
+- A call whose argument is not an object, or whose date is not a string, is rejected without any state or time change.
+- Non-string and empty-string IDs are invalid; IDs may contain any other characters.
+- A date string must be a string; non-string values are treated as invalid dates.
+- `amount` must be a JavaScript integer number (Number.isInteger), so non-numeric and non-integer values are rejected.
+- Failure results contain only `{ ok: false }`, with no `reason` field.
+- The `getMember` success result omits `ok` entirely, as the interface specifies.
+- Expiry processing iterates books in insertion order; the spec says the result does not depend on this order.
+- `GRACE_DAYS` (0) is subtracted from days late, so it has no effect at its current value.
+- A member can hold at most one hold per book, since placing a second one is rejected.
+- A waiting hold whose book is on the shelf (a state the rules should prevent) reports position `index + 1`.
+- When a book is set aside and borrowed by its holder, the hold is removed and the loan-count and owed-balance checks still apply.
+- Loans are reported in creation order using an internal sequence number, which is not reset on renewal or re-borrowing.
+- Holds are reported in placement order; expiry and pickup remove holds without reordering the remaining ones.
+- An expired holder gets no fine and is not re-queued, as the spec states; its hold is removed from its holds list.
+- Renewal is allowed on the due date itself (`date <= dueDate`), and a renewal extends the loan to `date + 21` even if that is shorter than the previous remaining period.

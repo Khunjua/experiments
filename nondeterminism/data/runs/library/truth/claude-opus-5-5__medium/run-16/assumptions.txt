@@ -1,0 +1,16 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any action referencing an unknown member or book is refused (ok: false).
+- An invalid or malformed date string makes the call refused.
+- getMember for an unknown member returns { ok: false, loans: [], owed: 0, holds: [] } instead of throwing.
+- Days late = return date minus due date; when 3 or more days late, all late days (including the first two) are charged at 25 cents, capped at 500.
+- A member keeps their place in the hold line while the book is set aside for them (they are position 1) until they borrow it or the set-aside expires.
+- Set-aside expiry is evaluated lazily at each dated call; a set-aside expires once the call date is after readyUntil, and successive expiries chain from the previous readyUntil + 3 even if several have passed.
+- When a set-aside expires and the next member is in line, it is set aside for them regardless of whether they could currently borrow (e.g., loan limit or debt).
+- Borrow checks are not affected by the member's hold status except that a set-aside book may only be borrowed by the member it is set aside for.
+- Owing money does not prevent renewing, placing holds, or returning books; only borrowing is blocked at 1000+ cents.
+- Renewal requires the loan to belong to the calling member; rule 11 counts any hold on the book (including set-aside members, though that cannot co-exist with a loan).
+- Payments must be positive integers; non-integer amounts are refused.
+- Placing a hold has no limit on the number of holds per member and is not blocked by owed money or loan count.
+- A member who has the book set aside for them cannot place a second hold on it (already in line).
+- Refused calls include reason and best-effort values (dueDate/position/owed may be null or current value; fine is 0).
+- Date ordering is trusted; no check that a call's date is not earlier than the previous call.

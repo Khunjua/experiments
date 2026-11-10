@@ -1,0 +1,22 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId fails.
+- IDs must be non-empty strings or finite numbers; invalid dates (bad format or non-existent day) make a call fail.
+- Loan period is 21 days: dueDate = borrow date + 21.
+- "A couple of times" means at most 2 renewals per loan.
+- Renewal fails if anyone has a hold on the book, if the loan is already overdue, or if the member owes 500 cents or more.
+- A renewal sets the new due date to renewal date + 21 days.
+- A book is late if returned after its due date; returning on the due date is free.
+- Fine is 25 cents per day late, capped at 500 cents per loan (the "not harsh" rule). There is no grace period.
+- A fine is added to the member's balance when the book is returned. Nothing accrues while a book is still out.
+- Members owing 500 cents or more cannot borrow or renew. They can still place holds, return books and pay.
+- A member may have at most 5 books on loan at once.
+- A hold can only be placed on a book that is on loan or set aside for someone. It fails if the book is free on the shelf, if the member currently has it, or if the member already holds it.
+- There is no limit on the number of holds per member.
+- Holds form a first-come-first-served queue per book. Position 1 is the next in line, including when the book is set aside for that member.
+- When a book with holds is returned, it is set aside for the first in line. readyUntil = return date + 7 days, inclusive.
+- If a set-aside book is not borrowed by readyUntil, that hold is removed silently, with no penalty. The next in line gets readyUntil = previous readyUntil + 7, and this repeats as needed. If no one is left, the book becomes available.
+- Hold expiry is evaluated lazily using the date of each incoming call.
+- While a book is set aside, only the member it is set aside for can borrow it. Borrowing it removes their hold.
+- readyUntil is null for holds whose book is still on loan or that are not first in line.
+- payFine requires a positive integer amount no greater than what is owed. Overpayment fails.
+- getMember for an unknown member returns { ok: false }. Successful getMember responses also include ok: true.
+- Loans and holds in getMember are listed in the order they were created.

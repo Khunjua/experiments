@@ -1,0 +1,18 @@
+- Adding a book or member whose id already exists is refused; null/undefined ids are refused.
+- Any action involving an unknown member or unknown book is refused with { ok: false }.
+- Set-aside expiry is evaluated lazily at the start of every dated call; a set-aside expires when the call date is strictly after readyUntil, cascading through the line (each next readyUntil = previous readyUntil + 3) as many times as needed.
+- Late days = return date minus due date; 1–2 late days are free, 3+ late days charge 25 cents per late day (all days, including the first two), capped at 500.
+- The fine is added to owed even if this pushes owed past 1000; returning is never blocked by debt.
+- When a book is returned and there are holds, it is set aside for position 1 until return date + 3 days; otherwise it becomes free.
+- A member at position 2 or later cannot borrow a book set aside for someone else; only the set-aside member can.
+- A member whose hold is set aside but who cannot borrow (limit/debt) keeps the hold until it expires normally.
+- Renewal is refused if any hold exists on the book; holds are counted from the line (set-aside cannot co-exist with a loan).
+- Renewal counter is per loan and resets on a new borrow.
+- Placing a hold is allowed regardless of the member's debt or number of loans.
+- A member who has the book set aside for them already holds it, so another hold by them is refused as a duplicate.
+- Hold position is the 1-based place in the line at the time of placing.
+- payFine requires a positive integer amount not exceeding owed; non-integer or non-number amounts are refused.
+- payFine and getMember process hold expiry if a valid date is given; other methods with missing/invalid dates are refused.
+- getMember for an unknown member returns { ok: false } with empty loans, owed 0, and empty holds instead of throwing.
+- getMember includes ok: true in addition to the specified fields; holds are listed in no particular order.
+- Date arithmetic uses UTC calendar days.

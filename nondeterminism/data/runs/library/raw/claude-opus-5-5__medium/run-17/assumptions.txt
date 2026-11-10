@@ -1,0 +1,24 @@
+- Each bookId is a single physical copy; adding an existing bookId or memberId returns ok:false.
+- IDs must be non-empty strings or finite numbers; invalid or impossible dates return ok:false.
+- Loan period is 21 days; dueDate = borrow date + 21 days.
+- A loan can be renewed at most 2 times.
+- Renewal sets the new due date to renewal date + 21 days (not old due date + 21).
+- Renewal is refused if the book is already overdue on the renewal date.
+- Renewal is refused if anyone has a hold on the book (including a member who already has it set aside, which can't happen while on loan).
+- Fines are charged only at return, based on days late = return date − due date.
+- "Not harsh": a 2-day grace period (no fine if returned up to 2 days late); beyond that the full days late are charged at 25 cents/day.
+- "Not harsh": fine per loan is capped at 1000 cents ($10).
+- Borrowing is blocked when the member owes 1000 cents or more.
+- Members may have at most 5 books on loan at once.
+- Having overdue books does not by itself block borrowing.
+- A hold may only be placed on a book that is not available on the shelf (on loan, or set aside / with a waiting line); holding an available book returns ok:false.
+- A member cannot hold a book they currently have on loan, nor hold the same book twice. No limit on number of holds.
+- Holds form a FIFO queue; position 1 = next in line.
+- When a book with holds is returned, it is set aside for the first member in line; readyUntil = return date + 7 days.
+- If the set-aside book is not borrowed by end of readyUntil, that hold is dropped and the book is set aside for the next member, whose readyUntil = previous readyUntil + 7 days; this is evaluated lazily on each call by date.
+- Only the member it is set aside for may borrow a set-aside book; borrowing it removes their hold. A book with a waiting line but not set aside cannot be borrowed by anyone.
+- Members cannot cancel holds (no method exists).
+- payFine requires a positive integer amount not exceeding the amount owed; overpayment returns ok:false.
+- getMember for an unknown member or invalid date returns { ok: false }.
+- getMember lists loans and holds in the order books were added to the library.
+- Failure responses include a reason string.

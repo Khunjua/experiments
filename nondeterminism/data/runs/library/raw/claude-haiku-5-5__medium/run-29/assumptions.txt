@@ -1,0 +1,26 @@
+- Loan period is 21 days from the borrow date.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- A loan can be renewed at most 2 times.
+- A renewal is refused if anyone is holding the book, if the loan is already overdue, or if the member does not hold that loan.
+- A borrow is refused if the book is on loan or is set aside for a different member.
+- There is no limit on how many books a member may borrow.
+- A hold is allowed only when the book is on loan or already set aside; a hold on a book sitting free on the shelf is refused.
+- A member cannot place a second hold on a book they already hold, and cannot hold a book they currently have on loan.
+- When a book is returned to a waiting queue, the first in line gets a pickup window of 3 calendar days, counting the return day.
+- If a pickup window expires unclaimed, the next in line gets a 3-day window starting the day after the previous window ended; if nobody is waiting, the book goes back to the shelf.
+- Pickup windows are checked lazily on each call using that call's date.
+- Fines: the first 2 days late are free; after that each late day costs 25 cents.
+- Fines are capped at 500 cents per loan.
+- A return's fine is the fine accrued on that loan and not yet charged; it is added to the member's balance.
+- Fines already charged by an earlier payment are not charged again on return.
+- A member's owed amount includes fines accrued so far on loans that are currently overdue.
+- A payment must be a positive integer and cannot exceed the amount owed as of that date; otherwise it is refused.
+- Before a payment is applied, accrued fines are added to the member's balance as of the payment date.
+- Overdue loans block renewal only; they do not block borrowing or placing holds.
+- Returning a book requires that the returning member is the one who holds the loan.
+- Ids can be any value usable as a Map key; duplicate addBook or addMember calls return { ok: false }.
+- Unknown member or book ids return { ok: false } from actions.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] } instead of an ok flag.
+- Loans and holds in getMember are listed in the order the books were added to the library.
+- A hold's position counts only the members still waiting ahead of and including that member, with 1 meaning next.
+- Dates are handled as UTC calendar days; the date strings are assumed to be valid 'YYYY-MM-DD' values.

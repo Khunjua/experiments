@@ -1,0 +1,21 @@
+- Argument order of checks: a non-object argument returns {ok:false}; if date is valid, advance runs even if IDs are malformed or the member/book is unknown, since only an invalid date suppresses advance.
+- Any unexpected exception (for example a throwing getter) is caught and returned as {ok:false, reason:'error'}, with the state left unchanged as far as the operation's ordering allows.
+- Extra fields in argument objects are ignored.
+- Whitespace-only strings are non-empty and therefore valid IDs.
+- Dates are validated with a strict regex and round-trip check; year 0000 is accepted as a valid proleptic Gregorian year.
+- Computed dates past 9999-12-31 are not guarded and would be formatted with a five-digit year.
+- A hold expires only when readyUntil is strictly less than the call date; on readyUntil itself it is still pickable.
+- During cascading expiry, the next member's pickup window starts the day after the expired window ends, and the cascade continues within the same advance call if that window is also already past.
+- A waiting queue entry has no readyFrom/readyUntil; only the first entry of a reserved book carries them.
+- Borrowing a reserved book as its set-aside member removes that hold and leaves the other waiting entries as waiting, with their order unchanged.
+- A failed pickup (rules 6–8) leaves the hold set aside, as the requirements state.
+- A returned book is set aside for the queue head even if that member currently owes at or above the block threshold or has an overdue loan.
+- The MAX_HOLDS count includes all of a member's holds across all books, including set-aside ones.
+- placeHold's position is the queue length after appending the new entry.
+- Hold ordering for getMember uses a global placement sequence number, so holds are listed oldest placed first across all books.
+- Loan ordering for getMember uses insertion order into the member's loan list, which is creation order.
+- payFine checks the member before validating the amount; amounts that are non-integers, zero, negative or strings are all rejected.
+- Renewal is refused when the call date is after the due date; renewal on the due date is allowed.
+- Return of a loan that has no matching member loan is rejected even if the book is loaned to someone else.
+- Each library holds its own Maps and counters in a closure, so separate libraries never share state.
+- No validation is done on whether addBook or addMember should advance time; they take no date and do not advance.

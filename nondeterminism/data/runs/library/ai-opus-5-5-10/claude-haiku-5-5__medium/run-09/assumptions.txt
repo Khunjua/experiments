@@ -1,0 +1,20 @@
+- Failure reason strings are short English descriptions; their exact wording is not specified.
+- A null, undefined or non-object argument is treated as having no fields, so the call fails.
+- Any unexpected exception inside a method is caught and returned as `{ ok: false, reason }`, so no method throws.
+- IDs are accepted as any non-empty string, including whitespace and any characters; no other format rule is applied.
+- Dates use the proleptic Gregorian calendar, so year 0000 is valid and is treated as a leap year.
+- Date arithmetic is done with UTC day numbers, with the year set via setUTCFullYear to avoid the two-digit-year mapping of Date.UTC.
+- Results that go past 9999-12-31 are not guarded; such dates are formatted with more than four year digits.
+- For payFine, the amount type check runs before the clock check, so a call with a bad amount does not advance the clock.
+- For payFine, `amount` must be a JavaScript integer (Number.isInteger); no further upper bound is applied.
+- Time processing runs for every accepted date-bearing call, including getMember and payFine, before any member or book existence check.
+- Overdue loans for the borrow check are judged against the call's date after time processing.
+- Returning a book with a non-empty queue sets it aside for the first queued member with readyUntil = return date + 7.
+- A fine is added to `owed` even if that pushes `owed` above 1000 cents.
+- A hold entry is identified by a global increasing sequence number, and getMember sorts holds across books by that number.
+- Expired holds are removed for every book on each accepted call; the order in which books are processed does not affect the result.
+- getMember returns a fresh array of fresh objects for loans and holds, so callers cannot change library state.
+- `readyUntil` in getMember is only non-null for the member at position 1 of a book that is currently set aside.
+- A member may hold the same book only once; a second hold attempt fails.
+- A returned loan is removed from the member's loan list and the loan order of the remaining loans is preserved.
+- Renewal is refused when the book is no longer on loan to that member, even if a loan record with that bookId exists.

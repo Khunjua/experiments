@@ -1,0 +1,751 @@
+{
+ "loadError": null,
+ "scenarios": [
+  {
+   "id": "D1-a",
+   "decision": "D1",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "dueDate": "2026-03-23"
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "dueDate": "2026-03-23"
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D2-a",
+   "decision": "D2",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D2-b",
+   "decision": "D2",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D3-a",
+   "decision": "D3",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D3-b",
+   "decision": "D3",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D4-a",
+   "decision": "D4",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D5-a",
+   "decision": "D5",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "fine": 0
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "fine": 0
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D5-b",
+   "decision": "D5",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "fine": 175
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "fine": 250
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D6-a",
+   "decision": "D6",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "fine": 0
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "fine": 0
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D6-b",
+   "decision": "D6",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "fine": 0
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "fine": 75
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D7-a",
+   "decision": "D7",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "fine": 500
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "fine": 500
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D8-a",
+   "decision": "D8",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D8-b",
+   "decision": "D8",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D9-a",
+   "decision": "D9",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "dueDate": "2026-04-02"
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "dueDate": "2026-04-13"
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D10-a",
+   "decision": "D10",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "ok": true
+    },
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D11-a",
+   "decision": "D11",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D12-a",
+   "decision": "D12",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D12-b",
+   "decision": "D12",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D13-a",
+   "decision": "D13",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D13-b",
+   "decision": "D13",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false,
+     "position": null
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "position": 2
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D14-a",
+   "decision": "D14",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D14-b",
+   "decision": "D14",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D15-a",
+   "decision": "D15",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true,
+     "position": 1
+    },
+    {
+     "ok": true,
+     "position": 2
+    }
+   ],
+   "expected": [
+    {
+     "ok": true,
+     "position": 1
+    },
+    {
+     "ok": true,
+     "position": 2
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D16-a",
+   "decision": "D16",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": "2026-03-14"
+      }
+     ]
+    },
+    {
+     "ok": true
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": "2026-03-10"
+      }
+     ]
+    },
+    {
+     "ok": true
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D17-a",
+   "decision": "D17",
+   "indifferent": false,
+   "obs": [
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": "2026-03-14"
+      }
+     ]
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 2,
+       "readyUntil": null
+      }
+     ]
+    },
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "holds": []
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": "2026-03-13"
+      }
+     ]
+    },
+    {
+     "ok": true
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D17-b",
+   "decision": "D17",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    }
+   ],
+   "match": false
+  },
+  {
+   "id": "D18-a",
+   "decision": "D18",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": null
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    },
+    {
+     "holds": [
+      {
+       "bookId": "b1",
+       "position": 1,
+       "readyUntil": null
+      }
+     ]
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D19-a",
+   "decision": "D19",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": true
+    }
+   ],
+   "expected": [
+    {
+     "ok": true
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D19-b",
+   "decision": "D19",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D19-c",
+   "decision": "D19",
+   "indifferent": false,
+   "obs": [
+    {
+     "ok": false
+    }
+   ],
+   "expected": [
+    {
+     "ok": false
+    }
+   ],
+   "match": true
+  },
+  {
+   "id": "D20-a",
+   "decision": "D20",
+   "indifferent": true,
+   "obs": [
+    {
+     "loans": [
+      {
+       "bookId": "b1",
+       "dueDate": "2026-03-23"
+      },
+      {
+       "bookId": "b2",
+       "dueDate": "2026-03-23"
+      },
+      {
+       "bookId": "b3",
+       "dueDate": "2026-03-23"
+      }
+     ]
+    }
+   ],
+   "expected": [
+    {
+     "loans": [
+      {
+       "bookId": "b1",
+       "dueDate": "2026-03-23"
+      },
+      {
+       "bookId": "b2",
+       "dueDate": "2026-03-23"
+      },
+      {
+       "bookId": "b3",
+       "dueDate": "2026-03-23"
+      }
+     ]
+    }
+   ],
+   "match": true
+  }
+ ]
+}

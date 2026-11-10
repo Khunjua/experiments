@@ -1,0 +1,14 @@
+- Years 0000 to 9999 are accepted as proleptic Gregorian; a due or pickup date that would pass 9999-12-31 is not supported and is not specified by the requirements.
+- Validation failures (bad arguments, bad date, or a date before the clock) change nothing, including the clock. Business-rule failures still advance the clock and process expirations, as §3.5 requires.
+- getMember for an unknown member still advances the clock and processes expirations before returning the failure.
+- The amount rule for payFine is taken from §6.7 (the reference in §3.5 says §6.6, which describes placeHold).
+- A borrow by the member a book is set aside for removes that hold and leaves the book on loan. The next waiting hold gets no readyUntil until the book is returned.
+- An expired pickup hold removes the member's hold entirely; no notice or other state is kept.
+- A renewal is allowed on the due date itself; it is refused only when the date is later than the due date.
+- Returning a book is always allowed, regardless of the member's debt.
+- placeHold is allowed on a book that is on loan to someone else, including when its queue is empty.
+- getMember reports position as the live 1-based index in the book's queue, and orders holds by placement order.
+- Ids are any non-empty string, including whitespace-only strings; extra fields on arguments are ignored.
+- Returned loan and hold objects are fresh copies, so callers cannot change library state.
+- Expired-hold processing order across books does not affect results, since books are independent.
+- The safety wrapper returns a failure for any unexpected exception; the requirements do not cover this case and none is expected.

@@ -1,0 +1,16 @@
+- Unknown member or book ids are refused; duplicate addBook/addMember calls are refused.
+- Lapsed set-asides are applied lazily at the start of every dated call, using the date passed in that call.
+- A set-aside is valid through readyUntil inclusive; it lapses on the day after readyUntil.
+- When a set-aside lapses, the lapsed member is removed from the line and may join the line again later at the back.
+- The member set aside for a book keeps their place at position 1 in the line (and shows in getMember holds) until they borrow it.
+- A member with 1000 or more cents owed cannot borrow, even a book set aside for them.
+- Renewal is not blocked by fines owed or by the number of loans the member has.
+- Placing a hold is not limited in count and is not blocked by fines owed.
+- Lateness is counted in whole calendar days; a fine is charged only when lateness is 3 days or more, on all late days, capped at 500 cents per return.
+- Fines are added to the amount owed at return time with no upper limit on the owed balance.
+- Renewal is refused only when the date is after the due date; renewal on the due date is allowed.
+- Returning a book with holds sets it aside for the first member in line from the return date, even if that member is the one returning it (they cannot hold a book they have on loan, so this case does not arise).
+- payFine refuses non-integer amounts; a refused payFine returns the current owed value alongside ok: false.
+- Refused borrow, returnBook, renew, placeHold and getMember-free refusals return only { ok: false } (plus fine: 0 for returnBook).
+- getMember for an unknown member returns an empty loans list, owed 0 and an empty holds list.
+- Book and member ids are compared as given (strict equality); no further validation of id types is done.

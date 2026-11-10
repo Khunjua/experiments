@@ -1,0 +1,17 @@
+- Borrow, return, renew, hold, pay and getMember for an unknown memberId or bookId return { ok: false } (or an empty result for getMember); unknown ids are not auto-created.
+- addBook and addMember return { ok: false } when the id already exists.
+- Set-aside holds expire lazily: every method first applies expiries up to the date it is given, so a hold expires on the first call dated after readyUntil.
+- When a set-aside hold expires, the next member's readyUntil is the old readyUntil + 3, even if that date has already passed, so the cascade continues until a member is set aside validly or the line is empty.
+- A member whose hold expired is removed from the line and is not re-queued at the end.
+- The set-aside member stays at position 1 in the line; position numbers count everyone in the line including the set-aside member.
+- A member may place a hold on a book that is set aside for another member, joining the end of the line.
+- A member who already holds a place in the line cannot hold the same book again, even if they are the set-aside member.
+- Fine is days late times 25 cents for 3 or more days late, with no fine for 1 or 2 days late; the cap of 500 applies to the single return.
+- The fine is computed and added to the owed amount only at return; overdue loans accrue nothing until returned.
+- Returning a book on time or late sets it aside for the first member in line regardless of how late the return is.
+- The borrow limit of 5 counts current loans only; holds do not count.
+- A member with 1000 cents or more owed is blocked only from borrowing, not from holding, renewing or returning.
+- A renewal is refused whenever the line for the book is non-empty, including when only a set-aside member is waiting.
+- payFine refuses non-integer amounts, zero, negative amounts, and amounts greater than the amount owed.
+- getMember returns loans and holds in no particular order and reports readyUntil as null for holds that are not set aside for that member.
+- Dates are assumed to be valid 'YYYY-MM-DD' strings in non-decreasing order, as the requirements state.

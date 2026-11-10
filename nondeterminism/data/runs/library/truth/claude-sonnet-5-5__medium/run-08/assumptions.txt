@@ -1,0 +1,13 @@
+- Adding a book or member with an id that already exists is refused; null or undefined ids are refused too.
+- Borrow, return, renew, hold, pay and unknown-id calls for unknown members or books are refused.
+- Invalid date strings are refused. `getMember` for an unknown member returns `{ ok: false }`.
+- Set-aside expiry is applied lazily at the start of every call that has a date. A set-aside is expired when its `readyUntil` is strictly before the call date, so `readyUntil` itself is still valid.
+- Several expiries can cascade in one step. Each next member gets the previous `readyUntil` + 3 days, even if that date has also passed.
+- A member whose set-aside book is waiting stays at position 1 in the hold line until they borrow it or it expires.
+- A set-aside book can only be borrowed by the member it is set aside for. The member limits and the fine limit still apply to them, and if those block the borrow, the set-aside stays.
+- Holds can be placed by members who owe money or who are at the loan limit.
+- The renewal count is per loan and resets on a new loan.
+- The late fine is 25 × days late when days late is 3 or more, capped at 500, and 0 otherwise.
+- Fines are added to the amount owed at return time.
+- Payment amounts must be integers, greater than 0 and at most the amount owed.
+- A failed call changes nothing except lazy hold expiry, which depends only on the date.

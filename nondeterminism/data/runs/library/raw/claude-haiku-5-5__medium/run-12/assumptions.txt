@@ -1,0 +1,21 @@
+- Loan period is 21 days; the due date is the borrow date plus 21 days.
+- A renewal is allowed only if the loan is not overdue (the renewal date is on or before the due date), the loan has fewer than 2 renewals, and nobody is waiting for the book.
+- A renewal sets the new due date to the renewal date plus 21 days.
+- A member can borrow a book only if it is not on loan and, if others are waiting, the member is the first in line and has been set aside the book.
+- A member may hold at most 5 books and borrow at most 5 books at once; going over returns ok: false.
+- Borrowing is not blocked while the member owes fines.
+- A hold can be placed only on a book that is on loan or set aside for someone else; a free book cannot be held.
+- A member cannot hold a book they already have on loan or already hold.
+- When a book is returned and members are waiting, the first in line is set aside with a pickup window of 7 days starting on the return date (readyUntil is the return date plus 6 days).
+- If a set-aside member does not pick up by readyUntil, the hold is dropped and the book passes to the next in line, whose 7-day window starts the day after the previous window ended; this repeats as needed.
+- Late fines are assessed only when a book is returned; getMember's owed value does not include fines still accruing on overdue loans.
+- The fine is 25 cents per day late after a 3-day grace period (a return on the due date plus 3 days or earlier is free); each fine is capped at 500 cents.
+- Returns are accepted even when overdue, and fines are added to the member's balance.
+- A payment must be a positive integer no greater than the amount owed; overpayment is rejected.
+- Returning a book is allowed only by the member who has it on loan.
+- Renewal, borrowing, and holds are rejected for unknown members or books, and for invalid dates.
+- Member and book IDs must be non-empty strings, and duplicate IDs are rejected.
+- getMember for an unknown member or an invalid date returns empty loans and holds with owed 0, rather than ok: false, because the interface defines no failure shape for that method.
+- Date strings are validated as real calendar dates in YYYY-MM-DD form; invalid strings such as 2026-02-30 are rejected.
+- Holds in getMember are listed in the order the books were added to the library.
+- The library does not check that calls are in time order; it relies on the stated guarantee.

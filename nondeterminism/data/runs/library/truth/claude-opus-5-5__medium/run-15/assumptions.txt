@@ -1,0 +1,17 @@
+- Dates are counted in whole calendar days using UTC; malformed or impossible date strings are refused with { ok: false }.
+- Unknown member or book ids are refused with { ok: false }; adding a duplicate or missing id is refused.
+- "N days late" means return date minus due date in days. Returning 1–2 days late is free. From 3 days late the fine is 25 × days late, capped at 500.
+- The fine is added to the amount owed even if that takes the member to 1000 or more; owing money only blocks borrowing, not returns, renewals, holds or payments.
+- The member a book is set aside for stays in the hold line at position 1, with readyUntil set, until they borrow it or it expires.
+- Expiry of set-aside books is checked lazily at the start of every dated call, across all books, using that call's date. It is applied repeatedly, each time adding 3 days to the previous readyUntil, until the current set-aside is still valid or the line is empty.
+- A book is no longer set aside once the date is strictly after readyUntil; borrowing on readyUntil itself is allowed.
+- When a returned book has holds, it is set aside for position 1 starting on the return date, readyUntil = return date + 3 days.
+- A member who already has a hold on a book cannot place a second hold, including when the book is set aside for them.
+- A book that is free on the shelf with no holds can be borrowed by anyone; a book on the shelf can never have holds without being set aside.
+- The renewal count belongs to a loan and resets when the book is borrowed again.
+- Renewing is refused if anyone at all (including someone the book is set aside for) is in the hold line; the borrowing member cannot hold their own loaned book.
+- Renewing is refused only when the renewal date is strictly after the current due date.
+- payFine requires a positive integer amount not greater than what is owed; paying when nothing is owed is refused.
+- getMember also returns ok: true. For an unknown member it returns ok: false with empty loans, owed 0 and empty holds. The date argument is optional; without it no expiry processing happens.
+- getMember lists holds in no guaranteed order, as with loans.
+- Positions are 1-based indexes in each book's hold line, and are recalculated as holds ahead in the line are removed.

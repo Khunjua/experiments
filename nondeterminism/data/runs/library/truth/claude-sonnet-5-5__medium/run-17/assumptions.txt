@@ -1,0 +1,13 @@
+- Unknown members or books make any action return { ok: false }; getMember for an unknown member returns empty loans and holds with owed 0.
+- Duplicate addBook or addMember is refused.
+- Hold expiry is applied lazily at the start of every dated call. A set-aside hold expires when the call date is after readyUntil, so readyUntil itself is still valid.
+- If the next member's extended window (old readyUntil + 3) has already passed, that hold is dropped too, in a chain.
+- A member whose book is set aside for them stays in the holds list at position 1 until they borrow it or it expires.
+- A member with the book set aside for them still needs to pass the borrow checks (fewer than 5 loans, owes less than 1000), otherwise the borrow is refused.
+- Other members can place a hold on a book that is set aside for someone else. They join the end of the line.
+- A member who is set aside a book cannot place a second hold on it (duplicate rule).
+- Fines are added to the amount owed when the book is returned, and the fine is 25 × days late for 3 or more days late, capped at 500.
+- Renewal refuses when the book has any hold at all.
+- payFine requires an integer amount, greater than 0 and no more than the amount owed.
+- Failed calls change nothing, apart from the date-driven hold expiry, which would happen anyway.
+- The loan cap of 5 counts current loans, including overdue ones.

@@ -1,0 +1,25 @@
+- Loan period is 21 days counted from the borrow date; the due date is borrow date + 21.
+- A loan can be renewed at most 2 times, only on or before its due date; the new due date is renewal date + 21.
+- Renewal is refused whenever any hold is queued on the book, including a hold already set aside.
+- Grace period is 3 days: returns up to 3 days after the due date incur no fine; beyond that, 25 cents per day for each day past the grace period.
+- Fine per loan is capped at 1000 cents.
+- Fine is calculated on the return date against the loan's current due date (after any renewals).
+- Fines are added to the member's balance and are not paid at return.
+- Borrowing and placing holds are blocked while the member owes 500 cents or more; returns, renewals and payments are not blocked by this.
+- Overdue loans do not block borrowing; only money owed does.
+- Each member may hold at most 5 books at once and have at most 5 loans at once.
+- A hold is allowed only when the book is on loan to someone else or already set aside for someone else; a book on the shelf cannot be held.
+- A member cannot hold a book they currently have on loan or already hold.
+- When a returned book has a waiting line, the first person in line is set aside for them from the return date, with a pickup window of 3 days (return date through return date + 2).
+- Only the member a book is set aside for can borrow it during the window; other borrowers are refused.
+- If a set-aside window expires unclaimed, that hold is removed and the next person in line gets a 3-day window starting the day after the expired window ended; if nobody is waiting, the book returns to the shelf.
+- Expired set-asides are processed lazily at the start of every call, using that call's date.
+- Hold position is the place in the queue (1 = next); holds are never cancelled or reordered, and no cancel method exists.
+- The member set aside for a book keeps position 1 and shows a readyUntil date; all other holds show readyUntil null.
+- Payments must be positive integers no greater than the amount owed; overpayments are refused and nothing changes.
+- Duplicate addBook/addMember calls, empty or non-string ids, and unknown members or books are refused with ok: false.
+- getMember for an unknown member returns { loans: [], owed: 0, holds: [] }.
+- Returning a book not on loan to that member is refused with fine 0.
+- Date arithmetic is done in UTC on whole days; no time zones or time of day are involved.
+- No damage or lost-book fees are charged, and loans are not marked lost.
+- Holds are listed in the order the member placed them.

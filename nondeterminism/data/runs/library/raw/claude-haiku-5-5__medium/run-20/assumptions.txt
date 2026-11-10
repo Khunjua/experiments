@@ -1,0 +1,26 @@
+- Loan period is 21 days; due date is borrow date plus 21 days.
+- A renewal gives 21 days counted from the renewal date, not from the old due date.
+- Each loan can be renewed at most 2 times.
+- A renewal is refused if the loan is already overdue or if anyone is waiting on the book.
+- Late returns get a 3-day grace period; returns more than 3 days late are charged 25 cents for each day beyond the grace period.
+- A single loan's fine is capped at 1000 cents.
+- Fines are charged only when the book is returned; unreturned overdue loans do not add to owed.
+- A member may have at most 5 books on loan at once.
+- A member with any unpaid fines (owed > 0) cannot borrow; they can still renew, hold, and pay.
+- A member with an overdue loan cannot borrow.
+- A member cannot borrow a book they already have on loan.
+- A hold can be placed only when the book is on loan or set aside; a book free on the shelf cannot be held.
+- A member cannot hold a book they are currently borrowing or a book they are already queued for.
+- There is no limit on how many holds a member can have.
+- The hold queue is first-in, first-out; a set-aside member stays at position 1 until they borrow the book or the hold lapses.
+- When a book is returned with holds waiting, it is set aside for the first person in line with a pickup window ending 2 days after the return date (3 days inclusive).
+- Only the member the book is set aside for can borrow it during that window.
+- If a set-aside hold lapses, the next person in line is set aside the day after the lapse, with a 3-day pickup window; this repeats if that person also lapses, and the book returns to the shelf when the queue is empty.
+- Hold lapses are processed lazily at the start of each call using the call's date, which gives the same result as processing them daily.
+- There is no method to cancel a hold; a hold ends only when the member borrows the book or the hold lapses.
+- Ids must be non-empty strings; invalid, duplicate, or unknown ids return ok false.
+- getMember for an unknown member returns empty loans, owed 0, and empty holds.
+- payFine accepts only positive integer amounts no greater than the amount owed, so partial payments are allowed and overpayment is refused.
+- A return by a member who does not have that book on loan returns ok false with fine 0.
+- Failed calls include an extra field (fine: 0 or owed) so the response shape stays consistent.
+- Dates are parsed as UTC midnight and assumed to be valid 'YYYY-MM-DD' strings.
